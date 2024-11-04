@@ -204,7 +204,7 @@
         "properties": [
           {
             "key": "delta.lastCommitTimestamp",
-            "value": "1664444422000"
+            "value": "\"1664444422000\""
           }
         ]
       }
@@ -286,59 +286,59 @@
         "properties": [
           {
             "key": "view.catalogAndNamespace.numParts",
-            "value": "2"
+            "value": "\"2\""
           },
           {
             "key": "view.sqlConfig.spark.sql.hive.convertCTAS",
-            "value": "true"
+            "value": "\"true\""
           },
           {
             "key": "view.query.out.col.0",
-            "value": "key"
+            "value": "\"key\""
           },
           {
             "key": "view.sqlConfig.spark.sql.parquet.compression.codec",
-            "value": "snappy"
+            "value": "\"snappy\""
           },
           {
             "key": "view.query.out.numCols",
-            "value": "3"
+            "value": "\"3\""
           },
           {
             "key": "view.referredTempViewNames",
-            "value": "[]"
+            "value": "\"[]\""
           },
           {
             "key": "view.query.out.col.1",
-            "value": "values"
+            "value": "\"values\""
           },
           {
             "key": "view.sqlConfig.spark.sql.streaming.stopTimeout",
-            "value": "15s"
+            "value": "\"15s\""
           },
           {
             "key": "view.catalogAndNamespace.part.0",
-            "value": "catalog"
+            "value": "\"catalog\""
           },
           {
             "key": "view.sqlConfig.spark.sql.sources.commitProtocolClass",
-            "value": "com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol"
+            "value": "\"com.databricks.sql.transaction.directory.DirectoryAtomicCommitProtocol\""
           },
           {
             "key": "view.sqlConfig.spark.sql.sources.default",
-            "value": "delta"
+            "value": "\"delta\""
           },
           {
             "key": "view.sqlConfig.spark.sql.legacy.createHiveTableByDefault",
-            "value": "false"
+            "value": "\"false\""
           },
           {
             "key": "view.query.out.col.2",
-            "value": "nested_values"
+            "value": "\"nested_values\""
           },
           {
             "key": "view.catalogAndNamespace.part.1",
-            "value": "default"
+            "value": "\"default\""
           }
         ]
       }

@@ -11,6 +11,7 @@ from metaphor.common.utils import (
     is_email,
     must_set_at_least_one,
     must_set_exactly_one,
+    non_empty_str,
     removesuffix,
     safe_float,
     safe_int,
@@ -143,6 +144,13 @@ def test_safe_str():
     assert safe_str(None) is None
     assert safe_str("string") == "string"
     assert safe_str(100) == "100"
+
+
+def test_non_empty_str():
+    assert non_empty_str(None) is None
+    assert non_empty_str("") is None
+    assert non_empty_str("string") == "string"
+    assert non_empty_str(100) == "100"
 
 
 def test_safe_float():

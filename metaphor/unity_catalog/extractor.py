@@ -1,3 +1,4 @@
+import json
 import re
 import urllib.parse
 from typing import Collection, Dict, Iterator, List, Optional
@@ -15,7 +16,7 @@ from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.fieldpath import build_schema_field
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
-from metaphor.common.utils import safe_float
+from metaphor.common.utils import non_empty_str, safe_float
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     AssetPlatform,
@@ -152,6 +153,8 @@ class UnityCatalogExtractor(BaseExtractor):
         self._describe_history_limit = config.describe_history_limit
         self._max_concurrency = config.max_concurrency
 
+        self._has_select_permissions = config.has_select_permissions
+
         self._api = create_api(f"https://{config.hostname}", config.token)
 
         self._connection = create_connection(
@@ -217,9 +220,10 @@ class UnityCatalogExtractor(BaseExtractor):
 
         self._propagate_tags()
 
-        # Batch query table properties and last refreshed time
-        self._populate_table_properties()
-        self._populate_last_refreshed_time()
+        # Batch query table properties and last refreshed time if granted SELECT permissions
+        if self._has_select_permissions:
+            self._populate_table_properties()
+            self._populate_last_refreshed_time()
 
         entities: List[ENTITY_TYPES] = []
         entities.extend(self._datasets.values())
@@ -269,7 +273,7 @@ class UnityCatalogExtractor(BaseExtractor):
 
         dataset.schema = DatasetSchema(
             schema_type=SchemaType.SQL,
-            description=table_info.comment,
+            description=non_empty_str(table_info.comment),
             fields=fields,
             sql_schema=SQLSchema(
                 materialization=TABLE_TYPE_MATERIALIZATION_TYPE_MAP.get(
@@ -338,7 +342,7 @@ class UnityCatalogExtractor(BaseExtractor):
         field = build_schema_field(
             column_name=column_info.column_name,
             field_type=column_info.data_type,
-            description=column_info.comment,
+            description=non_empty_str(column_info.comment),
             nullable=column_info.is_nullable,
             precision=safe_float(column_info.data_precision),
         )
@@ -570,7 +574,7 @@ class UnityCatalogExtractor(BaseExtractor):
         )
 
         dataset.schema = DatasetSchema(
-            description=volume.comment,
+            description=non_empty_str(volume.comment),
         )
 
         if volume.owner:
@@ -701,7 +705,7 @@ class UnityCatalogExtractor(BaseExtractor):
                 continue
 
             dataset.unity_catalog.table_info.properties = [
-                KeyValuePair(key=k, value=v) for k, v in properties.items()
+                KeyValuePair(key=k, value=json.dumps(v)) for k, v in properties.items()
             ]
 
     def _get_owner_display_name(self, user_id: str) -> str:

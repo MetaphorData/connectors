@@ -34,6 +34,10 @@ See [Output Config](../common/docs/output.md) for more information.
 
 See [Filter Configurations](../common/docs/filter.md) for more information on the optional `filter` config.
 
+#### SELECT Permissions
+
+Certain metadata, such as table properties & last refreshed time, can only be extracted if the user has SELECT permissions on the table. By default, the connector will attempt to extract this metadata and print errors in the logs if it fails. To disable this behavior, set `has_select_permissions` to `false`.
+
 #### Source URL
 
 By default, each table is associated with a Unity Catalog URL derived from the `hostname` config.
@@ -66,18 +70,6 @@ query_log:
 ##### Process Query Config
 
 See [Process Query](../common/docs/process_query.md) for more information on the optional `process_query_config` config.
-
-#### Warehouse ID
-
-Note: we encourage using cluster, this connector will deprecate the SQL warehouse support.
-
-To run the queries using a specific warehouse, simply add its ID in the configuration file:
-
-```yaml
-warehouse_id: <warehouse_id>
-```
-
-If no warehouse id nor cluster path is provided, the connector automatically uses the first discovered warehouse.
 
 ## Testing
 

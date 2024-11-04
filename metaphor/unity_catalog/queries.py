@@ -677,7 +677,7 @@ def get_last_refreshed_time(
         try:
             cursor.execute(f"DESCRIBE HISTORY {table_full_name} LIMIT {limit}")
         except Exception as error:
-            logger.exception(f"Failed to get history for {table_full_name}: {error}")
+            logger.error(f"Failed to get history for {table_full_name}: {error}")
             return None
 
         for history in cursor.fetchall():
@@ -704,7 +704,7 @@ def get_table_properties(
         try:
             cursor.execute(f"SHOW TBLPROPERTIES {table_full_name}")
         except Exception as error:
-            logger.exception(
+            logger.error(
                 f"Failed to show table properties for {table_full_name}: {error}"
             )
             return None

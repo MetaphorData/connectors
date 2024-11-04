@@ -87,6 +87,11 @@ def safe_str(value: Any) -> Optional[str]:
     return None if value is None else str(value)
 
 
+def non_empty_str(value: Any) -> Optional[str]:
+    """Converts a value to str, return None if the original value is None or empty string"""
+    return None if value is None or value == "" else str(value)
+
+
 def safe_float(value: Optional[Union[float, int, str]]) -> Optional[float]:
     """Converts a value to float, return None if the original value is None or NaN or INF"""
     return (
