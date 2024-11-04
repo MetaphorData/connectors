@@ -1,4 +1,5 @@
 import re
+import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import (
@@ -87,6 +88,7 @@ class BigQueryExtractor(BaseExtractor):
         self._fetch_job_query_if_truncated = (
             config.query_log.fetch_job_query_if_truncated
         )
+        self._rate_limit = config.query_log.rate_limit
 
         self._datasets: List[Dataset] = []
 
@@ -306,14 +308,27 @@ class BigQueryExtractor(BaseExtractor):
         client = build_client(project_id, self._credentials)
         logging_client = build_logging_client(project_id, self._credentials)
         fetched_logs = 0
+
+        count = 0
+        last_time = time.time()
+
         for entry in logging_client.list_entries(
             page_size=self._query_log_fetch_size, filter_=log_filter
         ):
+            count += 1
+
             if JobChangeEvent.can_parse(entry):
                 log = self._parse_job_change_entry(entry, client)
                 if log:
                     fetched_logs += 1
                     yield log
+
+            if count % self._query_log_fetch_size == 0:
+                current_time = time.time()
+                elapsed_time = current_time - last_time
+                wait_time = (60 / self._rate_limit) - elapsed_time
+                if wait_time > 0:
+                    time.sleep(wait_time)
 
         logger.info(f"Number of audit log entries fetched: {fetched_logs}")
 
