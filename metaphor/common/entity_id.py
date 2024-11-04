@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from canonicaljson import encode_canonical_json
 from pydantic.dataclasses import dataclass
@@ -12,6 +12,7 @@ from metaphor.models.metadata_change_event import (
     DataPlatform,
     DatasetLogicalID,
     EntityType,
+    HierarchyLogicalID,
     KnowledgeCardLogicalID,
     PipelineLogicalID,
     PipelineType,
@@ -24,8 +25,9 @@ from metaphor.models.metadata_change_event import (
 class EntityId:
     type: EntityType
     logicalId: Union[
-        DatasetLogicalID,
         DashboardLogicalID,
+        DatasetLogicalID,
+        HierarchyLogicalID,
         KnowledgeCardLogicalID,
         PersonLogicalID,
         PipelineLogicalID,
@@ -147,3 +149,7 @@ def parts_to_dataset_entity_id(
         platform,
         account,
     )
+
+
+def to_hierarchy_id(path: List[str]) -> str:
+    return str(EntityId(EntityType.HIERARCHY, HierarchyLogicalID(path=path)))

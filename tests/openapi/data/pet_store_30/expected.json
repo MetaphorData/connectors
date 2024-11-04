@@ -65,15 +65,20 @@
       "methods": [
         {
           "description": "Update an existing pet by Id",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/pet",
           "summary": "Update an existing pet",
           "type": "PUT"
         },
         {
           "description": "Add a new pet to the store",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/pet",
           "summary": "Add a new pet to the store",
           "type": "POST"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/pet"
     },
     "structure": {
@@ -93,10 +98,13 @@
       "methods": [
         {
           "description": "Multiple status values can be provided with comma separated strings",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/pet/findByStatus",
           "summary": "Finds Pets by status",
           "type": "GET"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/pet/findByStatus"
     },
     "structure": {
@@ -116,10 +124,13 @@
       "methods": [
         {
           "description": "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/pet/findByTags",
           "summary": "Finds Pets by tags",
           "type": "GET"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/pet/findByTags"
     },
     "structure": {
@@ -139,18 +150,25 @@
       "methods": [
         {
           "description": "Returns a single pet",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/pet/{petId}",
           "summary": "Find pet by ID",
           "type": "GET"
         },
         {
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/pet/{petId}",
           "summary": "Updates a pet in the store with form data",
           "type": "POST"
         },
         {
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/pet/{petId}",
           "summary": "Deletes a pet",
           "type": "DELETE"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/pet/{petId}"
     },
     "structure": {
@@ -169,10 +187,13 @@
     "openAPI": {
       "methods": [
         {
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/pet/{petId}/uploadImage",
           "summary": "uploads an image",
           "type": "POST"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/pet/{petId}/uploadImage"
     },
     "structure": {
@@ -192,10 +213,13 @@
       "methods": [
         {
           "description": "Returns a map of status codes to quantities",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/store/inventory",
           "summary": "Returns pet inventories by status",
           "type": "GET"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/store/inventory"
     },
     "structure": {
@@ -215,10 +239,13 @@
       "methods": [
         {
           "description": "Place a new order in the store",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/store/order",
           "summary": "Place an order for a pet",
           "type": "POST"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/store/order"
     },
     "structure": {
@@ -238,15 +265,20 @@
       "methods": [
         {
           "description": "For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/store/order/{orderId}",
           "summary": "Find purchase order by ID",
           "type": "GET"
         },
         {
           "description": "For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/store/order/{orderId}",
           "summary": "Delete purchase order by ID",
           "type": "DELETE"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/store/order/{orderId}"
     },
     "structure": {
@@ -266,10 +298,13 @@
       "methods": [
         {
           "description": "This can only be done by the logged in user.",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/user",
           "summary": "Create user",
           "type": "POST"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/user"
     },
     "structure": {
@@ -289,10 +324,13 @@
       "methods": [
         {
           "description": "Creates list of users with given input array",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/user/createWithList",
           "summary": "Creates list of users with given input array",
           "type": "POST"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/user/createWithList"
     },
     "structure": {
@@ -311,10 +349,13 @@
     "openAPI": {
       "methods": [
         {
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/user/login",
           "summary": "Logs user into the system",
           "type": "GET"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/user/login"
     },
     "structure": {
@@ -333,10 +374,13 @@
     "openAPI": {
       "methods": [
         {
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/user/logout",
           "summary": "Logs out current logged in user session",
           "type": "GET"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/user/logout"
     },
     "structure": {
@@ -355,20 +399,27 @@
     "openAPI": {
       "methods": [
         {
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/user/{username}",
           "summary": "Get user by user name",
           "type": "GET"
         },
         {
           "description": "This can only be done by the logged in user.",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/user/{username}",
           "summary": "Update user",
           "type": "PUT"
         },
         {
           "description": "This can only be done by the logged in user.",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/user/{username}",
           "summary": "Delete user",
           "type": "DELETE"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/user/{username}"
     },
     "structure": {
