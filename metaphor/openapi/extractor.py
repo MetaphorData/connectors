@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 import requests
 
 from metaphor.common.base_extractor import BaseExtractor
+from metaphor.common.entity_id import EntityId
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
 from metaphor.common.utils import md5_digest
@@ -16,6 +17,7 @@ from metaphor.models.metadata_change_event import (
     APIPlatform,
     AssetPlatform,
     AssetStructure,
+    EntityType,
     Hierarchy,
     HierarchyInfo,
     HierarchyLogicalID,
@@ -45,6 +47,12 @@ class OpenAPIExtractor(BaseExtractor):
 
         self._base_url = str(config.base_url)
         self._api_id = md5_digest(self._base_url.encode("utf-8"))
+        self._oas_hierarchy_id = str(
+            EntityId(
+                EntityType.HIERARCHY,
+                HierarchyLogicalID(path=[AssetPlatform.OPEN_API.value, self._api_id]),
+            )
+        )
         self._openapi_json_path = config.openapi_json_path
         self._openapi_json_url = str(config.openapi_json_url)
         self._auth = config.auth
@@ -120,7 +128,11 @@ class OpenAPIExtractor(BaseExtractor):
                 logical_id=APILogicalID(
                     name=endpoint_url, platform=APIPlatform.OPEN_API
                 ),
-                open_api=OpenAPI(path=path, methods=self._extract_methods(path_item)),
+                open_api=OpenAPI(
+                    path=path,
+                    methods=self._extract_methods(path_item, path),
+                    oas_hierarchy_id=self._oas_hierarchy_id,
+                ),
                 structure=AssetStructure(
                     directories=[self._api_id] + [first_tag] if first_tag else [],
                     name=path,
@@ -135,7 +147,7 @@ class OpenAPIExtractor(BaseExtractor):
                 return item["tags"][0]
         return None
 
-    def _extract_methods(self, path_item: dict) -> List[OpenAPIMethod]:
+    def _extract_methods(self, path_item: dict, path: str) -> List[OpenAPIMethod]:
         def to_operation_type(method: str) -> Optional[OperationType]:
             try:
                 return OperationType(method.upper())
@@ -150,6 +162,8 @@ class OpenAPIExtractor(BaseExtractor):
                         summary=item.get("summary") or None,
                         description=item.get("description") or None,
                         type=operation_type,
+                        path=path,
+                        oas_hierarchy_id=self._oas_hierarchy_id,
                     )
                 )
         return methods

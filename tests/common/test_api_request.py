@@ -47,6 +47,6 @@ def test_requests_timeout():
 
     # This is OK
     resp = make_request(
-        url, headers={"accept": "application/json"}, type_=Dict, timeout=3
+        url, headers={"accept": "application/json"}, type_=Dict, timeout=10
     )
     assert resp

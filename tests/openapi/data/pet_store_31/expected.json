@@ -65,15 +65,20 @@
       "methods": [
         {
           "description": "Update an existing pet by Id",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/pet",
           "summary": "Update an existing pet",
           "type": "PUT"
         },
         {
           "description": "Add a new pet to the store",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/pet",
           "summary": "Add a new pet to the store",
           "type": "POST"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/pet"
     },
     "structure": {
@@ -93,10 +98,13 @@
       "methods": [
         {
           "description": "Returns a pet when 0 < ID <= 10.  ID > 10 or nonintegers will simulate API error conditions",
+          "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
+          "path": "/pet/{petId}",
           "summary": "Find pet by ID",
           "type": "GET"
         }
       ],
+      "oasHierarchyId": "HIERARCHY~BF624EF2858D63EE990C7F0344C37388",
       "path": "/pet/{petId}"
     },
     "structure": {
