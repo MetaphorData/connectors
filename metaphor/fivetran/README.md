@@ -24,6 +24,10 @@ api_secret: <api_secret>
 
 See [Output Config](../common/docs/output.md) for more information.
 
+#### Requests configuration
+
+See [Requests Config](../common/docs/requests.md) for more information.
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv).
