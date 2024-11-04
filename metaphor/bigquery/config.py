@@ -65,7 +65,7 @@ class BigQueryQueryLogConfig:
     )
 
     # Maximum allowed requests per minute to the log entries API
-    rate_limit: int = DEFAULT_RATE_LIMIT
+    max_requests_per_minute: int = DEFAULT_MAX_REQUESTS_PER_MINUTE
 
 
 @dataclass(config=ConnectorConfig)
