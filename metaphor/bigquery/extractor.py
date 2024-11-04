@@ -327,6 +327,7 @@ class BigQueryExtractor(BaseExtractor):
                 current_time = time.time()
                 elapsed_time = current_time - last_time
                 wait_time = (60 / self._rate_limit) - elapsed_time
+                last_time = current_time
                 if wait_time > 0:
                     time.sleep(wait_time)
 
