@@ -157,7 +157,7 @@ query_log:
   fetch_job_query_if_truncated: <boolean>
 
   # Maximum allowed requests per minute to the log entries API, default to 60
-  rate_limit: <requests_per_minute>
+  max_requests_per_minute: <requests_per_minute>
 ```
 
 ##### Process Query Config
