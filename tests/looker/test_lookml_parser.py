@@ -12,6 +12,7 @@ from metaphor.models.metadata_change_event import (
     LookerView,
     LookerViewDimension,
     LookerViewMeasure,
+    SourceInfo,
     SystemTag,
     SystemTags,
     SystemTagSource,
@@ -99,6 +100,9 @@ def test_basic(test_root_dir):
                 directories=[VIEW_EXPLORE_FOLDER, "model1"],
                 name="view1",
             ),
+            source_info=SourceInfo(
+                main_url="http://foo/files/view1.view.lkml",
+            ),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -129,6 +133,9 @@ def test_basic(test_root_dir):
                         value="tag2",
                     ),
                 ]
+            ),
+            source_info=SourceInfo(
+                main_url="http://foo/files/model1.model.lkml",
             ),
         ),
     ]
@@ -199,6 +206,7 @@ def test_join(test_root_dir):
                     directories=[VIEW_EXPLORE_FOLDER, "model1"],
                     name="view1",
                 ),
+                source_info=SourceInfo(),
             ),
             VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -218,6 +226,7 @@ def test_join(test_root_dir):
                     directories=[VIEW_EXPLORE_FOLDER, "model1"],
                     name="view2",
                 ),
+                source_info=SourceInfo(),
             ),
             VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -251,6 +260,7 @@ def test_join(test_root_dir):
                     source_entities=[str(virtual_view_id1), str(virtual_view_id2)]
                 ),
                 system_tags=SystemTags(tags=[]),
+                source_info=SourceInfo(),
             ),
         ],
     )
@@ -307,6 +317,7 @@ def test_explore_in_view(test_root_dir):
                     directories=[VIEW_EXPLORE_FOLDER, "model1"],
                     name="view1",
                 ),
+                source_info=SourceInfo(),
             ),
             VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -324,6 +335,7 @@ def test_explore_in_view(test_root_dir):
                 ),
                 entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id)]),
                 system_tags=SystemTags(tags=[]),
+                source_info=SourceInfo(),
             ),
         ],
     )
@@ -378,6 +390,7 @@ def test_derived_table(test_root_dir):
                     source_platform=DataPlatform.SNOWFLAKE,
                 )
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -396,6 +409,7 @@ def test_derived_table(test_root_dir):
                     source_platform=DataPlatform.SNOWFLAKE,
                 ),
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -407,6 +421,7 @@ def test_derived_table(test_root_dir):
             ),
             looker_view=LookerView(),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -422,6 +437,7 @@ def test_derived_table(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
             system_tags=SystemTags(tags=[]),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -437,6 +453,7 @@ def test_derived_table(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id2)]),
             system_tags=SystemTags(tags=[]),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -452,6 +469,7 @@ def test_derived_table(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id3)]),
             system_tags=SystemTags(tags=[]),
+            source_info=SourceInfo(),
         ),
     ]
 
@@ -497,6 +515,7 @@ def test_sql_table_name(test_root_dir):
                 directories=[VIEW_EXPLORE_FOLDER, "model"],
                 name="view1",
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -512,6 +531,7 @@ def test_sql_table_name(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
             system_tags=SystemTags(tags=[]),
+            source_info=SourceInfo(),
         ),
     ]
 
@@ -552,6 +572,7 @@ def test_include_relative_to_model(test_root_dir):
                 directories=[VIEW_EXPLORE_FOLDER, "model"],
                 name="view1",
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -565,6 +586,7 @@ def test_include_relative_to_model(test_root_dir):
                 directories=[VIEW_EXPLORE_FOLDER, "model"],
                 name="view2",
             ),
+            source_info=SourceInfo(),
         ),
     ]
 
@@ -634,6 +656,7 @@ def test_complex_includes(test_root_dir):
                 directories=[VIEW_EXPLORE_FOLDER, "model"],
                 name="view1",
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -647,6 +670,7 @@ def test_complex_includes(test_root_dir):
                 directories=[VIEW_EXPLORE_FOLDER, "model"],
                 name="view2",
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -660,6 +684,7 @@ def test_complex_includes(test_root_dir):
                 directories=[VIEW_EXPLORE_FOLDER, "model"],
                 name="view3",
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -673,6 +698,7 @@ def test_complex_includes(test_root_dir):
                 directories=[VIEW_EXPLORE_FOLDER, "model"],
                 name="view4",
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -688,6 +714,7 @@ def test_complex_includes(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
             system_tags=SystemTags(tags=[]),
+            source_info=SourceInfo(),
         ),
     ]
 
@@ -747,6 +774,7 @@ def test_view_extension(test_root_dir):
                 source_datasets=[str(dataset_table1)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_table1)]),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -764,6 +792,7 @@ def test_view_extension(test_root_dir):
                     source_platform=DataPlatform.BIGQUERY,
                 )
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -781,6 +810,7 @@ def test_view_extension(test_root_dir):
                     source_platform=DataPlatform.BIGQUERY,
                 )
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -794,6 +824,7 @@ def test_view_extension(test_root_dir):
                 directories=[VIEW_EXPLORE_FOLDER, "model"],
                 name="view4",
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -811,6 +842,7 @@ def test_view_extension(test_root_dir):
                     source_platform=DataPlatform.BIGQUERY,
                 )
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -824,6 +856,7 @@ def test_view_extension(test_root_dir):
                 source_datasets=[str(dataset_base_view3)],
             ),
             entity_upstream=EntityUpstream(source_entities=[str(dataset_base_view3)]),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -839,6 +872,7 @@ def test_view_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view_id1)]),
             system_tags=SystemTags(tags=[]),
+            source_info=SourceInfo(),
         ),
     ]
 
@@ -914,6 +948,7 @@ def test_explore_extension(test_root_dir):
                 directories=[VIEW_EXPLORE_FOLDER, "model"],
                 name="view1",
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -927,6 +962,7 @@ def test_explore_extension(test_root_dir):
                 directories=[VIEW_EXPLORE_FOLDER, "model"],
                 name="view2",
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -940,6 +976,7 @@ def test_explore_extension(test_root_dir):
                 directories=[VIEW_EXPLORE_FOLDER, "model"],
                 name="view3",
             ),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -955,6 +992,7 @@ def test_explore_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view1)]),
             system_tags=SystemTags(tags=[]),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -970,6 +1008,7 @@ def test_explore_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view2)]),
             system_tags=SystemTags(tags=[]),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -985,6 +1024,7 @@ def test_explore_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view1)]),
             system_tags=SystemTags(tags=[]),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -1000,6 +1040,7 @@ def test_explore_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view3)]),
             system_tags=SystemTags(tags=[]),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -1015,6 +1056,7 @@ def test_explore_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view2)]),
             system_tags=SystemTags(tags=[]),
+            source_info=SourceInfo(),
         ),
         VirtualView(
             logical_id=VirtualViewLogicalID(
@@ -1030,5 +1072,6 @@ def test_explore_extension(test_root_dir):
             ),
             entity_upstream=EntityUpstream(source_entities=[str(virtual_view3)]),
             system_tags=SystemTags(tags=[]),
+            source_info=SourceInfo(),
         ),
     ]
