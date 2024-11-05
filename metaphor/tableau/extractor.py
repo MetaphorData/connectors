@@ -438,6 +438,7 @@ class TableauExtractor(BaseExtractor):
                 server, published_source.owner.luid
             )
 
+            url = f"{self._base_url}/datasources/{published_source.vizportalUrlId}"
             self._virtual_views[published_source.luid] = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     type=VirtualViewType.TABLEAU_DATASOURCE, name=published_source.luid
@@ -458,7 +459,7 @@ class TableauExtractor(BaseExtractor):
                     source_dataset_account=(
                         custom_sql_source.account if custom_sql_source else None
                     ),
-                    url=f"{self._base_url}/datasources/{published_source.vizportalUrlId}",
+                    url=url,
                     source_datasets=source_datasets or None,
                 ),
                 entity_upstream=(
@@ -468,6 +469,7 @@ class TableauExtractor(BaseExtractor):
                 ),
                 system_tags=system_tags,
                 system_contacts=system_contacts,
+                source_info=SourceInfo(main_url=url),
             )
             source_virtual_views.append(virtual_view_id)
             published_datasources.append(published_source.name)
@@ -492,6 +494,8 @@ class TableauExtractor(BaseExtractor):
                 custom_sql_source.sources if custom_sql_source else None
             ) or self._parse_upstream_datasets(embedded_source.upstreamTables)
 
+            url = dashboard.source_info.main_url if dashboard.source_info else None
+
             self._virtual_views[embedded_source.id] = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     type=VirtualViewType.TABLEAU_DATASOURCE, name=embedded_source.id
@@ -515,11 +519,7 @@ class TableauExtractor(BaseExtractor):
                         custom_sql_source.account if custom_sql_source else None
                     ),
                     source_datasets=source_datasets or None,
-                    url=(
-                        dashboard.source_info.main_url
-                        if dashboard.source_info
-                        else None
-                    ),
+                    url=url,
                 ),
                 entity_upstream=(
                     EntityUpstream(source_entities=source_datasets)
@@ -527,6 +527,7 @@ class TableauExtractor(BaseExtractor):
                     else None
                 ),
                 system_tags=system_tags,
+                source_info=SourceInfo(main_url=url),
             )
             source_virtual_views.append(virtual_view_id)
 
