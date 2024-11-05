@@ -15,6 +15,9 @@ from metaphor.common.utils import must_set_exactly_one
 # See https://cloud.google.com/logging/docs/reference/v2/rest/v2/entries/list
 DEFAULT_QUERY_LOG_FETCH_SIZE = 1000
 
+# See https://cloud.google.com/logging/quotas
+DEFAULT_MAX_REQUESTS_PER_MINUTE = 59
+
 
 @dataclass(config=ConnectorConfig)
 class BigQueryCredentials:
@@ -61,6 +64,9 @@ class BigQueryQueryLogConfig:
     process_query: ProcessQueryConfig = field(
         default_factory=lambda: ProcessQueryConfig()
     )
+
+    # Maximum allowed requests per minute to the log entries API
+    max_requests_per_minute: int = DEFAULT_MAX_REQUESTS_PER_MINUTE
 
 
 @dataclass(config=ConnectorConfig)

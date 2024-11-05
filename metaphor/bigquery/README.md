@@ -155,6 +155,9 @@ query_log:
 
   # (Optional) Fetch the full query SQL from job API if it's truncated in the audit metadata log, default True.
   fetch_job_query_if_truncated: <boolean>
+
+  # Maximum allowed requests per minute to the log entries API, default to 60
+  max_requests_per_minute: <requests_per_minute>
 ```
 
 ##### Process Query Config
