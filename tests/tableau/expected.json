@@ -56,6 +56,9 @@
       "name": "sourceId1",
       "type": "TABLEAU_DATASOURCE"
     },
+    "sourceInfo": {
+      "mainUrl": "https://10ax.online.tableau.com/#/site/abc/datasources/777"
+    },
     "structure": {
       "directories": [
         "parent",
@@ -103,6 +106,9 @@
       "name": "sourceId2",
       "type": "TABLEAU_DATASOURCE"
     },
+    "sourceInfo": {
+      "mainUrl": "https://10ax.online.tableau.com/#/site/abc/workbooks/123"
+    },
     "structure": {
       "directories": [
         "default"
@@ -141,6 +147,9 @@
       "name": "sourceId3",
       "type": "TABLEAU_DATASOURCE"
     },
+    "sourceInfo": {
+      "mainUrl": "https://10ax.online.tableau.com/#/site/abc/workbooks/123"
+    },
     "structure": {
       "directories": [
         "default"
@@ -164,10 +173,10 @@
       "fields": [],
       "name": "default.source3",
       "query": "select * from db.schema.table",
-      "source_platform": "BIGQUERY",
       "sourceDatasets": [
         "DATASET~5375BC53A82C65FD48653B9418094BB0"
       ],
+      "source_platform": "BIGQUERY",
       "url": "https://10ax.online.tableau.com/#/site/abc/workbooks/123"
     }
   }

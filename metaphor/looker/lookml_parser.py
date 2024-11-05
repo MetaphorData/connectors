@@ -29,6 +29,7 @@ from metaphor.models.metadata_change_event import (
     LookerView,
     LookerViewDimension,
     LookerViewMeasure,
+    SourceInfo,
     SystemTag,
     SystemTags,
     SystemTagSource,
@@ -265,6 +266,7 @@ def _build_looker_view(
         entity_upstream=(
             EntityUpstream(source_entities=source_entities) if source_entities else None
         ),
+        source_info=SourceInfo(main_url=url),
     )
 
 
@@ -352,6 +354,7 @@ def _build_looker_explore(
         structure=_get_model_asset_structure(model, name, explore_view_folder_name),
         entity_upstream=EntityUpstream(source_entities=source_entities),
         system_tags=SystemTags(tags=tags),
+        source_info=SourceInfo(main_url=url),
     )
 
 

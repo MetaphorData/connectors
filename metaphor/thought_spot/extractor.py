@@ -202,6 +202,8 @@ class ThoughtSpotExtractor(BaseExtractor):
                     ]
                 field_mappings.append(field_mapping)
 
+            url = f"{self._base_url}/#/data/tables/{table_id}"
+
             view = VirtualView(
                 logical_id=VirtualViewLogicalID(
                     name=table_id, type=VirtualViewType.THOUGHT_SPOT_DATA_OBJECT
@@ -223,13 +225,14 @@ class ThoughtSpotExtractor(BaseExtractor):
                     name=table_detail.header.name,
                     description=table_detail.header.description,
                     type=table_type,
-                    url=f"{self._base_url}/#/data/tables/{table_id}",
+                    url=url,
                     is_verified=table.metadata_header.isVerified,
                 ),
                 entity_upstream=EntityUpstream(
                     field_mappings=field_mappings if field_mappings else None
                 ),
                 system_tags=self._get_system_tags(table_detail.header.tags),
+                source_info=SourceInfo(main_url=url),
             )
             self._virtual_views[table_id] = view
 

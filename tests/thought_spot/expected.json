@@ -7,6 +7,9 @@
       "name": "worksheet1",
       "type": "THOUGHT_SPOT_DATA_OBJECT"
     },
+    "sourceInfo": {
+      "mainUrl": "http://base.url/#/data/tables/worksheet1"
+    },
     "structure": {
       "directories": [
         "WORKSHEET"
@@ -24,11 +27,11 @@
     "thoughtSpot": {
       "columns": [],
       "description": "This is worksheet1",
+      "isVerified": false,
       "name": "Worksheet 1",
       "sourceVirtualViews": [],
       "type": "WORKSHEET",
-      "url": "http://base.url/#/data/tables/worksheet1",
-      "isVerified": false
+      "url": "http://base.url/#/data/tables/worksheet1"
     }
   },
   {
@@ -52,6 +55,9 @@
       "name": "table1",
       "type": "THOUGHT_SPOT_DATA_OBJECT"
     },
+    "sourceInfo": {
+      "mainUrl": "http://base.url/#/data/tables/table1"
+    },
     "structure": {
       "directories": [
         "TABLE"
@@ -74,13 +80,13 @@
         }
       ],
       "description": "This is table1",
+      "isVerified": false,
       "name": "Table 1",
       "sourceDatasets": [
         "DATASET~29779E6A8F6548832D2305896A583002"
       ],
       "type": "TABLE",
-      "url": "http://base.url/#/data/tables/table1",
-      "isVerified": false
+      "url": "http://base.url/#/data/tables/table1"
     }
   },
   {
@@ -113,6 +119,9 @@
       "name": "view1",
       "type": "THOUGHT_SPOT_DATA_OBJECT"
     },
+    "sourceInfo": {
+      "mainUrl": "http://base.url/#/data/tables/view1"
+    },
     "structure": {
       "directories": [
         "VIEW"
@@ -136,13 +145,13 @@
         }
       ],
       "description": "This is view1",
+      "isVerified": false,
       "name": "View 1",
       "sourceVirtualViews": [
         "VIRTUAL_VIEW~F13FAE9D17C5631FD2E1025CE8BC7F5C"
       ],
       "type": "VIEW",
-      "url": "http://base.url/#/data/tables/view1",
-      "isVerified": false
+      "url": "http://base.url/#/data/tables/view1"
     }
   },
   {
@@ -168,6 +177,9 @@
       "name": "sql_view_1",
       "type": "THOUGHT_SPOT_DATA_OBJECT"
     },
+    "sourceInfo": {
+      "mainUrl": "http://base.url/#/data/tables/sql_view_1"
+    },
     "structure": {
       "directories": [
         "VIEW"
@@ -184,13 +196,13 @@
           "type": "VARCHAR"
         }
       ],
+      "isVerified": false,
       "name": "JOIN SQL view",
       "sourceDatasets": [
         "DATASET~9A61719497E3AC013ACBCA83F9F732B7"
       ],
       "type": "VIEW",
-      "url": "http://base.url/#/data/tables/sql_view_1",
-      "isVerified": false
+      "url": "http://base.url/#/data/tables/sql_view_1"
     }
   },
   {
@@ -216,6 +228,9 @@
       "name": "sql_view_2",
       "type": "THOUGHT_SPOT_DATA_OBJECT"
     },
+    "sourceInfo": {
+      "mainUrl": "http://base.url/#/data/tables/sql_view_2"
+    },
     "structure": {
       "directories": [
         "VIEW"
@@ -232,13 +247,13 @@
           "type": "VARCHAR"
         }
       ],
+      "isVerified": false,
       "name": "JOIN SQL view",
       "sourceDatasets": [
         "DATASET~844586420073B959F7B75FED699C23E9"
       ],
       "type": "VIEW",
-      "url": "http://base.url/#/data/tables/sql_view_2",
-      "isVerified": false
+      "url": "http://base.url/#/data/tables/sql_view_2"
     }
   },
   {
@@ -253,8 +268,8 @@
       "dashboardType": "THOUGHT_SPOT_ANSWER",
       "description": "This is answer1",
       "thoughtSpot": {
-        "type": "ANSWER",
-        "isVerified": false
+        "isVerified": false,
+        "type": "ANSWER"
       },
       "title": "Answer 1"
     },
@@ -325,8 +340,8 @@
       "description": "This is board1",
       "thoughtSpot": {
         "embedUrl": "http://base.url/#/embed/viz/board1",
-        "type": "LIVEBOARD",
-        "isVerified": false
+        "isVerified": false,
+        "type": "LIVEBOARD"
       },
       "title": "Board 1"
     },

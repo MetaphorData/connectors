@@ -7,6 +7,7 @@
     "powerBIDataset": {
       "description": "This is a dataset",
       "lastRefreshed": "2022-01-01T01:02:03.456000+00:00",
+      "name": "Foo Dataset",
       "parameters": [
         {
           "isRequired": false,
@@ -15,7 +16,17 @@
           "value": "value"
         }
       ],
-      "name": "Foo Dataset",
+      "refreshSchedule": {
+        "days": [
+          "Monday"
+        ],
+        "enabled": true,
+        "localTimeZoneId": "Pacific Standard Time",
+        "notifyOption": "MailOnFailure",
+        "times": [
+          "10:00"
+        ]
+      },
       "tables": [
         {
           "columns": [
@@ -44,18 +55,10 @@
         }
       ],
       "url": "https://powerbi.com/00000000-0000-0000-0000-000000000002",
-      "workspaceId": "workspace-1",
-      "refreshSchedule": {
-        "days": [
-          "Monday"
-        ],
-        "enabled": true,
-        "localTimeZoneId": "Pacific Standard Time",
-        "notifyOption": "MailOnFailure",
-        "times": [
-          "10:00"
-        ]
-      }
+      "workspaceId": "workspace-1"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/00000000-0000-0000-0000-000000000002"
     },
     "structure": {
       "directories": [
@@ -70,6 +73,8 @@
       "type": "POWER_BI_DATASET"
     },
     "powerBIDataset": {
+      "configuredBy": "bob@foo.com",
+      "createdDate": "2022-03-30T23:28:21.060000+00:00",
       "description": "This is another dataset",
       "name": "Bar Dataset",
       "parameters": [
@@ -80,6 +85,14 @@
           "value": "value"
         }
       ],
+      "refreshSchedule": {
+        "days": [],
+        "enabled": true,
+        "frequencyInMinutes": 120.0,
+        "localTimeZoneId": "Pacific Standard Time",
+        "notifyOption": "MailOnFailure",
+        "times": []
+      },
       "tables": [
         {
           "columns": [
@@ -113,17 +126,10 @@
         }
       ],
       "url": "https://powerbi.com/00000000-0000-0000-0000-000000000003",
-      "workspaceId": "workspace-1",
-      "refreshSchedule": {
-        "days": [],
-        "enabled": true,
-        "localTimeZoneId": "Pacific Standard Time",
-        "notifyOption": "MailOnFailure",
-        "frequencyInMinutes": 120.0,
-        "times": []
-      },
-      "configuredBy": "bob@foo.com",
-      "createdDate": "2022-03-30T23:28:21.060000+00:00"
+      "workspaceId": "workspace-1"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/00000000-0000-0000-0000-000000000003"
     },
     "structure": {
       "directories": [
@@ -151,6 +157,7 @@
       ]
     },
     "powerBIDataset": {
+      "configuredBy": "bob@foo.com",
       "description": "Dataset from dataflow",
       "name": "Dataflow dataset",
       "parameters": [
@@ -161,6 +168,11 @@
           "value": "value"
         }
       ],
+      "sensitivityLabel": {
+        "description": "label description",
+        "id": "label-id",
+        "name": "label name"
+      },
       "tables": [
         {
           "columns": [
@@ -179,13 +191,10 @@
         }
       ],
       "url": "https://powerbi.com/00000000-0000-0000-0001-000000000003",
-      "workspaceId": "workspace-1",
-      "configuredBy": "bob@foo.com",
-      "sensitivityLabel": {
-        "description": "label description",
-        "id": "label-id",
-        "name": "label name"
-      }
+      "workspaceId": "workspace-1"
+    },
+    "sourceInfo": {
+      "mainUrl": "https://powerbi.com/00000000-0000-0000-0001-000000000003"
     },
     "structure": {
       "directories": [
@@ -204,8 +213,6 @@
           "id": "00000000-0000-0000-0000-000000000000",
           "name": "foo app"
         },
-        "powerBiDashboardType": "REPORT",
-        "workspaceId": "workspace-1",
         "createdBy": "creator@foo.bar",
         "createdDateTime": "2022-04-06T04:25:06.777000+00:00",
         "endorsement": {
@@ -213,9 +220,16 @@
           "endorsement": "Promoted"
         },
         "modifiedBy": "editor@foo.bar",
-        "modifiedDateTime": "2022-04-06T04:25:06.777000+00:00"
+        "modifiedDateTime": "2022-04-06T04:25:06.777000+00:00",
+        "powerBiDashboardType": "REPORT",
+        "workspaceId": "workspace-1"
       },
       "title": "Foo Report"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6"
+      ]
     },
     "logicalId": {
       "dashboardId": "00000000-0000-0000-0000-000000000004",
@@ -229,11 +243,6 @@
         "Workspace"
       ],
       "name": "Foo Report"
-    },
-    "entityUpstream": {
-      "sourceEntities": [
-        "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6"
-      ]
     }
   },
   {
@@ -252,14 +261,19 @@
       "description": "This is a report about bar",
       "powerBi": {
         "powerBiDashboardType": "REPORT",
-        "workspaceId": "workspace-1",
         "sensitivityLabel": {
           "description": "label description",
           "id": "label-id",
           "name": "label name"
-        }
+        },
+        "workspaceId": "workspace-1"
       },
       "title": "Bar Report"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
+      ]
     },
     "logicalId": {
       "dashboardId": "00000000-0000-0000-0000-000000000006",
@@ -273,11 +287,6 @@
         "Workspace"
       ],
       "name": "Bar Report"
-    },
-    "entityUpstream": {
-      "sourceEntities": [
-        "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
-      ]
     }
   },
   {
@@ -300,15 +309,23 @@
           "id": "00000000-0000-0000-0000-000000000001",
           "name": "bar app"
         },
+        "createdBy": "creator@foo.bar",
+        "createdDateTime": "2022-04-06T04:25:06.777000+00:00",
+        "modifiedBy": "editor@foo.bar",
+        "modifiedDateTime": "2022-04-06T04:25:06.777000+00:00",
         "powerBiDashboardType": "DASHBOARD",
-        "workspaceId": "workspace-1",
+        "sensitivityLabel": {
+          "description": "label description",
+          "id": "label-id",
+          "name": "label name"
+        },
         "subscriptions": [
           {
             "artifactDisplayName": "Dashboard A",
             "endDate": "2000-09-06T00:13:52+00:00",
-            "startDate": "1998-11-30T17:05:52+00:00",
             "frequency": "Daily",
             "id": "subscription-1",
+            "startDate": "1998-11-30T17:05:52+00:00",
             "title": "First Subscription",
             "users": [
               {
@@ -318,17 +335,15 @@
             ]
           }
         ],
-        "createdBy": "creator@foo.bar",
-        "createdDateTime": "2022-04-06T04:25:06.777000+00:00",
-        "modifiedBy": "editor@foo.bar",
-        "modifiedDateTime": "2022-04-06T04:25:06.777000+00:00",
-        "sensitivityLabel": {
-          "description": "label description",
-          "id": "label-id",
-          "name": "label name"
-        }
+        "workspaceId": "workspace-1"
       },
       "title": "Dashboard A"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6",
+        "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
+      ]
     },
     "logicalId": {
       "dashboardId": "00000000-0000-0000-0000-000000000007",
@@ -342,12 +357,6 @@
         "Workspace"
       ],
       "name": "Dashboard A"
-    },
-    "entityUpstream": {
-      "sourceEntities": [
-        "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6",
-        "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
-      ]
     }
   },
   {
@@ -371,6 +380,12 @@
       },
       "title": "Dashboard B"
     },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6",
+        "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
+      ]
+    },
     "logicalId": {
       "dashboardId": "00000000-0000-0000-0000-000000000009",
       "platform": "POWER_BI"
@@ -383,12 +398,6 @@
         "Workspace"
       ],
       "name": "Dashboard B"
-    },
-    "entityUpstream": {
-      "sourceEntities": [
-        "VIRTUAL_VIEW~81496746E0F360F2569347B8C8335CE6",
-        "VIRTUAL_VIEW~CC1F3CC68F843D0E144687C9030A255B"
-      ]
     }
   },
   {
@@ -398,8 +407,10 @@
     },
     "powerBiDataflow": {
       "content": "{\"name\": \"Dataflow\", \"description\": \"A dataflow\", \"version\": \"1.0\", \"culture\": \"en-US\", \"modifiedTime\": \"2023-09-19T06:08:01.3550729+00:00\", \"ppdf:outputFileFormat\": \"Csv\", \"pbi:mashup\": {\"fastCombine\": false, \"allowNativeQueries\": false, \"queriesMetadata\": {\"TABLE_NAME\": {\"queryId\": \"query_id\", \"queryName\": \"TABLE_NAME\", \"loadEnabled\": true}}, \"document\": \"section Section1;\\r\\nshared ENTITY_NAME = let\\r\\n  Source = Snowflake.Databases(\\\"account.snowflakecomputing.com\\\", \\\"COMPUTE_WH\\\", [Role = null, CreateNavigationProperties = null, ConnectionTimeout = null, CommandTimeout = null]),\\r\\n  Navigation = Source{[Name = \\\"DB\\\", Kind = \\\"Database\\\"]}[Data],\\r\\n  #\\\"Navigation 1\\\" = Navigation{[Name = \\\"SCHEMA\\\", Kind = \\\"Schema\\\"]}[Data],\\r\\n  #\\\"Navigation 2\\\" = #\\\"Navigation 1\\\"{[Name = \\\"TABLE_NAME\\\", Kind = \\\"Table\\\"]}[Data]\\r\\nin\\r\\n  #\\\"Navigation 2\\\";\\r\\n\", \"connectionOverrides\": [{\"path\": \"account.snowflakecomputing.com;COMPUTE_WH\", \"kind\": \"Snowflake\", \"provider\": \"CdsA\", \"authenticationKind\": null, \"environmentName\": null, \"apiName\": null, \"connectionName\": \"{\\\"kind\\\":\\\"Snowflake\\\",\\\"path\\\":\\\"account.snowflakecomputing.com;COMPUTE_WH\\\"}\", \"audience\": null}]}, \"annotations\": [{\"name\": \"pbi:QueryGroups\", \"value\": \"[]\"}], \"entities\": [{\"$type\": \"LocalEntity\", \"name\": \"ENTITY_NAME\", \"description\": \"\", \"pbi:refreshPolicy\": {\"$type\": \"FullRefreshPolicy\", \"location\": \"ENTITY_NAME.csv\"}, \"attributes\": [{\"name\": \"COL_1\", \"dataType\": \"double\"}, {\"name\": \"COL_2\", \"dataType\": \"double\"}], \"partitions\": [{\"name\": \"FullRefreshPolicyPartition\", \"refreshTime\": \"2023-09-19T06:21:43.1195053+00:00\", \"location\": \"location-url\"}]}]}",
+      "dataflowUrl": "https://app.powerbi.com/groups/workspace-1/dataflows/00000000-0000-0000-0001-00000000000A",
       "description": "A dataflow",
       "document": "section Section1;\r\nshared ENTITY_NAME = let\r\n  Source = Snowflake.Databases(\"account.snowflakecomputing.com\", \"COMPUTE_WH\", [Role = null, CreateNavigationProperties = null, ConnectionTimeout = null, CommandTimeout = null]),\r\n  Navigation = Source{[Name = \"DB\", Kind = \"Database\"]}[Data],\r\n  #\"Navigation 1\" = Navigation{[Name = \"SCHEMA\", Kind = \"Schema\"]}[Data],\r\n  #\"Navigation 2\" = #\"Navigation 1\"{[Name = \"TABLE_NAME\", Kind = \"Table\"]}[Data]\r\nin\r\n  #\"Navigation 2\";\r\n",
+      "lastRefreshed": "2023-10-19T01:06:10.290000+00:00",
       "modifiedDateTime": "2023-09-19T06:08:01.355072+00:00",
       "name": "Dataflow",
       "refreshSchedule": {
@@ -413,9 +424,7 @@
           "1:00:00"
         ]
       },
-      "dataflowUrl": "https://app.powerbi.com/groups/workspace-1/dataflows/00000000-0000-0000-0001-00000000000A",
-      "workspaceId": "workspace-1",
-      "lastRefreshed": "2023-10-19T01:06:10.290000+00:00"
+      "workspaceId": "workspace-1"
     }
   },
   {
@@ -428,13 +437,14 @@
       "dataflowUrl": "https://app.powerbi.com/groups/workspace-1/dataflows/00000000-0000-0000-0002-00000000000A",
       "description": "",
       "document": "section Section1;\r\nshared ENTITY_NAME = let\r\n  Source = GoogleAnalytics.Accounts(\"account.snowflakecomputing.com\", \"COMPUTE_WH\", [Role = null, CreateNavigationProperties = null, ConnectionTimeout = null, CommandTimeout = null]),\r\n  Navigation = Source{[Name = \"DB\", Kind = \"Database\"]}[Data],\r\n  #\"Navigation 1\" = Navigation{[Name = \"SCHEMA\", Kind = \"Schema\"]}[Data],\r\n  #\"Navigation 2\" = #\"Navigation 1\"{[Name = \"TABLE_NAME\", Kind = \"Table\"]}[Data]\r\nin\r\n  #\"Navigation 2\";\r\n",
+      "lastRefreshed": "2023-10-19T01:06:10.290000+00:00",
       "name": "Dataflow 2",
-      "workspaceId": "workspace-1",
-      "lastRefreshed": "2023-10-19T01:06:10.290000+00:00"
+      "workspaceId": "workspace-1"
     }
   },
   {
     "hierarchyInfo": {
+      "description": "workspace desc",
       "name": "Workspace",
       "powerBiWorkspace": {
         "name": "Workspace",
@@ -461,7 +471,6 @@
           }
         ]
       },
-      "description": "workspace desc",
       "type": "POWER_BI_WORKSPACE"
     },
     "logicalId": {
@@ -473,6 +482,7 @@
   },
   {
     "hierarchyInfo": {
+      "description": "workspace desc",
       "name": "Workspace",
       "powerBiWorkspace": {
         "name": "Workspace",
@@ -499,7 +509,6 @@
           }
         ]
       },
-      "description": "workspace desc",
       "type": "POWER_BI_WORKSPACE"
     },
     "logicalId": {
@@ -511,6 +520,7 @@
   },
   {
     "hierarchyInfo": {
+      "description": "workspace desc",
       "name": "Workspace",
       "powerBiWorkspace": {
         "name": "Workspace",
@@ -537,7 +547,6 @@
           }
         ]
       },
-      "description": "workspace desc",
       "type": "POWER_BI_WORKSPACE"
     },
     "logicalId": {
@@ -551,13 +560,13 @@
     "_id": "activity-id",
     "activityType": "VIEW",
     "actor": "PERSON~6FB4F4EEE50BD1233071D70B74463061",
+    "actorInfo": {
+      "email": "test@foo.bar"
+    },
     "durationInSeconds": 0.0,
     "entityId": "DASHBOARD~E264A8C3DE81E67DB3A9A2DC55B940D6",
     "measure": 1.0,
     "source": "POWER_BI",
-    "timestamp": "2023-10-17T01:00:00",
-    "actorInfo": {
-      "email": "test@foo.bar"
-    }
+    "timestamp": "2023-10-17T01:00:00"
   }
 ]
