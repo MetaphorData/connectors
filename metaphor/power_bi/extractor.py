@@ -394,6 +394,7 @@ class PowerBIExtractor(BaseExtractor):
                         wds.sensitivityLabel.labelId if wds.sensitivityLabel else None
                     ),
                 ),
+                source_info=SourceInfo(main_url=ds.webUrl),
             )
 
             self._extract_pipeline_info(wds, virtual_view)
