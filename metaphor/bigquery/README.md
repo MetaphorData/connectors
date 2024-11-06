@@ -112,6 +112,7 @@ See [Output Config](../common/docs/output.md) for more information.
 #### Filtering
 
 See [Filter Config](../common/docs/filter.md) for more information on the optional `filter` config.
+> NOTE: While the filter config uses `database -> schema -> table/view` hierarchy, BigQuery uses `project -> database -> table/view` hierarchy. Please use project id at the top level in the include/exclude of the filter config.
 
 #### Tag Assignment
 
