@@ -7,11 +7,11 @@
           "targets": [
             {
               "column": "passenger_count",
-              "dataset": "gx_example_db.nyc_taxi_data"
+              "dataset": "DATASET~C31AF1096D54CAFC2FE971910950658C"
             },
             {
               "column": "fare_amount",
-              "dataset": "gx_example_db.nyc_taxi_data"
+              "dataset": "DATASET~C31AF1096D54CAFC2FE971910950658C"
             }
           ],
           "title": "expectations"
