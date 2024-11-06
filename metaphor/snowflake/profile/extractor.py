@@ -86,11 +86,11 @@ class SnowflakeProfileExtractor(BaseExtractor):
         with self._conn:
             cursor = self._conn.cursor()
 
-            databases = (
-                SnowflakeExtractor.fetch_databases(cursor)
-                if self._filter.includes is None
-                else list(self._filter.includes.keys())
-            )
+            databases = [
+                db
+                for db in SnowflakeExtractor.fetch_databases(cursor)
+                if self._filter.include_database(db)
+            ]
 
             for database in databases:
                 tables = self._fetch_tables(cursor, database)

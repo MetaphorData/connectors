@@ -141,11 +141,11 @@ class SnowflakeExtractor(BaseExtractor):
         with self._conn:
             cursor = self._conn.cursor()
 
-            databases = (
-                self.fetch_databases(cursor)
-                if self._filter.includes is None
-                else list(self._filter.includes.keys())
-            )
+            databases = [
+                db
+                for db in self.fetch_databases(cursor)
+                if self._filter.include_database(db)
+            ]
             logger.info(f"Databases to include: {databases}")
 
             shared_databases = self._fetch_shared_databases(cursor)
