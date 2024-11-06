@@ -14,6 +14,7 @@ from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import (
     dataset_normalized_name,
     parts_to_dataset_entity_id,
+    to_dataset_entity_id_from_logical_id,
 )
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
@@ -212,7 +213,7 @@ class GreatExpectationsExtractor(BaseExtractor):
         assert dataset.logical_id and dataset.logical_id.name
         targets = [
             DataMonitorTarget(
-                dataset=dataset.logical_id.name,
+                dataset=str(to_dataset_entity_id_from_logical_id(dataset.logical_id)),
                 column=result.expectation_config.kwargs["column"],
             )
             for result in validation_result.results
