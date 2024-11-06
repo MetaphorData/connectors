@@ -28,6 +28,7 @@ def get_dummy_config(base_url: str, path: str = "", url: str = ""):
         ("pet_store_30", "https://foo.bar"),
         ("pet_store_20", "https://foo.bar"),
         ("pet_store_31_absolute_server", "https://foo.bar"),
+        ("no_tag_30", "https://foo.bar"),
     ],
 )
 @pytest.mark.asyncio

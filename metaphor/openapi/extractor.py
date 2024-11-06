@@ -134,7 +134,7 @@ class OpenAPIExtractor(BaseExtractor):
                     oas_hierarchy_id=self._oas_hierarchy_id,
                 ),
                 structure=AssetStructure(
-                    directories=[self._api_id] + [first_tag] if first_tag else [],
+                    directories=[self._api_id] + ([first_tag] if first_tag else []),
                     name=path,
                 ),
             )
