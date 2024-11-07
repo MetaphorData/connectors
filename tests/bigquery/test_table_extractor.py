@@ -1,4 +1,6 @@
+import datetime
 from pathlib import Path
+from typing import Dict, Optional
 
 import pytest
 from google.cloud import bigquery
@@ -56,3 +58,24 @@ def test_extract_table(test_root_dir: str, table_type: str):
         / f"{table_type.lower()}.json"
     )
     assert [schema] == load_json(expected)
+
+
+@pytest.mark.parametrize(
+    ["snapshot_definition", "expected"],
+    [
+        (
+            {"snapshotTime": "2024-11-05T00:00:00.000Z"},
+            datetime.datetime(
+                2024, 11, 5, 00, 00, 00, 00, tzinfo=datetime.timezone.utc
+            ),
+        ),
+        ({"snapshotTime": "2024-11-05T00:00:00"}, None),
+        (None, None),
+    ],
+)
+def test_get_snapshot_time(
+    snapshot_definition: Optional[Dict[str, str]], expected: Optional[datetime.datetime]
+):
+    table = bigquery.Table("my-project.dataset.table")
+    table._properties["snapshotDefinition"] = snapshot_definition  # type: ignore
+    assert TableExtractor._get_snapshot_time(table) == expected
