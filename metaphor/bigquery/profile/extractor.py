@@ -10,8 +10,8 @@ except ImportError:
     print("Please install metaphor[bigquery] extra\n")
     raise
 
-from metaphor.bigquery.extractor import BigQueryExtractor
 from metaphor.bigquery.profile.config import BigQueryProfileRunConfig, SamplingConfig
+from metaphor.bigquery.table import TableExtractor
 from metaphor.bigquery.utils import build_client, get_credentials
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.column_statistics import ColumnStatistics
@@ -155,7 +155,7 @@ class BigQueryProfileExtractor(BaseExtractor):
         )
         bq_table = self._client.get_table(table)
         row_count = bq_table.num_rows
-        schema = BigQueryExtractor.parse_schema(bq_table)
+        schema = TableExtractor.extract_schema(bq_table)
 
         logger.debug(f"building query for {table}")
         sql = self._build_profiling_query(

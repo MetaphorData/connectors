@@ -38,8 +38,8 @@ class JobChangeEvent:
     output_bytes: Optional[int]
     output_rows: Optional[int]
 
-    @classmethod
-    def can_parse(cls, entry: LogEntry) -> bool:
+    @staticmethod
+    def _can_parse(entry: LogEntry) -> bool:
         try:
             assert entry.resource.type == "bigquery_project"
             assert isinstance(entry.received_timestamp, datetime)
@@ -54,6 +54,8 @@ class JobChangeEvent:
 
     @classmethod
     def from_entry(cls, entry: LogEntry) -> Optional["JobChangeEvent"]:
+        if not JobChangeEvent._can_parse(entry):
+            return None
         timestamp = entry.received_timestamp
         user_email = entry.payload["authenticationInfo"].get("principalEmail", "")
 
@@ -149,3 +151,23 @@ class JobChangeEvent:
             output_bytes=output_bytes,
             output_rows=output_rows,
         )
+
+    def get_email(self, service_account: bool) -> Optional[str]:
+        """
+        Returns the email for this Job Change Event.
+
+        Paramaters
+        ----------
+        service_account : bool
+            If `service_account` is set to `True`, only returns the email if this email
+            belongs to a service account, otherwise returns `None`.
+            If `service_account` is set to `False`, only returns the email if this email
+            does not belong to a service account.
+        """
+        # Assume service accounts always end in ".gserviceaccount.com"
+        # https://cloud.google.com/compute/docs/access/service-accounts
+        is_service_account = self.user_email.endswith(".gserviceaccount.com")
+        if service_account:
+            return self.user_email if is_service_account else None
+        else:
+            return None if is_service_account else self.user_email

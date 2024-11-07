@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytz
 
-from metaphor.bigquery.logEvent import JobChangeEvent
+from metaphor.bigquery.job_change_event import JobChangeEvent
 from metaphor.bigquery.utils import BigQueryResource
 from tests.bigquery.load_entries import load_entries
 

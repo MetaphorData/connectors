@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from google.cloud.bigquery.schema import SchemaField
 
-from metaphor.bigquery.config import BigQueryQueryLogConfig
+from metaphor.bigquery.config import BigQueryLineageConfig, BigQueryQueryLogConfig
 from metaphor.bigquery.extractor import BigQueryExtractor, BigQueryRunConfig
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
@@ -102,6 +102,10 @@ async def test_extractor(
         key_path="fake_file",
         project_ids=["fake_project"],
         query_log=BigQueryQueryLogConfig(),
+        lineage=BigQueryLineageConfig(
+            enable_lineage_from_log=False,
+            enable_view_lineage=False,
+        ),
     )
 
     entries = load_entries(test_root_dir + "/bigquery/sample_log.json")

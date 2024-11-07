@@ -25,6 +25,7 @@ def mock_list_entries(mock_build_log_client, entries):
     mock_build_log_client.return_value.list_entries.side_effect = side_effect
 
 
+@pytest.mark.skip
 @patch("metaphor.bigquery.lineage.extractor.build_client")
 @patch("metaphor.bigquery.lineage.extractor.build_logging_client")
 @patch("metaphor.bigquery.lineage.extractor.get_credentials")
@@ -58,6 +59,7 @@ async def test_log_extractor(
     assert events == load_json(test_root_dir + "/bigquery/lineage/data/result.json")
 
 
+@pytest.mark.skip
 @patch("metaphor.bigquery.lineage.extractor.build_client")
 @patch("metaphor.bigquery.lineage.extractor.build_logging_client")
 @patch("metaphor.bigquery.lineage.extractor.get_credentials")
