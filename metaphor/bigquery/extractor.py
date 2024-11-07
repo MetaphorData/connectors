@@ -1,10 +1,8 @@
-import re
 import time
 from concurrent.futures import ThreadPoolExecutor
-from typing import Collection, Dict, Iterable, Iterator, List, Optional
+from typing import Collection, Dict, Iterable, Iterator, List
 
-from metaphor.bigquery.log_filter import build_log_filter
-from metaphor.bigquery.log_type import query_type_to_log_type
+from metaphor.bigquery.log_filter import build_list_entries_filter
 from metaphor.bigquery.queries import Queries
 from metaphor.bigquery.table import TableExtractor
 from metaphor.common.sql.table_level_lineage import table_level_lineage
@@ -20,21 +18,14 @@ from google.cloud.bigquery.table import Table as BQTable
 
 from metaphor.bigquery.config import BigQueryRunConfig
 from metaphor.bigquery.job_change_event import JobChangeEvent
-from metaphor.bigquery.utils import (
-    BigQueryResource,
-    build_client,
-    build_logging_client,
-    get_credentials,
-)
+from metaphor.bigquery.utils import build_client, build_logging_client, get_credentials
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import dataset_normalized_name, to_dataset_entity_id
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.filter import DatasetFilter
 from metaphor.common.logger import get_logger
 from metaphor.common.models import to_dataset_statistics
-from metaphor.common.sql.query_log import PartialQueryLog, process_and_init_query_log
 from metaphor.common.tag_matcher import tag_datasets
-from metaphor.common.utils import safe_float
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import (
     DataPlatform,
@@ -42,7 +33,6 @@ from metaphor.models.metadata_change_event import (
     DatasetLogicalID,
     DatasetStructure,
     EntityUpstream,
-    QueriedDataset,
     QueryLog,
     SourceInfo,
 )
@@ -92,7 +82,7 @@ class BigQueryExtractor(BaseExtractor):
                 max_workers=self._config.max_concurrency
             ) as executor:
 
-                def get_table(table: bigquery.TableReference) -> Dataset:
+                def table_ref_to_dataset(table: bigquery.TableReference) -> Dataset:
                     logger.info(f"Getting table {table.table_id}")
                     return self._parse_table(client.project, client.get_table(table))
 
@@ -100,7 +90,7 @@ class BigQueryExtractor(BaseExtractor):
                 tables: Dict[str, Dataset] = {
                     d.logical_id.name.split(".")[-1]: d
                     for d in executor.map(
-                        get_table,
+                        table_ref_to_dataset,
                         BigQueryExtractor._list_tables_with_filter(
                             dataset_ref, client, self._dataset_filter
                         ),
@@ -190,13 +180,6 @@ class BigQueryExtractor(BaseExtractor):
         return dataset
 
     def _fetch_query_logs(self, project_id: str) -> Iterator[QueryLog]:
-        log_filter = build_log_filter(
-            target="query_log",
-            query_log_lookback_days=self._config.query_log.lookback_days,
-            audit_log_lookback_days=self._config.lineage.lookback_days,
-            exclude_service_accounts=self._config.query_log.exclude_service_accounts,
-        )
-
         client = build_client(project_id, self._credentials)
         logging_client = build_logging_client(project_id, self._credentials)
 
@@ -204,12 +187,13 @@ class BigQueryExtractor(BaseExtractor):
         last_time = time.time()
 
         for entry in logging_client.list_entries(
-            page_size=self._config.query_log.fetch_size, filter_=log_filter
+            page_size=self._config.query_log.fetch_size,
+            filter_=build_list_entries_filter("query_log", self._config),
         ):
             count += 1
 
             if job_change := JobChangeEvent.from_entry(entry):
-                if log := self._parse_job_change_event(job_change, client):
+                if log := job_change.to_query_log(client, self._config):
                     fetched += 1
                     yield log
 
@@ -224,98 +208,6 @@ class BigQueryExtractor(BaseExtractor):
                     time.sleep(wait_time)
 
         logger.info(f"Number of query log entries fetched: {fetched}")
-
-    @staticmethod
-    def _fetch_job_query(client: bigquery.Client, job_name: str) -> Optional[str]:
-        logger.info(f"Query {job_name}")
-        if match := re.match(r"^projects/([^/]+)/jobs/([^/]+)$", job_name):
-            project = match.group(1)
-            job_id = match.group(2)
-
-            try:
-                job = client.get_job(job_id, project)
-            except Exception as e:
-                logger.warning(f"Failed to get job information: {e}")
-                return None
-
-            if isinstance(job, bigquery.QueryJob):
-                return job.query
-
-        return None
-
-    def _parse_job_change_event(
-        self, job_change: JobChangeEvent, client: bigquery.Client
-    ) -> Optional[QueryLog]:
-        if job_change.query is None:
-            return None
-
-        if job_change.user_email in self._config.query_log.excluded_usernames:
-            logger.debug(f"Skipped query issued by {job_change.user_email}")
-            return None
-
-        sources: List[QueriedDataset] = [
-            self._convert_resource_to_queried_dataset(d)
-            for d in job_change.source_tables
-        ]
-        target = job_change.destination_table
-        target_datasets = (
-            [self._convert_resource_to_queried_dataset(target)] if target else None
-        )
-
-        default_database, default_schema = None, None
-        if job_change.default_dataset and job_change.default_dataset.count(".") == 1:
-            default_database, default_schema = job_change.default_dataset.split(".")
-
-        query = job_change.query
-        # if query SQL is truncated, fetch full SQL from job API
-        if (
-            job_change.job_type == "QUERY"
-            and job_change.query_truncated
-            and self._config.query_log.fetch_job_query_if_truncated
-        ):
-            query = self._fetch_job_query(client, job_change.job_name) or query
-
-        elapsed_time = (
-            (job_change.end_time - job_change.start_time).total_seconds()
-            if job_change.start_time and job_change.end_time
-            else None
-        )
-
-        return process_and_init_query_log(
-            query=query,
-            platform=DataPlatform.BIGQUERY,
-            process_query_config=self._config.query_log.process_query,
-            query_log=PartialQueryLog(
-                start_time=job_change.start_time,
-                duration=safe_float(elapsed_time),
-                user_id=job_change.get_email(service_account=True),
-                email=job_change.get_email(service_account=False),
-                rows_written=safe_float(job_change.output_rows),
-                bytes_read=safe_float(job_change.input_bytes),
-                bytes_written=safe_float(job_change.output_bytes),
-                sources=sources,
-                targets=target_datasets,
-                default_database=default_database,
-                default_schema=default_schema,
-                type=query_type_to_log_type(job_change.statementType),
-            ),
-            query_id=job_change.job_name,
-        )
-
-    @staticmethod
-    def _convert_resource_to_queried_dataset(
-        resource: BigQueryResource,
-    ) -> QueriedDataset:
-        dataset_name = dataset_normalized_name(
-            resource.project_id, resource.dataset_id, resource.table_id
-        )
-        dataset_id = str(to_dataset_entity_id(dataset_name, DataPlatform.BIGQUERY))
-        return QueriedDataset(
-            id=dataset_id,
-            database=resource.project_id,
-            schema=resource.dataset_id,
-            table=resource.table_id,
-        )
 
     def _fetch_view_upstream(self, client: bigquery.Client, project_id: str) -> None:
         logger.info("Fetching lineage info from BigQuery API")
@@ -371,15 +263,10 @@ class BigQueryExtractor(BaseExtractor):
 
         logging_client = build_logging_client(project_id, self._credentials)
 
-        log_filter = build_log_filter(
-            target="audit_log",
-            query_log_lookback_days=self._config.query_log.lookback_days,
-            audit_log_lookback_days=self._config.lineage.lookback_days,
-            exclude_service_accounts=self._config.query_log.exclude_service_accounts,
-        )
         fetched, parsed = 0, 0
         for entry in logging_client.list_entries(
-            page_size=self._config.lineage.batch_size, filter_=log_filter
+            page_size=self._config.lineage.batch_size,
+            filter_=build_list_entries_filter("audit_log", self._config),
         ):
             fetched += 1
             try:

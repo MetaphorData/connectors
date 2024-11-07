@@ -1,24 +1,28 @@
 from typing import Literal
 
+from metaphor.bigquery.config import BigQueryRunConfig
 from metaphor.bigquery.queries import Queries
 from metaphor.common.utils import start_of_day
 
 
-def build_log_filter(
+def build_list_entries_filter(
     target: Literal["audit_log", "query_log"],
-    query_log_lookback_days: int,
-    audit_log_lookback_days: int,
-    exclude_service_accounts: bool,
+    config: BigQueryRunConfig,
 ) -> str:
+    """
+    Builds the filter for a list entries query.
+    """
     start_time = start_of_day(
-        query_log_lookback_days if target == "query_log" else audit_log_lookback_days
+        config.query_log.lookback_days
+        if target == "query_log"
+        else config.lineage.lookback_days
     ).isoformat()
     end_time = start_of_day().isoformat()
 
     # Filter for service account
     service_account_filter = (
         "NOT protoPayload.authenticationInfo.principalEmail:gserviceaccount.com AND"
-        if target == "query_log" and exclude_service_accounts
+        if target == "query_log" and config.query_log.exclude_service_accounts
         else ""
     )
 

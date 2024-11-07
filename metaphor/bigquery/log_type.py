@@ -28,6 +28,9 @@ _query_type_map = {
 
 
 def query_type_to_log_type(query_type: Optional[str]) -> Optional[LogType]:
+    """
+    Converts query type to LogType if it is not None.
+    """
     if not query_type:
         return None
     return _query_type_map.get(query_type.upper(), LogType.OTHER)

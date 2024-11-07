@@ -1,6 +1,8 @@
 class Queries:
     """
-    See https://cloud.google.com/logging/docs/view/logging-query-language for query syntax
+    Utility class for all queries used by the BQ crawler.
+
+    See https://cloud.google.com/logging/docs/view/logging-query-language for query syntax.
     """
 
     @staticmethod
