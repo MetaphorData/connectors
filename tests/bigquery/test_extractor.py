@@ -205,3 +205,107 @@ async def test_extractor(
     query_logs = wrap_query_log_stream_to_event(extractor.collect_query_logs())
     expected_query_logs = f"{test_root_dir}/bigquery/query_logs.json"
     assert query_logs == load_json(expected_query_logs)
+
+
+@patch("metaphor.bigquery.extractor.build_client")
+@patch("metaphor.bigquery.extractor.build_logging_client")
+@patch("metaphor.bigquery.extractor.get_credentials")
+@pytest.mark.asyncio
+async def test_extract_view_upstream(
+    mock_get_credentials: MagicMock,
+    mock_build_logging_client: MagicMock,
+    mock_build_client: MagicMock,
+    test_root_dir: str,
+) -> None:
+    config = BigQueryRunConfig(
+        project_ids=["project1"],
+        output=OutputConfig(),
+        key_path="fake_file",
+        lineage=BigQueryLineageConfig(
+            enable_lineage_from_log=False,
+        ),
+    )
+    extractor = BigQueryExtractor(config)
+
+    mock_get_credentials.return_value = "fake_credentials"
+
+    mock_build_client.return_value.project = "project1"
+
+    mock_list_datasets(mock_build_client, [mock_dataset("dataset1")])
+
+    mock_list_tables(
+        mock_build_client,
+        {
+            "dataset1": [
+                mock_table("dataset1", "table1"),
+                mock_table("dataset1", "table2"),
+                mock_table("dataset1", "table3"),
+            ],
+        },
+    )
+
+    mock_get_table(
+        mock_build_client,
+        {
+            ("dataset1", "table1"): mock_table_full(
+                dataset_id="dataset1",
+                table_id="table1",
+                table_type="VIEW",
+                description="description",
+                view_query="select * from `foo`",
+            ),
+            ("dataset1", "table2"): mock_table_full(
+                dataset_id="dataset1",
+                table_id="table2",
+                table_type="VIEW",
+                description="description",
+                view_query="select * from `Foo`",
+            ),
+            ("dataset1", "table3"): mock_table_full(
+                dataset_id="dataset1",
+                table_id="table3",
+                table_type="VIEW",
+                description="description",
+                view_query="select * from foo",
+            ),
+        },
+    )
+
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+
+    assert events == load_json(f"{test_root_dir}/bigquery/data/view_result.json")
+
+
+@patch("metaphor.bigquery.extractor.build_client")
+@patch("metaphor.bigquery.extractor.build_logging_client")
+@patch("metaphor.bigquery.extractor.get_credentials")
+@pytest.mark.asyncio
+async def test_log_extractor(
+    mock_get_credentials: MagicMock,
+    mock_build_logging_client: MagicMock,
+    mock_build_client: MagicMock,
+    test_root_dir: str,
+):
+    config = BigQueryRunConfig(
+        project_ids=["project1"],
+        output=OutputConfig(),
+        key_path="fake_file",
+        lineage=BigQueryLineageConfig(
+            enable_view_lineage=False,
+            include_self_lineage=True,
+        ),
+    )
+
+    entries = load_entries(test_root_dir + "/bigquery/data/sample_log.json")
+
+    extractor = BigQueryExtractor(config)
+
+    mock_get_credentials.return_value = "fake_credentials"
+
+    mock_build_logging_client.return_value.project = "project1"
+
+    mock_list_entries(mock_build_logging_client, entries)
+
+    events = [EventUtil.trim_event(e) for e in await extractor.extract()]
+
+    assert events == load_json(test_root_dir + "/bigquery/data/result.json")

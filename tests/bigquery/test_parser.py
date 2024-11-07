@@ -8,7 +8,7 @@ from tests.bigquery.load_entries import load_entries
 
 
 def test_parse_log(test_root_dir):
-    logs = load_entries(test_root_dir + "/bigquery/lineage/data/sample_log.json")
+    logs = load_entries(test_root_dir + "/bigquery/data/sample_log.json")
 
     results = [JobChangeEvent.from_entry(log) for log in logs]
 
