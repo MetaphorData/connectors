@@ -28,6 +28,7 @@ class Sink(ABC):
             ]
 
         if len(valid_records) == 0:
+            logger.info("No valid MCE records to write")
             return False
 
         return self._sink(valid_records)
