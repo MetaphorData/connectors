@@ -385,11 +385,12 @@ class PostgreSQLExtractor(BasePostgreSQLExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from postgreSQL host {self._host}")
 
-        databases = (
-            await self._fetch_databases()
-            if self._filter.includes is None
-            else list(self._filter.includes.keys())
-        )
+        databases = [
+            db
+            for db in (await self._fetch_databases())
+            if self._filter.include_database(db)
+        ]
+        logger.info(f"Databases to include: {databases}")
 
         for db in databases:
             conn = await self._connect_database(db)
