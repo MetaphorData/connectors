@@ -78,7 +78,7 @@ class BigQueryLineageConfig:
     enable_lineage_from_log: bool = True
 
     # Number of days back in the query log to process
-    lookback_days: int = 7
+    lookback_days: int = 1
 
     # Whether to include self loop in lineage
     include_self_lineage: bool = True
