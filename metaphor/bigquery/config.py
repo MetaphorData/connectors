@@ -70,6 +70,24 @@ class BigQueryQueryLogConfig:
 
 
 @dataclass(config=ConnectorConfig)
+class BigQueryLineageConfig:
+    # Whether to enable parsing view query to find upstream of the view, default True
+    enable_view_lineage: bool = True
+
+    # Whether to enable parsing audit log to find table lineage information, default True
+    enable_lineage_from_log: bool = True
+
+    # Number of days back in the query log to process
+    lookback_days: int = 1
+
+    # Whether to include self loop in lineage
+    include_self_lineage: bool = True
+
+    # The number of access logs fetched in a batch, default to 1000
+    batch_size: int = 1000
+
+
+@dataclass(config=ConnectorConfig)
 class BigQueryRunConfig(BaseConfig):
     # List of project IDs to extract metadata from
     project_ids: List[str]
@@ -95,6 +113,11 @@ class BigQueryRunConfig(BaseConfig):
     # configs for fetching query logs
     query_log: BigQueryQueryLogConfig = field(
         default_factory=lambda: BigQueryQueryLogConfig()
+    )
+
+    # configs for lineage information
+    lineage: BigQueryLineageConfig = field(
+        default_factory=lambda: BigQueryLineageConfig()
     )
 
     @model_validator(mode="after")

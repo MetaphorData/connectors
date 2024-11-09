@@ -1,14 +1,16 @@
 from datetime import datetime
+from unittest.mock import MagicMock, patch
 
 import pytz
+from google.cloud import bigquery
 
-from metaphor.bigquery.logEvent import JobChangeEvent
+from metaphor.bigquery.job_change_event import JobChangeEvent
 from metaphor.bigquery.utils import BigQueryResource
 from tests.bigquery.load_entries import load_entries
 
 
 def test_parse_log(test_root_dir):
-    logs = load_entries(test_root_dir + "/bigquery/lineage/data/sample_log.json")
+    logs = load_entries(test_root_dir + "/bigquery/data/sample_log.json")
 
     results = [JobChangeEvent.from_entry(log) for log in logs]
 
@@ -69,3 +71,32 @@ def test_parse_log(test_root_dir):
             output_rows=1,
         ),
     ]
+
+
+@patch("google.cloud.bigquery.Client")
+def test_fetch_job_query(mock_client: MagicMock):
+    query = "SELECT * FROM my-project.dataset.table"
+    mock_client.get_job = lambda job_id, project: bigquery.QueryJob(
+        job_id=job_id,
+        query=query,
+        client=mock_client,
+    )
+    assert (
+        JobChangeEvent._fetch_job_query(mock_client, "projects/my-project/jobs/1234")
+        == query
+    )
+
+
+@patch("google.cloud.bigquery.Client")
+def test_fetch_job_query_fail(mock_client: MagicMock):
+    def fail_get_job(job_id, project):
+        raise ValueError
+
+    mock_client.get_job = fail_get_job
+    assert not JobChangeEvent._fetch_job_query(
+        mock_client, "projects/my-project/jobs/1234"
+    )
+
+
+def test_fetch_not_a_job():
+    assert not JobChangeEvent._fetch_job_query(MagicMock(), "projects/my-project/jobs")

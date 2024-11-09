@@ -1,0 +1,42 @@
+[
+  {
+    "fields": [
+      {
+        "fieldName": "col1",
+        "fieldPath": "col1",
+        "nativeType": "INT",
+        "nullable": true
+      },
+      {
+        "fieldName": "col2",
+        "fieldPath": "col2",
+        "nativeType": "ARRAY<STRUCT>",
+        "nullable": false,
+        "subfields": [
+          {
+            "fieldName": "col2_1",
+            "fieldPath": "col2.col2_1",
+            "nativeType": "ARRAY<TEXT>",
+            "nullable": false
+          },
+          {
+            "fieldName": "col2_1",
+            "fieldPath": "col2.col2_1",
+            "nativeType": "BOOL",
+            "nullable": true
+          },
+          {
+            "fieldName": "col2_3",
+            "fieldPath": "col2.col2_3",
+            "nativeType": "RECORD",
+            "nullable": true
+          }
+        ]
+      }
+    ],
+    "schemaType": "SQL",
+    "sqlSchema": {
+      "materialization": "EXTERNAL"
+    }
+  }
+]

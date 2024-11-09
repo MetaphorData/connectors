@@ -1,0 +1,104 @@
+[
+  {
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~D61A8E52A48057B7A3DD4124F0894B06"
+      ],
+      "transformation": "select * from `foo`"
+    },
+    "logicalId": {
+      "name": "project1.dataset1.table1",
+      "platform": "BIGQUERY"
+    },
+    "schema": {
+      "description": "description",
+      "fields": [],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "VIEW",
+        "tableSchema": "select * from `foo`"
+      }
+    },
+    "sourceInfo": {
+      "createdAtSource": "2000-01-01T00:00:00+00:00",
+      "lastUpdated": "2000-01-01T00:00:00+00:00"
+    },
+    "statistics": {
+      "dataSizeBytes": 0.0,
+      "recordCount": 0.0
+    },
+    "structure": {
+      "database": "project1",
+      "schema": "dataset1",
+      "table": "table1"
+    }
+  },
+  {
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~D61A8E52A48057B7A3DD4124F0894B06"
+      ],
+      "transformation": "select * from `Foo`"
+    },
+    "logicalId": {
+      "name": "project1.dataset1.table2",
+      "platform": "BIGQUERY"
+    },
+    "schema": {
+      "description": "description",
+      "fields": [],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "VIEW",
+        "tableSchema": "select * from `Foo`"
+      }
+    },
+    "sourceInfo": {
+      "createdAtSource": "2000-01-01T00:00:00+00:00",
+      "lastUpdated": "2000-01-01T00:00:00+00:00"
+    },
+    "statistics": {
+      "dataSizeBytes": 0.0,
+      "recordCount": 0.0
+    },
+    "structure": {
+      "database": "project1",
+      "schema": "dataset1",
+      "table": "table2"
+    }
+  },
+  {
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~D61A8E52A48057B7A3DD4124F0894B06"
+      ],
+      "transformation": "select * from foo"
+    },
+    "logicalId": {
+      "name": "project1.dataset1.table3",
+      "platform": "BIGQUERY"
+    },
+    "schema": {
+      "description": "description",
+      "fields": [],
+      "schemaType": "SQL",
+      "sqlSchema": {
+        "materialization": "VIEW",
+        "tableSchema": "select * from foo"
+      }
+    },
+    "sourceInfo": {
+      "createdAtSource": "2000-01-01T00:00:00+00:00",
+      "lastUpdated": "2000-01-01T00:00:00+00:00"
+    },
+    "statistics": {
+      "dataSizeBytes": 0.0,
+      "recordCount": 0.0
+    },
+    "structure": {
+      "database": "project1",
+      "schema": "dataset1",
+      "table": "table3"
+    }
+  }
+]
