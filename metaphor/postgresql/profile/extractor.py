@@ -47,17 +47,14 @@ class PostgreSQLProfileExtractor(PostgreSQLExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching data profile from host {self._host}")
 
-        databases = (
-            await self._fetch_databases()
-            if self._filter.includes is None
-            else list(self._filter.includes.keys())
-        )
-
-        coroutines = [
-            self._profile_database(database)
-            for database in databases
-            if self._filter.include_database(database)
+        databases = [
+            db
+            for db in (await self._fetch_databases())
+            if self._filter.include_database(db)
         ]
+        logger.info(f"Databases to include: {databases}")
+
+        coroutines = [self._profile_database(database) for database in databases]
 
         await asyncio.gather(*coroutines)
 

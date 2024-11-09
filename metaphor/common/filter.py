@@ -200,23 +200,22 @@ class DatasetFilter:
         schema_lower = schema.lower()
 
         def covered_by_filter(database_filter: DatabaseFilter, partial: bool):
-            if database_lower not in database_filter:
-                return False
-
-            schema_filter = database_filter[database_lower]
-
-            # empty schema filter
-            if schema_filter is None or len(schema_filter) == 0:
-                return True
-
-            for schema_pattern, table_filter in schema_filter.items():
-                # got a match
-                if fnmatch(schema_lower, schema_pattern):
-                    # fully covered
-                    if table_filter is None or len(table_filter) == 0:
+            # check each database pattern
+            for pattern, schema_filter in database_filter.items():
+                if fnmatch(database_lower, pattern):
+                    # empty schema filter, match any schema
+                    if schema_filter is None or len(schema_filter) == 0:
                         return True
-                    else:
-                        return partial
+
+                    # check each schema pattern
+                    for schema_pattern, table_filter in schema_filter.items():
+                        # got a match
+                        if fnmatch(schema_lower, schema_pattern):
+                            # fully covered
+                            if table_filter is None or len(table_filter) == 0:
+                                return True
+                            else:
+                                return partial
 
             return False
 

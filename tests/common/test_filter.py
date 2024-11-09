@@ -165,6 +165,19 @@ def test_include_schema_glob_patterns():
     assert not filter.include_schema("db", "bar")
     assert not filter.include_schema("db", "uhoh")
 
+    filter = DatasetFilter(
+        includes={"*": {"test*": None}},
+    )
+
+    assert filter.include_schema("foo", "test1")
+    assert not filter.include_schema("foo", "bar")
+
+    filter = DatasetFilter(
+        includes={"foo*": {"test*": None}}, excludes={"foo_bar": None}
+    )
+    assert filter.include_schema("foo_baz", "test1")
+    assert not filter.include_schema("foo_bar", "test1")
+
 
 def test_merge():
     f1 = DatasetFilter()
@@ -282,5 +295,9 @@ def test_include_database():
 
     # Excludes take precedence over includes
     filter = DatasetFilter(includes={"foo*": None}, excludes={"foo_bar": None})
+    assert filter.include_database("foo_baz")
+    assert not filter.include_database("foo_bar")
+
+    filter = DatasetFilter(includes={"*": None}, excludes={"foo_bar": None})
     assert filter.include_database("foo_baz")
     assert not filter.include_database("foo_bar")
