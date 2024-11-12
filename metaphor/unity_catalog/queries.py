@@ -8,7 +8,6 @@ from metaphor.common.utils import start_of_day
 from metaphor.unity_catalog.models import (
     CatalogInfo,
     Column,
-    ColumnInfo,
     ColumnLineage,
     SchemaInfo,
     TableInfo,
@@ -35,10 +34,6 @@ IGNORED_HISTORY_OPERATIONS = {
     "SET TBLPROPERTIES",
 }
 """These are the operations that do not modify actual data."""
-
-
-def to_tags(tags: Optional[List[Dict]]) -> List[Tag]:
-    return [Tag(key=tag["tag_name"], value=tag["tag_value"]) for tag in tags or []]
 
 
 def list_catalogs(connection: Connection) -> List[CatalogInfo]:
@@ -93,7 +88,7 @@ def list_catalogs(connection: Connection) -> List[CatalogInfo]:
                     catalog_name=row["catalog_name"],
                     owner=row["catalog_owner"],
                     comment=row["comment"],
-                    tags=to_tags(row["tags"]),
+                    tags=Tag.from_row_tags(row["tags"]),
                 )
             )
 
@@ -158,7 +153,7 @@ def list_schemas(connection: Connection, catalog: str) -> List[SchemaInfo]:
                     schema_name=row["schema_name"],
                     owner=row["schema_owner"],
                     comment=row["comment"],
-                    tags=to_tags(row["tags"]),
+                    tags=Tag.from_row_tags(row["tags"]),
                 )
             )
 
@@ -345,36 +340,7 @@ def list_tables(connection: Connection, catalog: str, schema: str) -> List[Table
             return []
 
         for row in cursor.fetchall():
-            columns = [
-                ColumnInfo(
-                    column_name=column["column_name"],
-                    data_type=column["data_type"],
-                    data_precision=column["data_precision"],
-                    is_nullable=column["is_nullable"] == "YES",
-                    comment=column["comment"],
-                    tags=to_tags(column["tags"]),
-                )
-                for column in row["columns"]
-            ]
-
-            tables.append(
-                TableInfo(
-                    catalog_name=row["catalog_name"],
-                    schema_name=row["schema_name"],
-                    table_name=row["table_name"],
-                    type=row["table_type"],
-                    owner=row["owner"],
-                    comment=row["table_comment"],
-                    created_at=row["created_at"],
-                    created_by=row["created_by"],
-                    updated_at=row["updated_at"],
-                    updated_by=row["updated_by"],
-                    data_source_format=row["data_source_format"],
-                    view_definition=row["view_definition"],
-                    storage_location=row["storage_path"],
-                    columns=columns,
-                ),
-            )
+            tables.append(TableInfo.from_row(row))
 
     logger.info(f"Found {len(tables)} tables from {catalog}")
     json_dump_to_debug_file(tables, f"list_tables_{catalog}_{schema}.json")
@@ -463,7 +429,7 @@ def list_volumes(connection: Connection, catalog: str, schema: str) -> List[Volu
                     updated_at=row["last_altered"],
                     updated_by=row["last_altered_by"],
                     storage_location=row["storage_location"],
-                    tags=to_tags(row["tags"]),
+                    tags=Tag.from_row_tags(row["tags"]),
                 )
             )
 
