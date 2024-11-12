@@ -61,7 +61,7 @@ class ColumnInfo(BaseModel):
                 comment=column["comment"],
                 tags=Tag.from_row_tags(column["tags"]),
             )
-            for column in row["columns"] or []
+            for column in (row["columns"] if row["columns"] is not None else [])
         ]
 
 
