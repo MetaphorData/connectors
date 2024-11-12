@@ -80,7 +80,6 @@ class TestModel:
         row = Row(**{**self.row.asDict(), "columns": columns})
         table_info = TableInfo.from_row(row)
 
-        print(table_info.model_dump_json(indent=2))
         assert table_info.model_dump() == {
             "catalog_name": "catalog",
             "schema_name": "schema",
