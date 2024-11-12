@@ -117,3 +117,37 @@ class TestModel:
                 },
             ],
         }
+
+    def test_table_info_with_tags(self) -> None:
+        tags = [
+            {
+                "tag_name": "tag1",
+                "tag_value": "value1",
+            },
+            {
+                "tag_name": "tag2",
+                "tag_value": "value2",
+            },
+        ]
+        row = Row(**{**self.row.asDict(), "tags": tags})
+        table_info = TableInfo.from_row(row)
+        assert table_info.model_dump() == {
+            "catalog_name": "catalog",
+            "schema_name": "schema",
+            "table_name": "table",
+            "type": "TABLE",
+            "owner": "john.doe@metaphor.io",
+            "comment": "this is a comment",
+            "created_at": datetime.fromisoformat("2000-01-01T00:00:00"),
+            "created_by": "john.doe@metaphor.io",
+            "updated_at": datetime.fromisoformat("2000-01-01T00:00:00"),
+            "updated_by": "john.doe@metaphor.io",
+            "view_definition": "SELECT * FROM catalog.schema.source",
+            "storage_location": "s3://bucket/foo.csv",
+            "data_source_format": "sql",
+            "tags": [
+                {"key": "tag1", "value": "value1"},
+                {"key": "tag2", "value": "value2"},
+            ],
+            "columns": [],
+        }
