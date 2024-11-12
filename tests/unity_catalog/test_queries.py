@@ -173,6 +173,7 @@ def test_list_tables(
                     "updated_at": datetime(2001, 1, 1),
                     "updated_by": "user2",
                     "view_definition": "definition",
+                    "tags": None,
                     "columns": [
                         {
                             "column_name": "column1",

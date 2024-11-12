@@ -24,7 +24,10 @@ class Tag(BaseModel):
 
     @classmethod
     def from_row_tags(cls, tags: Optional[List[Dict]]) -> List["Tag"]:
-        return [Tag(key=tag["tag_name"], value=tag["tag_value"]) for tag in tags or []]
+        return [
+            Tag(key=tag["tag_name"], value=tag["tag_value"])
+            for tag in (tags if tags is not None else [])
+        ]
 
 
 class CatalogInfo(BaseModel):
@@ -98,6 +101,7 @@ class TableInfo(BaseModel):
             data_source_format=row["data_source_format"],
             view_definition=row["view_definition"],
             storage_location=row["storage_path"],
+            tags=Tag.from_row_tags(row["tags"]),
             columns=ColumnInfo.from_row(row),
         )
 
