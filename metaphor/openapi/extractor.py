@@ -87,8 +87,8 @@ class OpenAPIExtractor(BaseExtractor):
                 )
             ]
             if config.base_url
-            else [] + (config.specs or [])
-        )
+            else []
+        ) + (config.specs or [])
 
     def _init_session(self, spec: OpenAPIJsonConfig):
         session = requests.sessions.Session()
