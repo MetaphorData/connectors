@@ -120,8 +120,6 @@ class OpenAPIExtractor(BaseExtractor):
         )
         resp = session.get(str(spec.openapi_json_url), headers=headers)
 
-        print(resp.status_code)
-
         if resp.status_code != 200:
             return None
 
