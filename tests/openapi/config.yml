@@ -1,0 +1,10 @@
+---
+base_url: https://petstore3.swagger.io
+openapi_json_url: https://petstore3.swagger.io/api/v3/openapi.json
+
+specs:
+  - base_url: https://base2
+    openapi_json_url: https://petstore3.swagger.io/api/v3/openapi.json
+  - base_url: https://base3
+    openapi_json_url: https://petstore3.swagger.io/api/v3/openapi.json
+output: {}
