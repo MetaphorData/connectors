@@ -89,6 +89,7 @@
             "type": "TEXT"
           }
         ],
+        "compileCompletedAt": "2024-01-01T00:00:00.000Z",
         "compiledCode": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration_minutes) as total_minutes\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration_minutes) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM ACME.ride_share.raw_bike_hires\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_minutes DESC",
         "compiledSql": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration_minutes) as total_minutes\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration_minutes) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM ACME.ride_share.raw_bike_hires\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_minutes DESC",
         "database": "ACME",
@@ -206,6 +207,7 @@
             "type": "TEXT"
           }
         ],
+        "compileCompletedAt": "2024-01-01T00:00:00.000Z",
         "compiledCode": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration) as total_seconds\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM ACME.snapshots.cycle_hire_snapshot\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_seconds DESC",
         "compiledSql": "-- Adding extra fields including if the bike was rented during peak time \nSELECT\n    SUM(duration) as total_seconds\n    , COUNT(rental_id) as total_bike_hires\n    , ROUND(SUM(duration) / COUNT(rental_id), 2) AS average_duration\n    , EXTRACT(month from start_date) as month\n    , CASE\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 6 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 10 THEN 'Morning Peak'\n        WHEN EXTRACT(HOUR from TO_TIMESTAMP(start_date)) >= 16 AND EXTRACT(HOUR from TO_TIMESTAMP(start_date)) <= 19 THEN 'Evening Peak'\n        ELSE 'Off-Peak'\n      END AS start_peak_travel\n    , IFF(start_station_id = end_station_id, True, False) as same_station_flag\n    , start_station_id\n    , start_station_name\n    , end_station_id\n    , end_station_name\nFROM ACME.snapshots.cycle_hire_snapshot\nGROUP BY 4,5,6,7,8,9,10\nORDER BY total_seconds DESC",
         "database": "ACME",
@@ -314,6 +316,7 @@
             "type": "TEXT"
           }
         ],
+        "compileCompletedAt": "2024-01-01T00:00:00.000Z",
         "compiledCode": "SELECT \n    rental_id\n    , duration as duration_seconds\n    , duration / 60 as duration_minutes\n    , bike_id\n    , start_date\n    , start_station_id\n    , start_station_name\n    , end_date\n    , end_station_id\n    , end_station_name\nFROM  ACME.berlin_bicycles.cycle_hire\nWHERE EXTRACT(year from start_date) = 2017",
         "compiledSql": "SELECT \n    rental_id\n    , duration as duration_seconds\n    , duration / 60 as duration_minutes\n    , bike_id\n    , start_date\n    , start_station_id\n    , start_station_name\n    , end_date\n    , end_station_id\n    , end_station_name\nFROM  ACME.berlin_bicycles.cycle_hire\nWHERE EXTRACT(year from start_date) = 2017",
         "database": "ACME",
@@ -390,6 +393,7 @@
             "type": "DATE"
           }
         ],
+        "compileCompletedAt": "2024-01-01T00:00:00.000Z",
         "compiledCode": "SELECT \n    id\n    , name as station_name\n    , bikes_count\n    , docks_count\n    , install_date\n    , removal_date\nFROM  ACME.berlin_bicycles.cycle_stations\nWHERE install_date < '2017-01-01' and (removal_date < '2018-01-01' or removal_date is null)",
         "compiledSql": "SELECT \n    id\n    , name as station_name\n    , bikes_count\n    , docks_count\n    , install_date\n    , removal_date\nFROM  ACME.berlin_bicycles.cycle_stations\nWHERE install_date < '2017-01-01' and (removal_date < '2018-01-01' or removal_date is null)",
         "database": "ACME",
@@ -546,6 +550,7 @@
             "type": "DATE"
           }
         ],
+        "compileCompletedAt": "2024-01-01T00:00:00.000Z",
         "compiledCode": "WITH stations AS (\n\n    SELECT *\n    FROM ACME.ride_share.raw_bike_stations\n\n),\n\nrides AS (\n\n    SELECT *\n    FROM ACME.ride_share.cleaned_bike_rides\n\n),\n\nstart_stat_join AS (\n\n    SELECT rides.*\n    , stations.bikes_count as start_station_bikes_count\n    , stations.docks_count as start_station_docks_count\n    , stations.install_date as start_station_install_date\n    FROM rides\n    LEFT JOIN stations\n    ON rides.start_station_id = stations.id\n)\n\nSELECT \n    total_minutes \n    , total_bike_hires \n    , average_duration \n    , month \n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count \n    , start_station_docks_count \n    , start_station_install_date \n    , end_station_id\n    , end_station_name\n    , stations.bikes_count as end_station_bikes_count\n    , stations.docks_count as end_station_docks_count\n    , stations.install_date as end_station_install_date\nFROM start_stat_join\nLEFT JOIN stations\nON start_stat_join.end_station_id = stations.id",
         "compiledSql": "WITH stations AS (\n\n    SELECT *\n    FROM ACME.ride_share.raw_bike_stations\n\n),\n\nrides AS (\n\n    SELECT *\n    FROM ACME.ride_share.cleaned_bike_rides\n\n),\n\nstart_stat_join AS (\n\n    SELECT rides.*\n    , stations.bikes_count as start_station_bikes_count\n    , stations.docks_count as start_station_docks_count\n    , stations.install_date as start_station_install_date\n    FROM rides\n    LEFT JOIN stations\n    ON rides.start_station_id = stations.id\n)\n\nSELECT \n    total_minutes \n    , total_bike_hires \n    , average_duration \n    , month \n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count \n    , start_station_docks_count \n    , start_station_install_date \n    , end_station_id\n    , end_station_name\n    , stations.bikes_count as end_station_bikes_count\n    , stations.docks_count as end_station_docks_count\n    , stations.install_date as end_station_install_date\nFROM start_stat_join\nLEFT JOIN stations\nON start_stat_join.end_station_id = stations.id",
         "database": "ACME",
@@ -671,6 +676,7 @@
             "type": "DATE"
           }
         ],
+        "compileCompletedAt": "2024-01-01T00:00:00.000Z",
         "compiledCode": "SELECT \n    SUM(total_minutes) AS total_minutes\n    , ROUND(SUM(total_minutes) / 60 ,2) AS total_hours\n    , SUM(total_bike_hires) AS total_bike_hires\n    , ROUND(SUM(total_minutes) / SUM(total_bike_hires), 2) AS average_duration_in_minutes\n    , month\n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count\n    , start_station_docks_count\n    , start_station_install_date\nFROM ACME.ride_share.rides_by_month_2017\nGROUP BY 5,6,7,8,9,10,11,12\nORDER BY total_bike_hires DESC",
         "compiledSql": "SELECT \n    SUM(total_minutes) AS total_minutes\n    , ROUND(SUM(total_minutes) / 60 ,2) AS total_hours\n    , SUM(total_bike_hires) AS total_bike_hires\n    , ROUND(SUM(total_minutes) / SUM(total_bike_hires), 2) AS average_duration_in_minutes\n    , month\n    , start_peak_travel\n    , same_station_flag\n    , start_station_id\n    , start_station_name\n    , start_station_bikes_count\n    , start_station_docks_count\n    , start_station_install_date\nFROM ACME.ride_share.rides_by_month_2017\nGROUP BY 5,6,7,8,9,10,11,12\nORDER BY total_bike_hires DESC",
         "database": "ACME",

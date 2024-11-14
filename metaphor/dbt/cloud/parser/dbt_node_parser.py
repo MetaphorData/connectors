@@ -274,7 +274,9 @@ class NodeParser:
 
         # raw_sql & complied_sql got renamed to raw_code & complied_code in V7
         dbt_model.raw_sql = node.raw_code or node.raw_sql
-        dbt_model.compiled_sql = node.compiled_code or node.compiled_sql
+        # Only update compiled sql if compilation actually completed
+        if node.compile_completed_at is not None:
+            dbt_model.compiled_sql = node.compiled_code or node.compiled_sql
 
         self._parse_model_materialization(node, dbt_model)
 

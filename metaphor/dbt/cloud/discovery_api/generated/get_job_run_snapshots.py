@@ -20,6 +20,7 @@ class GetJobRunSnapshotsJobSnapshots(BaseModel):
     alias: Optional[str]
     columns: Optional[List["GetJobRunSnapshotsJobSnapshotsColumns"]]
     comment: Optional[str]
+    compile_completed_at: Optional[Any] = Field(alias="compileCompletedAt")
     compiled_code: Optional[str] = Field(alias="compiledCode")
     compiled_sql: Optional[str] = Field(alias="compiledSql")
     database: Optional[str]
