@@ -159,6 +159,7 @@
           }
         ],
         "comment": "",
+        "compileCompletedAt": "2024-01-01T00:00:00.000Z",
         "compiledCode": "\n\n\nselect * from ACME.berlin_bicycles.cycle_hire",
         "compiledSql": "\n\n\nselect * from ACME.berlin_bicycles.cycle_hire",
         "database": "ACME",

@@ -10,6 +10,7 @@ query GetJobRunModels($jobId: BigInt!, $runId: BigInt!) {
         tags
         type
       }
+      compileCompletedAt
       compiledCode
       compiledSql
       database
@@ -47,6 +48,7 @@ query GetJobRunSnapshots($jobId: BigInt!, $runId: BigInt!) {
         type
       }
       comment
+      compileCompletedAt
       compiledCode
       compiledSql
       database

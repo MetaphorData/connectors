@@ -55,6 +55,7 @@ class ResourceNodeType(str, Enum):
     Macro = "Macro"
     Metric = "Metric"
     Model = "Model"
+    SavedQuery = "SavedQuery"
     Seed = "Seed"
     SemanticModel = "SemanticModel"
     Snapshot = "Snapshot"

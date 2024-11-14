@@ -401,6 +401,13 @@ type DefinitionState {
     filter: DefinitionResourcesFilter!
     first: Int
   ): EnvironmentDefinitionNodeConnection!
+  savedQueries(
+    after: String
+
+    """SavedQuerys Filter"""
+    filter: GenericMaterializedFilter
+    first: Int
+  ): SavedQueryDefinitionNodeConnection!
   seeds(
     after: String
 
@@ -1216,7 +1223,7 @@ type JobNode {
   seeds: [SeedNode!]!
   snapshot(uniqueId: String!): SnapshotNode
 
-  """Retrieve model information."""
+  """Retrieve snapshot information."""
   snapshots: [SnapshotNode!]!
   source(uniqueId: String!): SourceNode
 
@@ -2242,6 +2249,9 @@ type ModelAppliedStateNode implements EnvironmentAppliedNode {
   """The group this model belongs to"""
   group: String
 
+  """Whether the description is inherited from a catalog comment"""
+  isDescriptionInherited: Boolean
+
   """The language of this model"""
   language: String
 
@@ -2567,7 +2577,7 @@ type ModelExecutionInfoNode {
   lastRunId: BigInt
 
   """
-  The status of the last run that either succeeded or failed in building this model
+  The build status of this model that either succeeded or failed in the last run
   """
   lastRunStatus: RunStatus
 
@@ -3080,6 +3090,55 @@ type Query {
   ): [TestNode!]! @deprecated(reason: "We recommend using the environment query to get the latest state instead.")
 }
 
+type QueryExportConfig {
+  """The alias of the export"""
+  alias: String
+
+  """The database of the export"""
+  database: String
+
+  """The type of export to run"""
+  exportAs: String!
+
+  """The schema of the export"""
+  schema: String
+}
+
+type QueryExports {
+  """The config of the export"""
+  config: QueryExportConfig
+
+  """The name of the query export"""
+  name: String
+}
+
+type QueryParams {
+  """The group by of the query params"""
+  groupBy: [String!]!
+
+  """The limit of the query params"""
+  limit: BigInt
+
+  """The metrics of the query params"""
+  metrics: [String!]!
+
+  """The order by of the query params"""
+  orderBy: [String]
+
+  """The where of the query params"""
+  where: QueryWhere
+}
+
+type QueryWhere {
+  """The where filters of the query params"""
+  whereFilters: [QueryWhereFilter!]!
+}
+
+type QueryWhereFilter {
+  """The sql template of the where"""
+  whereSqlTemplate: String!
+}
+
 enum ReleaseVersion {
   latest
   none
@@ -3093,6 +3152,7 @@ enum ResourceNodeType {
   Macro
   Metric
   Model
+  SavedQuery
   Seed
   SemanticModel
   Snapshot
@@ -3146,11 +3206,202 @@ type RunInfoNode {
   threadId: String
 }
 
-"""Status of a run"""
+"""Status of a run or a resource's build status in a run"""
 enum RunStatus {
   error
   skipped
   success
+}
+
+type SavedQueryDefinitionNestedNode implements EnvironmentAppliedNestedNode & EnvironmentDefinitionNestedNode {
+  """dbt version"""
+  dbtVersion: String
+
+  """The user-supplied description for this node"""
+  description: String
+
+  """The exports of this saved query"""
+  exports: [QueryExports!]!
+
+  """Original file path to the node"""
+  filePath: String!
+
+  """The fully qualified name of the node"""
+  fqn: [String!]
+
+  """The group this saved query belongs to"""
+  group: String
+
+  """
+  The job ID of the last run containing definition of this saved query node
+  """
+  jobDefinitionId: BigInt
+
+  """The user-supplied name of this particular node"""
+  name: String
+
+  """The package name of this saved query"""
+  packageName: String
+
+  """The query params of the metric"""
+  queryParams: QueryParams!
+
+  """The resource type of this node"""
+  resourceType: String!
+
+  """
+  The timestamp when the run step (dbt run) was completed, ISO formatted timestamp
+  """
+  runGeneratedAt: DateTime
+
+  """
+  The run ID of the last run containing definition of this saved query node
+  """
+  runId: BigInt
+
+  """The unique ID of this node"""
+  uniqueId: String!
+}
+
+type SavedQueryDefinitionNode implements EnvironmentAppliedNode & EnvironmentDefinitionNode {
+  """The account ID of this node"""
+  accountId: BigInt!
+
+  """The ancestors of this saved query"""
+  ancestors: [EnvironmentDefinitionNestedNode!]!
+
+  """The direct children of this saved query"""
+  children: [EnvironmentDefinitionNestedNode!]!
+
+  """dbt version"""
+  dbtVersion: String
+
+  """The user-supplied description for this node"""
+  description: String
+
+  """The environment ID of this node"""
+  environmentId: BigInt!
+
+  """The exports of this saved query"""
+  exports: [QueryExports!]!
+
+  """Original file path to the node"""
+  filePath: String!
+
+  """The fully qualified name of this saved query"""
+  fqn: [String!]!
+
+  """The group this saved query belongs to"""
+  group: String
+
+  """
+  The job ID of the last run containing definition of this saved query node
+  """
+  jobDefinitionId: BigInt
+
+  """The key-value store containing metadata relevant to this node"""
+  meta: JSONObject
+
+  """The user-supplied name of this particular node"""
+  name: String
+
+  """The package name of this saved query"""
+  packageName: String
+
+  """The direct parents of this saved query"""
+  parents: [EnvironmentDefinitionNestedNode!]!
+
+  """The project ID of this node"""
+  projectId: BigInt!
+
+  """The query params of the metric"""
+  queryParams: QueryParams!
+
+  """The resource type of this node"""
+  resourceType: String!
+
+  """
+  The timestamp when the run step (dbt run) was completed, ISO formatted timestamp
+  """
+  runGeneratedAt: DateTime
+
+  """
+  The run ID of the last run containing definition of this saved query node
+  """
+  runId: BigInt
+
+  """The tags associated with this node"""
+  tags: [String!]!
+
+  """The unique ID of this node"""
+  uniqueId: String!
+}
+
+type SavedQueryDefinitionNodeConnection {
+  edges: [SavedQueryDefinitionNodeEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type SavedQueryDefinitionNodeEdge {
+  cursor: String!
+  node: SavedQueryDefinitionNode!
+}
+
+"""SavedQuery Lineage Object"""
+type SavedQueryLineageNode implements LineageGraphNode & LineageNode & LineageNodeWithParents {
+  """The access level of this node"""
+  access: String @deprecated(reason: "Use ...on syntax from specific types")
+
+  """The package alias of this node"""
+  alias: String @deprecated(reason: "Use ...on syntax from specific types")
+
+  """The package database of this node"""
+  database: String @deprecated(reason: "Use ...on syntax from specific types")
+
+  """Original file path to the node"""
+  filePath: String!
+
+  """The fully qualified name of this node"""
+  fqn: [String!]!
+
+  """The group this node belongs to"""
+  group: String @deprecated(reason: "Use ...on syntax from specific types")
+
+  """
+  True if the node matches a selector method, rather than matching via graph traversal
+  """
+  matchesMethod: Boolean
+
+  """The materialization type"""
+  materializationType: String @deprecated(reason: "Use ...on syntax from specific types")
+
+  """The user-supplied name of this particular node"""
+  name: String
+
+  """the nodes this node depends on"""
+  parentIds: [String!]! @deprecated(reason: "Use ...on syntax from specific types")
+
+  """The project id of this node"""
+  projectId: BigInt!
+
+  """the public nodes this resource depends on"""
+  publicParentIds: [String!]! @deprecated(reason: "Use ...on syntax from specific types")
+
+  """The resource type of this node"""
+  resourceType: ResourceNodeType!
+
+  """The package schema of this node"""
+  schema: String @deprecated(reason: "Use ...on syntax from specific types")
+
+  """The tags associated with this node"""
+  tags: [String!]!
+
+  """The unique ID of this node"""
+  uniqueId: String!
+
+  """The version of this node"""
+  version: String @deprecated(reason: "Use ...on syntax from specific types")
 }
 
 type SeedAppliedStateNestedNode implements EnvironmentAppliedNestedNode {

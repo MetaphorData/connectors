@@ -38,6 +38,7 @@ class Client(BaseClient):
                     tags
                     type
                   }
+                  compileCompletedAt
                   compiledCode
                   compiledSql
                   database
@@ -88,6 +89,7 @@ class Client(BaseClient):
                     type
                   }
                   comment
+                  compileCompletedAt
                   compiledCode
                   compiledSql
                   database
