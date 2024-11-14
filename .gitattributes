@@ -1,1 +1,2 @@
 /metaphor/dbt/cloud/discovery_api/generated/** linguist-generated
+/metaphor/dbt/cloud/discovery_api/schema.graphql linguist-generated
