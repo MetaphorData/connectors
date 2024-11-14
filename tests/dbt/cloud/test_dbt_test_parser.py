@@ -82,6 +82,7 @@ def test_dbt_test_parser():
                 type="TEXT",
             ),
         ],
+        compileCompletedAt=datetime.fromisoformat("2024-01-01T00:00:00"),
         compiledCode="compiledCode",
         compiledSql="compiledSql",
         database=None,
