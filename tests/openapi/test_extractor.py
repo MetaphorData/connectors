@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from typing import Optional
 from unittest.mock import MagicMock, call, patch
 
 import pytest
@@ -7,16 +8,16 @@ from pydantic import FilePath, HttpUrl
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.openapi.config import OpenAPIRunConfig
+from metaphor.openapi.config import OpenAPIJsonConfig, OpenAPIRunConfig
 from metaphor.openapi.extractor import OpenAPIExtractor
 from tests.test_utils import load_json
 
 
-def get_dummy_config(base_url: str, path: str = "", url: str = ""):
+def get_dummy_config(base_url: HttpUrl, path: str = "", url: Optional[HttpUrl] = None):
     return OpenAPIRunConfig(
-        base_url=HttpUrl(base_url),
+        base_url=base_url,
         openapi_json_path=FilePath(path) if path else None,
-        openapi_json_url=HttpUrl(url) if url else None,
+        openapi_json_url=url,
         output=OutputConfig(),
     )
 
@@ -63,12 +64,22 @@ def test_get_openapi_json(mock_get_method: MagicMock):
         MockResponse({}, 403),
         MockResponse({}, 200),
     ]
-    extractor = OpenAPIExtractor(
-        get_dummy_config("http://baz", url="http://foo.bar/openapi.json")
-    )
+    base_url = HttpUrl("http://baz")
+    openapi_url = HttpUrl("http://foo.bar/openapi.json")
+    extractor = OpenAPIExtractor(get_dummy_config(base_url, url=openapi_url))
 
-    assert extractor._get_openapi_json() is None
-    assert extractor._get_openapi_json() == {}
+    assert (
+        extractor._get_openapi_json(
+            OpenAPIJsonConfig(base_url, openapi_json_url=openapi_url)
+        )
+        is None
+    )
+    assert (
+        extractor._get_openapi_json(
+            OpenAPIJsonConfig(base_url, openapi_json_url=openapi_url)
+        )
+        == {}
+    )
 
     mock_get_method.assert_has_calls(
         [
