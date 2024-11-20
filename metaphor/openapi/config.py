@@ -44,11 +44,11 @@ class OpenAPIRunConfig(BaseConfig):
     def must_have_at_least_one_spec_config(self) -> "OpenAPIRunConfig":
         must_set_at_least_one(self.__dict__, ["specs", "base_url"])
 
-        if "base_url" not in self.__dict__ and "specs" in self.__dict__:
+        if self.__dict__.get("base_url") is None and self.__dict__.get("specs"):
             if not self.specs:
                 raise ValueError("Must have at least one spec")
 
-        if "base_url" in self.__dict__:
+        if self.__dict__.get("base_url"):
             must_set_exactly_one(
                 self.__dict__, ["openapi_json_path", "openapi_json_url"]
             )
