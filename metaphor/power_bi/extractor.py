@@ -63,6 +63,9 @@ from metaphor.power_bi.config import PowerBIRunConfig
 from metaphor.power_bi.graph_api_client import GraphApiClient
 from metaphor.power_bi.models import (
     PowerBIApp,
+    PowerBIDashboard,
+    PowerBIDataset,
+    PowerBIReport,
     PowerBISubscription,
     PowerBiSubscriptionUser,
     WorkspaceInfo,
@@ -113,13 +116,17 @@ class PowerBIExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info(f"Fetching metadata from Power BI tenant ID: {self._tenant_id}")
 
+        dataset_map = {d.id: d for d in self._client.get_datasets()}
+        dashboard_map = {d.id: d for d in self._client.get_dashboards()}
+        report_map = {r.id: r for r in self._client.get_reports()}
+        app_map = {app.id: app for app in self._client.get_apps()}
+
         if len(self._workspaces) == 0:
             self._workspaces = [w.id for w in self._client.get_groups()]
 
-        logger.info(f"Process {len(self._workspaces)} workspaces: {self._workspaces}")
-
-        apps = self._client.get_apps()
-        app_map = {app.id: app for app in apps}
+        logger.info(
+            f"Processing {len(self._workspaces)} workspaces: {self._workspaces}"
+        )
 
         workspaces: List[WorkspaceInfo] = []
 
@@ -135,11 +142,11 @@ class PowerBIExtractor(BaseExtractor):
         # As there may be cross-workspace reference in dashboards & reports,
         # we must process the datasets across all workspaces first
         for workspace in workspaces:
-            await self.map_wi_datasets_to_virtual_views(workspace)
+            await self.map_wi_datasets_to_virtual_views(workspace, dataset_map)
 
         for workspace in workspaces:
-            await self.map_wi_reports_to_dashboard(workspace, app_map)
-            await self.map_wi_dashboards_to_dashboard(workspace, app_map)
+            await self.map_wi_reports_to_dashboard(workspace, report_map, app_map)
+            await self.map_wi_dashboards_to_dashboard(workspace, dashboard_map, app_map)
 
         self.extract_subscriptions(workspaces)
 
@@ -327,9 +334,9 @@ class PowerBIExtractor(BaseExtractor):
                 pipeline_mapping=pipeline_mappings
             )
 
-    async def map_wi_datasets_to_virtual_views(self, workspace: WorkspaceInfo) -> None:
-        dataset_map = {d.id: d for d in self._client.get_datasets(workspace.id)}
-
+    async def map_wi_datasets_to_virtual_views(
+        self, workspace: WorkspaceInfo, dataset_map: Dict[str, PowerBIDataset]
+    ) -> None:
         for wds in workspace.datasets:
             ds = dataset_map.get(wds.id, None)
             if ds is None:
@@ -402,10 +409,11 @@ class PowerBIExtractor(BaseExtractor):
             self._virtual_views[wds.id] = virtual_view
 
     async def map_wi_reports_to_dashboard(
-        self, workspace: WorkspaceInfo, app_map: Dict[str, PowerBIApp]
+        self,
+        workspace: WorkspaceInfo,
+        report_map: Dict[str, PowerBIReport],
+        app_map: Dict[str, PowerBIApp],
     ) -> None:
-        report_map = {r.id: r for r in self._client.get_reports(workspace.id)}
-
         for wi_report in workspace.reports:
             if wi_report.datasetId is None:
                 logger.warning(f"Skipping report without datasetId: {wi_report.id}")
@@ -465,12 +473,13 @@ class PowerBIExtractor(BaseExtractor):
             self._dashboards[wi_report.id] = dashboard
 
     async def map_wi_dashboards_to_dashboard(
-        self, workspace: WorkspaceInfo, app_map: Dict[str, PowerBIApp]
+        self,
+        workspace: WorkspaceInfo,
+        dashboard_map: Dict[str, PowerBIDashboard],
+        app_map: Dict[str, PowerBIApp],
     ) -> None:
-        dashboard_map = {d.id: d for d in self._client.get_dashboards(workspace.id)}
-
         for wi_dashboard in workspace.dashboards:
-            tiles = self._client.get_tiles(wi_dashboard.id)
+            tiles = self._client.get_dashboard_tiles(workspace.id, wi_dashboard.id)
             upstream = []
             for tile in tiles:
                 dataset_id = tile.datasetId

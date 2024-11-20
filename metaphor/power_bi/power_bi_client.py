@@ -105,24 +105,9 @@ class PowerBIClient:
             url, List[PowerBIApp], transform_response=lambda r: r.json()["value"]
         )
 
-    def get_tiles(self, dashboard_id: str) -> List[PowerBITile]:
-        # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/dashboards-get-tiles-as-admin
-        url = f"{self.API_ENDPOINT}/admin/dashboards/{dashboard_id}/tiles"
-
-        try:
-            return self._call_get(
-                url, List[PowerBITile], transform_response=lambda r: r.json()["value"]
-            )
-        except EntityNotFoundError:
-            logger.error(
-                f"Unable to find dashboard {dashboard_id}."
-                f"Please add the service principal as a viewer to the workspace"
-            )
-            return []
-
-    def get_datasets(self, group_id: str) -> List[PowerBIDataset]:
-        # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-in-group-as-admin
-        url = f"{self.API_ENDPOINT}/admin/groups/{group_id}/datasets"
+    def get_datasets(self) -> List[PowerBIDataset]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/admin/datasets-get-datasets-as-admin
+        url = f"{self.API_ENDPOINT}/admin/datasets"
         return self._call_get(
             url, List[PowerBIDataset], transform_response=lambda r: r.json()["value"]
         )
@@ -163,16 +148,32 @@ class PowerBIClient:
             )
             return []
 
-    def get_dashboards(self, group_id: str) -> List[PowerBIDashboard]:
-        # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/dashboards-get-dashboards-in-group-as-admin
-        url = f"{self.API_ENDPOINT}/admin/groups/{group_id}/dashboards"
+    def get_dashboards(self) -> List[PowerBIDashboard]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/admin/dashboards-get-dashboards-as-admin
+        url = f"{self.API_ENDPOINT}/admin/dashboards"
         return self._call_get(
             url, List[PowerBIDashboard], transform_response=lambda r: r.json()["value"]
         )
 
-    def get_reports(self, group_id: str) -> List[PowerBIReport]:
-        # https://docs.microsoft.com/en-us/rest/api/power-bi/admin/reports-get-reports-in-group-as-admin
-        url = f"{self.API_ENDPOINT}/admin/groups/{group_id}/reports"
+    def get_dashboard_tiles(
+        self, group_id: str, dashboard_id: str
+    ) -> List[PowerBITile]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/dashboards/get-tiles-in-group
+        url = f"{self.API_ENDPOINT}/groups/{group_id}/dashboards/{dashboard_id}/tiles"
+
+        try:
+            return self._call_get(
+                url, List[PowerBITile], transform_response=lambda r: r.json()["value"]
+            )
+        except Exception as e:
+            logger.error(
+                f"Failed to get tiles from dashboard {dashboard_id} in workspace {group_id}: {e}"
+            )
+            return []
+
+    def get_reports(self) -> List[PowerBIReport]:
+        # https://learn.microsoft.com/en-us/rest/api/power-bi/admin/reports-get-reports-as-admin
+        url = f"{self.API_ENDPOINT}/admin/reports"
         return self._call_get(
             url, List[PowerBIReport], transform_response=lambda r: r.json()["value"]
         )

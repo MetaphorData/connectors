@@ -177,7 +177,7 @@ dataflow_id = "00000000-0000-0000-0001-00000000000A"
 dataflow_id2 = "00000000-0000-0000-0002-00000000000A"
 
 
-def fake_get_datasets(workspace_id: str) -> List[PowerBIDataset]:
+def fake_get_datasets() -> List[PowerBIDataset]:
     return [dataset1, dataset2, dataset3]
 
 
@@ -194,15 +194,15 @@ def fake_get_dataset_parameters(
     ]
 
 
-def fake_get_reports(workspace_id: str) -> List[PowerBIReport]:
+def fake_get_reports() -> List[PowerBIReport]:
     return [report1, report2, report1_app]
 
 
-def fake_get_dashboards(workspace_id: str) -> List[PowerBIDashboard]:
+def fake_get_dashboards() -> List[PowerBIDashboard]:
     return [dashboard1, dashboard2, dashboard1_app]
 
 
-def fake_get_tiles(dashboard_id: str) -> List[PowerBITile]:
+def fake_get_dashboard_tiles(workspace_id: str, dashboard_id: str) -> List[PowerBITile]:
     return tiles[dashboard_id]
 
 
@@ -555,7 +555,9 @@ async def test_extractor(
     )
     mocked_pbi_client_instance.get_reports.side_effect = fake_get_reports
     mocked_pbi_client_instance.get_dashboards.side_effect = fake_get_dashboards
-    mocked_pbi_client_instance.get_tiles.side_effect = fake_get_tiles
+    mocked_pbi_client_instance.get_dashboard_tiles.side_effect = (
+        fake_get_dashboard_tiles
+    )
     mocked_pbi_client_instance.get_pages.side_effect = fake_get_pages
     mocked_pbi_client_instance.get_refreshes.side_effect = fake_get_refreshes
     mocked_pbi_client_instance.get_apps.side_effect = fake_get_apps
