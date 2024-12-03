@@ -137,6 +137,7 @@ class SnowflakeExtractor(BaseExtractor):
         logger.info("Fetching metadata from Snowflake")
 
         self._conn = auth.connect(self._config)
+        logger.info("Connected to Snowflake")
 
         with self._conn:
             cursor = self._conn.cursor()
@@ -333,6 +334,10 @@ class SnowflakeExtractor(BaseExtractor):
         is_shared_database: bool,
         secure_views: Set[str],
     ) -> None:
+        # shared database doesn't support getting DDL and last update time
+        if is_shared_database:
+            return
+
         dict_cursor: DictCursor = self._conn.cursor(DictCursor)  # type: ignore
 
         # Partition table by schema
@@ -343,29 +348,30 @@ class SnowflakeExtractor(BaseExtractor):
         for partitioned_tables in schema_tables.values():
             for chunk in chunks(partitioned_tables, TABLE_INFO_FETCH_SIZE):
                 try:
-                    self._fetch_table_info_internal(
-                        dict_cursor, chunk, is_shared_database, secure_views
-                    )
+                    self._fetch_last_update_time(dict_cursor, chunk, secure_views)
+                except Exception as error:
+                    logger.error(error)
+
+                try:
+                    self._fetch_table_ddl(dict_cursor, chunk)
                 except Exception as error:
                     logger.error(error)
 
         dict_cursor.close()
 
-    def _fetch_table_info_internal(
+    def _fetch_last_update_time(
         self,
         dict_cursor: DictCursor,
         tables: List[Tuple[str, DatasetInfo]],
-        is_shared_database: bool,
         secure_views: Set[str],
     ) -> None:
         queries, params = [], []
-        ddl_tables, updated_time_tables = [], []
+        updated_time_tables = []
         for normalized_name, table in tables:
             fullname = to_quoted_identifier([table.database, table.schema, table.name])
-            # fetch last_update_time and DDL for tables, and fetch only DDL for views
+            # fetch last_update_time for tables
             if (
                 table.type == SnowflakeTableType.BASE_TABLE.value
-                and not is_shared_database
                 and normalized_name not in secure_views
             ):
                 queries.append(
@@ -374,11 +380,37 @@ class SnowflakeExtractor(BaseExtractor):
                 params.append(fullname)
                 updated_time_tables.append(normalized_name)
 
-            # shared database doesn't support getting DDL
-            if not is_shared_database:
-                queries.append(f"get_ddl('table', %s) as \"DDL_{normalized_name}\"")
-                params.append(fullname)
-                ddl_tables.append(normalized_name)
+        if not queries:
+            return
+        query = f"SELECT {','.join(queries)}"
+        logger.debug(f"{query}, params: {params}")
+
+        dict_cursor.execute(query, tuple(params))
+        results = dict_cursor.fetchone()
+        assert isinstance(results, Mapping)
+
+        for normalized_name in updated_time_tables:
+            dataset = self._datasets[normalized_name]
+            assert dataset.schema.sql_schema is not None
+
+            # Timestamp is in nanosecond.
+            # See https://docs.snowflake.com/en/sql-reference/functions/system_last_change_commit_time.html
+            timestamp = results[f"UPDATED_{normalized_name}"]
+            if timestamp > 0:
+                dataset.source_info.last_updated = to_utc_datetime_from_timestamp(
+                    timestamp / 1_000_000_000
+                )
+
+    def _fetch_table_ddl(
+        self, dict_cursor: DictCursor, tables: List[Tuple[str, DatasetInfo]]
+    ) -> None:
+        queries, params = [], []
+        ddl_tables = []
+        for normalized_name, table in tables:
+            fullname = to_quoted_identifier([table.database, table.schema, table.name])
+            queries.append(f"get_ddl('table', %s) as \"DDL_{normalized_name}\"")
+            params.append(fullname)
+            ddl_tables.append(normalized_name)
 
         if not queries:
             return
@@ -394,18 +426,6 @@ class SnowflakeExtractor(BaseExtractor):
             assert dataset.schema is not None and dataset.schema.sql_schema is not None
 
             dataset.schema.sql_schema.table_schema = results[f"DDL_{normalized_name}"]
-
-        for normalized_name in updated_time_tables:
-            dataset = self._datasets[normalized_name]
-            assert dataset.schema.sql_schema is not None
-
-            # Timestamp is in nanosecond.
-            # See https://docs.snowflake.com/en/sql-reference/functions/system_last_change_commit_time.html
-            timestamp = results[f"UPDATED_{normalized_name}"]
-            if timestamp > 0:
-                dataset.source_info.last_updated = to_utc_datetime_from_timestamp(
-                    timestamp / 1_000_000_000
-                )
 
     def _fetch_unique_keys(self, cursor: SnowflakeCursor) -> None:
         cursor.execute("SHOW UNIQUE KEYS")
