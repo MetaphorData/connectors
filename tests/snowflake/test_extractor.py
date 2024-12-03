@@ -207,10 +207,14 @@ def test_fetch_table_info(mock_connect: MagicMock):
 
     mock_conn.cursor.return_value = mock_cursor
 
-    mock_cursor.fetchone.return_value = {
-        f"DDL_{normalized_name}": "ddl",
-        f"UPDATED_{normalized_name}": 1719327434000000000,
-    }
+    mock_cursor.fetchone.side_effect = [
+        {
+            f"UPDATED_{normalized_name}": 1719327434000000000,
+        },
+        {
+            f"DDL_{normalized_name}": "ddl",
+        },
+    ]
 
     extractor = SnowflakeExtractor(make_snowflake_config())
 
