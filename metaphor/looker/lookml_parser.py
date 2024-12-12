@@ -627,9 +627,14 @@ def parse_project(
 
     for model_path in glob.glob(f"{base_dir}/**/*.model.lkml", recursive=True):
         model_name = os.path.basename(model_path)[0 : -len(".model.lkml")]
-        raw_model, entity_urls, connection = _load_model(
-            model_path, base_dir, connections, projectSourceUrl
-        )
+
+        try:
+            raw_model, entity_urls, connection = _load_model(
+                model_path, base_dir, connections, projectSourceUrl
+            )
+        except Exception:
+            logger.exception(f"Failed to load model {model_path}")
+            continue
 
         resolved_model = _resolve_model(raw_model)
 
