@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from pydantic import model_validator
 from pydantic.dataclasses import dataclass
@@ -40,6 +40,9 @@ class LookerRunConfig(BaseConfig):
 
     # LookML git repository configuration
     lookml_git_repo: Optional[GitRepoConfig] = None
+
+    # Ignored LookerML model files
+    ignored_model_files: Optional[List[str]] = None
 
     # Source code URL for the project directory
     project_source_url: Optional[str] = None

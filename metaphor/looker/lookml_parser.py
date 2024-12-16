@@ -4,6 +4,7 @@ import logging
 import operator
 import os
 from dataclasses import dataclass
+from fnmatch import fnmatch
 from typing import Dict, List, Optional, Set, Tuple
 
 try:
@@ -611,11 +612,23 @@ def _load_model(
     return raw_model, entity_urls, connection
 
 
+def _is_ignored_model_file(
+    model_path: str, base_dir: str, ignored_model_files: List[str]
+) -> bool:
+    """Check if the model file is ignored by the config"""
+    relative_path = os.path.relpath(model_path, base_dir)
+    for ignored_model_file in ignored_model_files:
+        if fnmatch(relative_path, ignored_model_file):
+            return True
+    return False
+
+
 def parse_project(
     base_dir: str,
     connections: Dict[str, LookerConnectionConfig],
     explore_view_folder_name,
     projectSourceUrl: Optional[str] = None,
+    ignored_model_files: List[str] = [],
 ) -> Tuple[ModelMap, List[VirtualView]]:
     """
     parse the project under base_dir, returning a Model map and a list of virtual views including
@@ -626,7 +639,12 @@ def parse_project(
     virtual_views = []
 
     for model_path in glob.glob(f"{base_dir}/**/*.model.lkml", recursive=True):
+        if _is_ignored_model_file(model_path, base_dir, ignored_model_files):
+            logger.info(f"Ignoring model file {model_path} by config")
+            continue
+
         model_name = os.path.basename(model_path)[0 : -len(".model.lkml")]
+
         raw_model, entity_urls, connection = _load_model(
             model_path, base_dir, connections, projectSourceUrl
         )
