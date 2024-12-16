@@ -106,7 +106,8 @@ You can also specify a list of model files to ignore by using the following conf
 
 ```yaml
 ignored_model_files:
-  - "/abc/tmp*/*.model.lkml"
+  - "/foo/bar/model1.model.lkml"
+  - "/abc/tmp*/*"
 ```
 
 #### SSL Verification
