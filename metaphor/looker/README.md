@@ -100,6 +100,15 @@ If the looker users use a different URL to view content on Looker than the serve
 alternative_base_url: <looker_base_url> // e.g. https://looker.my_company.com
 ```
 
+#### Ignored Model Files
+
+You can also specify a list of model files to ignore by using the following config:
+
+```yaml
+ignored_model_files:
+  - "/abc/tmp*/*.model.lkml"
+```
+
 #### SSL Verification
 
 You can also disable SSL verify and change the request timeout if needed, e.g.

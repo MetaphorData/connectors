@@ -75,6 +75,7 @@ class LookerExtractor(BaseExtractor):
         self._connections = config.connections
         self._lookml_dir = config.lookml_dir
         self._lookml_git_repo = config.lookml_git_repo
+        self._ignored_model_files = config.ignored_model_files or []
         self._project_source_url = config.project_source_url
         self._include_personal_folders = config.include_personal_folders
         self._explore_view_folder_name = config.explore_view_folder_name
@@ -109,6 +110,7 @@ class LookerExtractor(BaseExtractor):
             connections,
             self._explore_view_folder_name,
             self._project_source_url,
+            self._ignored_model_files,
         )
 
         folder_map = self._fetch_folders()
