@@ -612,10 +612,13 @@ def _load_model(
     return raw_model, entity_urls, connection
 
 
-def _is_ignored_model_file(model_path: str, ignored_model_files: List[str]) -> bool:
+def _is_ignored_model_file(
+    model_path: str, base_dir: str, ignored_model_files: List[str]
+) -> bool:
     """Check if the model file is ignored by the config"""
+    relative_path = os.path.relpath(model_path, base_dir)
     for ignored_model_file in ignored_model_files:
-        if fnmatch(model_path, ignored_model_file):
+        if fnmatch(relative_path, ignored_model_file):
             return True
     return False
 
@@ -636,7 +639,7 @@ def parse_project(
     virtual_views = []
 
     for model_path in glob.glob(f"{base_dir}/**/*.model.lkml", recursive=True):
-        if _is_ignored_model_file(model_path, ignored_model_files):
+        if _is_ignored_model_file(model_path, base_dir, ignored_model_files):
             logger.info(f"Ignoring model file {model_path} by config")
             continue
 

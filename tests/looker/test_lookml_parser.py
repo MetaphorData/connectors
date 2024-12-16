@@ -55,7 +55,17 @@ def test_ignored_model(test_root_dir):
         f"{test_root_dir}/looker/empty_model",
         connection_map,
         VIEW_EXPLORE_FOLDER,
-        ignored_model_files=[f"{test_root_dir}/looker/empty_model/*.model.lkml"],
+        ignored_model_files=["model1.model.lkml"],
+    )
+
+    assert models_map == {}
+    assert virtual_views == []
+
+    models_map, virtual_views = parse_project(
+        f"{test_root_dir}/looker/empty_model",
+        connection_map,
+        VIEW_EXPLORE_FOLDER,
+        ignored_model_files=["model*"],
     )
 
     assert models_map == {}
