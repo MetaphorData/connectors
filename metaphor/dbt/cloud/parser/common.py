@@ -22,6 +22,8 @@ from metaphor.models.metadata_change_event import (
     VirtualView,
 )
 
+DISCOVERY_API_PAGE_LIMIT = 500
+
 
 def parse_depends_on(
     virtual_views: Dict[str, VirtualView],

@@ -12,8 +12,14 @@ from .get_job_run_models import GetJobRunModels
 from .get_job_run_snapshots import GetJobRunSnapshots
 from .get_job_run_sources import GetJobRunSources
 from .get_job_run_tests import GetJobRunTests
+from .get_lineage import GetLineage
 from .get_macro_arguments import GetMacroArguments
-from .input_types import MacroDefinitionFilter
+from .get_macros import GetMacros
+from .get_metrics import GetMetrics
+from .get_models import GetModels
+from .get_snapshots import GetSnapshots
+from .get_sources import GetSources
+from .input_types import LineageFilter, MacroDefinitionFilter
 
 
 def gql(q: str) -> str:
@@ -320,3 +326,369 @@ class Client(BaseClient):
         )
         data = self.get_data(response)
         return GetMacroArguments.model_validate(data)
+
+    def get_models(
+        self,
+        environment_id: Any,
+        first: Union[Optional[int], UnsetType] = UNSET,
+        after: Union[Optional[str], UnsetType] = UNSET,
+        **kwargs: Any
+    ) -> GetModels:
+        query = gql(
+            """
+            query GetModels($environmentId: BigInt!, $first: Int, $after: String) {
+              environment(id: $environmentId) {
+                applied {
+                  models(first: $first, after: $after) {
+                    totalCount
+                    pageInfo {
+                      hasNextPage
+                      endCursor
+                    }
+                    edges {
+                      node {
+                        alias
+                        catalog {
+                          comment
+                          bytesStat
+                          owner
+                          rowCountStat
+                          columns {
+                            comment
+                            description
+                            name
+                            tags
+                            type
+                            meta
+                          }
+                        }
+                        compiledCode
+                        database
+                        description
+                        environmentId
+                        materializedType
+                        meta
+                        name
+                        packageName
+                        rawCode
+                        schema
+                        tags
+                        uniqueId
+                        executionInfo {
+                          executeCompletedAt
+                          executionTime
+                          lastJobDefinitionId
+                          lastRunId
+                          lastRunStatus
+                        }
+                        tests {
+                          columnName
+                          description
+                          name
+                          uniqueId
+                          testType
+                          executionInfo {
+                            executeCompletedAt
+                            lastRunStatus
+                            lastRunError
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {
+            "environmentId": environment_id,
+            "first": first,
+            "after": after,
+        }
+        response = self.execute(
+            query=query, operation_name="GetModels", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return GetModels.model_validate(data)
+
+    def get_snapshots(
+        self,
+        environment_id: Any,
+        first: Union[Optional[int], UnsetType] = UNSET,
+        after: Union[Optional[str], UnsetType] = UNSET,
+        **kwargs: Any
+    ) -> GetSnapshots:
+        query = gql(
+            """
+            query GetSnapshots($environmentId: BigInt!, $first: Int, $after: String) {
+              environment(id: $environmentId) {
+                applied {
+                  snapshots(first: $first, after: $after) {
+                    totalCount
+                    pageInfo {
+                      hasNextPage
+                      endCursor
+                    }
+                    edges {
+                      node {
+                        alias
+                        catalog {
+                          comment
+                          owner
+                          columns {
+                            comment
+                            description
+                            index
+                            meta
+                            name
+                            tags
+                            type
+                          }
+                        }
+                        compiledCode
+                        database
+                        description
+                        environmentId
+                        meta
+                        name
+                        packageName
+                        rawCode
+                        schema
+                        tags
+                        uniqueId
+                        executionInfo {
+                          executeCompletedAt
+                          executionTime
+                          lastJobDefinitionId
+                          lastRunId
+                          lastRunStatus
+                        }
+                        tests {
+                          columnName
+                          description
+                          name
+                          uniqueId
+                          testType
+                          executionInfo {
+                            executeCompletedAt
+                            lastRunStatus
+                            lastRunError
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {
+            "environmentId": environment_id,
+            "first": first,
+            "after": after,
+        }
+        response = self.execute(
+            query=query, operation_name="GetSnapshots", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return GetSnapshots.model_validate(data)
+
+    def get_sources(
+        self,
+        environment_id: Any,
+        first: Union[Optional[int], UnsetType] = UNSET,
+        after: Union[Optional[str], UnsetType] = UNSET,
+        **kwargs: Any
+    ) -> GetSources:
+        query = gql(
+            """
+            query GetSources($environmentId: BigInt!, $first: Int, $after: String) {
+              environment(id: $environmentId) {
+                adapterType
+                dbtProjectName
+                applied {
+                  sources(first: $first, after: $after) {
+                    totalCount
+                    pageInfo {
+                      hasNextPage
+                      endCursor
+                    }
+                    edges {
+                      node {
+                        catalog {
+                          columns {
+                            description
+                            name
+                          }
+                        }
+                        database
+                        description
+                        identifier
+                        schema
+                        uniqueId
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {
+            "environmentId": environment_id,
+            "first": first,
+            "after": after,
+        }
+        response = self.execute(
+            query=query, operation_name="GetSources", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return GetSources.model_validate(data)
+
+    def get_metrics(
+        self,
+        environment_id: Any,
+        first: Union[Optional[int], UnsetType] = UNSET,
+        after: Union[Optional[str], UnsetType] = UNSET,
+        **kwargs: Any
+    ) -> GetMetrics:
+        query = gql(
+            """
+            query GetMetrics($environmentId: BigInt!, $first: Int, $after: String) {
+              environment(id: $environmentId) {
+                definition {
+                  metrics(first: $first, after: $after) {
+                    totalCount
+                    pageInfo {
+                      hasNextPage
+                      endCursor
+                    }
+                    edges {
+                      node {
+                        fqn
+                        name
+                        type
+                        filter
+                        formula
+                        typeParams
+                        uniqueId
+                        tags
+                        description
+                        meta
+                        packageName
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {
+            "environmentId": environment_id,
+            "first": first,
+            "after": after,
+        }
+        response = self.execute(
+            query=query, operation_name="GetMetrics", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return GetMetrics.model_validate(data)
+
+    def get_macros(
+        self,
+        environment_id: Any,
+        first: Union[Optional[int], UnsetType] = UNSET,
+        after: Union[Optional[str], UnsetType] = UNSET,
+        **kwargs: Any
+    ) -> GetMacros:
+        query = gql(
+            """
+            query GetMacros($environmentId: BigInt!, $first: Int, $after: String) {
+              environment(id: $environmentId) {
+                definition {
+                  macros(first: $first, after: $after) {
+                    totalCount
+                    pageInfo {
+                      hasNextPage
+                      endCursor
+                    }
+                    edges {
+                      node {
+                        description
+                        environmentId
+                        macroSql
+                        meta
+                        name
+                        packageName
+                        uniqueId
+                        arguments {
+                          description
+                          name
+                          type
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {
+            "environmentId": environment_id,
+            "first": first,
+            "after": after,
+        }
+        response = self.execute(
+            query=query, operation_name="GetMacros", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return GetMacros.model_validate(data)
+
+    def get_lineage(
+        self, environment_id: Any, filter: LineageFilter, **kwargs: Any
+    ) -> GetLineage:
+        query = gql(
+            """
+            query GetLineage($environmentId: BigInt!, $filter: LineageFilter!) {
+              environment(id: $environmentId) {
+                applied {
+                  lineage(filter: $filter) {
+                    uniqueId
+                    ... on MacroLineageNode {
+                      parentIds
+                    }
+                    ... on MetricLineageNode {
+                      parentIds
+                    }
+                    ... on ModelLineageNode {
+                      parentIds
+                    }
+                    ... on SemanticModelLineageNode {
+                      parentIds
+                    }
+                    ... on SnapshotLineageNode {
+                      parentIds
+                    }
+                    ... on TestLineageNode {
+                      parentIds
+                    }
+                    __typename
+                  }
+                }
+              }
+            }
+            """
+        )
+        variables: Dict[str, object] = {
+            "environmentId": environment_id,
+            "filter": filter,
+        }
+        response = self.execute(
+            query=query, operation_name="GetLineage", variables=variables, **kwargs
+        )
+        data = self.get_data(response)
+        return GetLineage.model_validate(data)

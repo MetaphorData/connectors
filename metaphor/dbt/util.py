@@ -2,11 +2,12 @@ import json
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from metaphor.common.entity_id import (
     EntityId,
     dataset_normalized_name,
+    parts_to_dataset_logical_id,
     to_dataset_entity_id,
     to_dataset_entity_id_from_logical_id,
     to_person_entity_id,
@@ -26,7 +27,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetDataQuality,
     DatasetDocumentation,
-    DatasetLogicalID,
     DatasetSchema,
     DbtTest,
     FieldDocumentation,
@@ -164,12 +164,11 @@ def init_dataset(
     unique_id: str,
 ) -> Dataset:
     if unique_id not in datasets:
+        logical_id = parts_to_dataset_logical_id(
+            platform, account, database, schema, name
+        )
         datasets[unique_id] = Dataset(
-            logical_id=DatasetLogicalID(
-                name=dataset_normalized_name(database, schema, name),
-                platform=platform,
-                account=account,
-            )
+            logical_id=logical_id,
         )
     return datasets[unique_id]
 
@@ -368,3 +367,25 @@ def should_be_included(entity: ENTITY_TYPES) -> bool:
             or entity.entity_upstream is not None
         )
     return False
+
+
+def parse_date_time_from_result(
+    field: Optional[Any],
+) -> Optional[datetime]:
+    """
+    Parse a date time from a result object
+    """
+    if isinstance(field, datetime):
+        return field
+
+    if isinstance(field, str):
+        completed_at = field
+        if completed_at.endswith("Z"):
+            # Convert Zulu to +00:00
+            completed_at = f"{completed_at[:-1]}+00:00"
+        try:
+            return datetime.fromisoformat(completed_at)
+        except Exception:
+            return None
+
+    return None

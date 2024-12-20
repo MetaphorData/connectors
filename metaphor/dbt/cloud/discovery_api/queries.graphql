@@ -167,3 +167,248 @@ query GetMacroArguments($environmentId: BigInt!, $filter: MacroDefinitionFilter,
     }
   }
 }
+
+query GetModels($environmentId: BigInt!, $first: Int, $after: String) {
+  environment(id: $environmentId) {
+    applied {
+      models(first: $first, after: $after) {
+        totalCount
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          node {
+            alias
+            catalog {
+              comment
+              bytesStat
+              owner
+              rowCountStat
+              columns {
+                comment
+                description
+                name
+                tags
+                type
+                meta
+              }
+            }
+            compiledCode
+            database
+            description
+            environmentId
+            materializedType
+            meta
+            name
+            packageName
+            rawCode
+            schema
+            tags
+            uniqueId
+            executionInfo {
+              executeCompletedAt
+              executionTime
+              lastJobDefinitionId
+              lastRunId
+              lastRunStatus
+            }
+            tests {
+              columnName
+              description
+              name
+              uniqueId
+              testType
+              executionInfo {
+                executeCompletedAt
+                lastRunStatus
+                lastRunError
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+query GetSnapshots($environmentId: BigInt!, $first: Int, $after: String) {
+  environment(id: $environmentId) {
+    applied {
+      snapshots(first: $first, after: $after) {
+        totalCount
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          node {
+            alias
+            catalog {
+              comment
+              owner
+              columns {
+                comment
+                description
+                index
+                meta
+                name
+                tags
+                type
+              }
+            }
+            compiledCode
+            database
+            description
+            environmentId
+            meta
+            name
+            packageName
+            rawCode
+            schema
+            tags
+            uniqueId
+            executionInfo {
+              executeCompletedAt
+              executionTime
+              lastJobDefinitionId
+              lastRunId
+              lastRunStatus
+            }
+            tests {
+              columnName
+              description
+              name
+              uniqueId
+              testType
+              executionInfo {
+                executeCompletedAt
+                lastRunStatus
+                lastRunError
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+query GetSources($environmentId: BigInt!, $first: Int, $after: String) {
+  environment(id: $environmentId) {
+    adapterType
+    dbtProjectName
+    applied {
+      sources(first: $first, after: $after) {
+        totalCount
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          node {
+            catalog {
+              columns {
+                description
+                name
+              }
+            }
+            database
+            description
+            identifier
+            schema
+            uniqueId
+          }
+        }
+      }
+    }
+  }
+}
+
+query GetMetrics($environmentId: BigInt!, $first: Int, $after: String) {
+  environment(id: $environmentId) {
+    definition {
+      metrics(first: $first, after: $after) {
+        totalCount
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          node {
+            fqn
+            name
+            type
+            filter
+            formula
+            typeParams
+            uniqueId
+            tags
+            description
+            meta
+            packageName
+          }
+        }
+      }
+    }
+  }
+}
+
+query GetMacros($environmentId: BigInt!, $first: Int, $after: String) {
+  environment(id: $environmentId) {
+    definition {
+      macros(first: $first, after: $after) {
+        totalCount
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          node {
+            description
+            environmentId
+            macroSql
+            meta
+            name
+            packageName
+            uniqueId
+            arguments {
+              description
+              name
+              type
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+query GetLineage($environmentId: BigInt!, $filter: LineageFilter!) {
+  environment(id: $environmentId) {
+    applied {
+      lineage(filter: $filter) {
+        uniqueId
+        ... on MacroLineageNode {
+          parentIds
+        }
+        ... on MetricLineageNode {
+          parentIds
+        }
+        ... on ModelLineageNode {
+          parentIds
+        }
+        ... on SemanticModelLineageNode {
+          parentIds
+        }
+        ... on SnapshotLineageNode {
+          parentIds
+        }
+        ... on TestLineageNode {
+          parentIds
+        }
+        __typename
+      }
+    }
+  }
+}

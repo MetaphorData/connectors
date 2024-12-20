@@ -26,6 +26,20 @@ class AppliedModelSortField(str, Enum):
     uniqueId = "uniqueId"
 
 
+class AutoExposureBIProvider(str, Enum):
+    powerbi = "powerbi"
+    tableau = "tableau"
+
+
+class ExposureHealthIssueType(str, Enum):
+    CautionUpstreamSources = "CautionUpstreamSources"
+    DegradedUpstreamSources = "DegradedUpstreamSources"
+    FailedTestUpstreamModels = "FailedTestUpstreamModels"
+    LastRunFailedUpstreamModels = "LastRunFailedUpstreamModels"
+    Unknown = "Unknown"
+    WarnedTestUpstreamModels = "WarnedTestUpstreamModels"
+
+
 class FreshnessStatus(str, Enum):
     Error = "Error"
     Pass = "Pass"
@@ -41,6 +55,13 @@ class OwnerResourceType(str, Enum):
 class PackageResourceType(str, Enum):
     macro = "macro"
     model = "model"
+
+
+class Quality(str, Enum):
+    Error = "Error"
+    Pass = "Pass"
+    Unknown = "Unknown"
+    Warn = "Warn"
 
 
 class ReleaseVersion(str, Enum):
