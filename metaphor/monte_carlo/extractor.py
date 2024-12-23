@@ -1,4 +1,5 @@
 import re
+from datetime import datetime, timedelta
 from typing import Collection, Dict, List
 
 from dateutil import parser
@@ -35,6 +36,8 @@ logger = get_logger()
 
 assets_base_url = "https://getmontecarlo.com/assets"
 monitors_base_url = "https://getmontecarlo.com/monitors"
+alerts_base_url = "https://getmontecarlo.com/alerts"
+
 
 monitor_status_map = {
     "SNOOZED": DataMonitorStatus.UNKNOWN,
@@ -51,6 +54,13 @@ monitor_severity_map = {
     "P1": DataMonitorSeverity.HIGH,
     "P2": DataMonitorSeverity.MEDIUM,
     "P3": DataMonitorSeverity.LOW,
+}
+
+alert_severity_map = {
+    "SEV_1": DataMonitorSeverity.HIGH,
+    "SEV_2": DataMonitorSeverity.MEDIUM,
+    "SEV_3": DataMonitorSeverity.LOW,
+    "SEV_4": DataMonitorSeverity.LOW,
 }
 
 connection_type_platform_map = {
@@ -79,6 +89,11 @@ class MonteCarloExtractor(BaseExtractor):
         )
         self._ignored_errors = config.ignored_errors
 
+        self._treat_unhandled_anomalies_as_errors = (
+            config.treat_unhandled_anomalies_as_errors
+        )
+        self._anomalies_lookback_days = config.anomalies_lookback_days
+
         self._client = Client(
             session=Session(mcd_id=config.api_key_id, mcd_token=config.api_key_secret)
         )
@@ -92,6 +107,9 @@ class MonteCarloExtractor(BaseExtractor):
 
         self._fetch_tables()
         self._fetch_monitors()
+
+        if self._treat_unhandled_anomalies_as_errors:
+            self._fetch_alerts()
 
         return self._datasets.values()
 
@@ -113,7 +131,6 @@ class MonteCarloExtractor(BaseExtractor):
                     uuid
                     name
                     description
-                    entities
                     entityMcons
                     priority
                     monitorStatus
@@ -137,6 +154,78 @@ class MonteCarloExtractor(BaseExtractor):
         logger.info(f"Fetched {len(monitors)} monitors")
         json_dump_to_debug_file(monitors, "getMonitors.json")
         self._parse_monitors(monitors)
+
+    def _fetch_alerts(self) -> None:
+        """Fetch all alerts
+
+        See https://apidocs.getmontecarlo.com/#query-getAlerts
+        """
+
+        batch_size = 200
+        end_cursor = None
+        created_after = datetime.now() - timedelta(days=self._anomalies_lookback_days)
+        create_before = datetime.now()
+
+        result: List[Dict] = []
+
+        while True:
+            logger.info(f"Querying getAlerts after {end_cursor} ({len(result)} tables)")
+            resp = self._client(
+                """
+                query getAlerts($first: Int, $after: String, $createdAfter: DateTime!, $createdBefore: DateTime!) {
+                  getAlerts(first: $first
+                            after: $after
+                            filter: {
+                                include:{
+                                    types: [ANOMALIES]
+                                }
+                            }
+                            createdTime: {before: $createdBefore, after: $createdAfter}
+                  ) {
+                    edges {
+                        node {
+                            id
+                            title
+                            type
+                            status
+                            severity
+                            priority
+                            owner {
+                                email
+                            }
+                            createdTime
+                            tables {
+                                mcon
+                            }
+                        }
+                    }
+                    pageInfo {
+                        endCursor
+                        hasNextPage
+                    }
+                  }
+                }
+                """,
+                {
+                    "first": batch_size,
+                    "after": end_cursor,
+                    "createdAfter": created_after.isoformat(),
+                    "createdBefore": create_before.isoformat(),
+                },
+            )
+
+            nodes = [edge["node"] for edge in resp["get_alerts"]["edges"]]
+            result.extend(nodes)
+
+            if not resp["get_alerts"]["page_info"]["has_next_page"]:
+                break
+
+            end_cursor = resp["get_alerts"]["page_info"]["end_cursor"]
+
+        logger.info(f"Fetched {len(result)} alerts")
+        json_dump_to_debug_file(result, "getAlerts.json")
+
+        self._parse_alerts(result)
 
     def _fetch_tables(self) -> None:
         """Fetch all tables
@@ -221,24 +310,64 @@ class MonteCarloExtractor(BaseExtractor):
                 exceptions=exceptions,
             )
 
-            if monitor["entities"] is None or monitor["entityMcons"] is None:
+            if monitor["entityMcons"] is None:
                 logger.info(f"Skipping monitors not linked to any entities: {uuid}")
                 continue
 
-            for index, entity in enumerate(monitor["entities"]):
-                if index > len(monitor["entityMcons"]) - 1:
-                    logger.warning(f"Unmatched entity mcon in monitor {monitor}")
-                    break
-
-                mcon = monitor["entityMcons"][index]
+            for mcon in monitor["entityMcons"]:
                 platform = self._mcon_platform_map.get(mcon)
                 if platform is None:
                     logger.warning(f"Unable to determine platform for {mcon}")
                     continue
 
-                name = self._convert_dataset_name(entity)
+                name = self._extract_dataset_name(mcon)
                 dataset = self._init_dataset(name, platform)
                 dataset.data_quality.url = f"{assets_base_url}/{mcon}/custom-monitors"
+                dataset.data_quality.monitors.append(data_monitor)
+
+    def _parse_alerts(self, alerts) -> None:
+        for alert in alerts:
+            id = alert["id"]
+
+            if alert["tables"] is None or len(alert["tables"]) == 0:
+                logger.info(f"Skipping alert not linked to any tables: {id}")
+                continue
+
+            # Filter out alerts with status (e.g. "ACKNOWLEDGED", "EXPECTED")
+            if alert["status"] is not None:
+                continue
+
+            # Alerts triggered by anomalies do not have any inherited priority.
+            # Derive it from assigned severity instead.
+            alert_severity = alert_severity_map.get(
+                alert["severity"], DataMonitorSeverity.UNKNOWN
+            )
+
+            owner = None
+            if alert["owner"] is not None and alert["owner"]["email"] is not None:
+                owner = alert["owner"]["email"]
+
+            data_monitor = DataMonitor(
+                title=alert["title"],
+                description=alert["title"],
+                owner=owner,
+                status=DataMonitorStatus.ERROR,
+                severity=alert_severity,
+                url=f"{alerts_base_url}/{id}",
+                last_run=parser.parse(alert["createdTime"]),
+                targets=[],
+            )
+
+            for table in alert.get("tables", []):
+
+                mcon = table["mcon"]
+                platform = self._mcon_platform_map.get(mcon)
+                if platform is None:
+                    logger.warning(f"Unable to determine platform for {mcon}")
+                    continue
+
+                name = self._extract_dataset_name(mcon)
+                dataset = self._init_dataset(name, platform)
                 dataset.data_quality.monitors.append(data_monitor)
 
     def _parse_monitor_status(self, monitor: Dict):
@@ -258,9 +387,13 @@ class MonteCarloExtractor(BaseExtractor):
         return status
 
     @staticmethod
-    def _convert_dataset_name(entity: str) -> str:
-        """entity name format is <db>:<schema>.<table>"""
-        return normalize_full_dataset_name(entity.replace(":", ".", 1))
+    def _extract_dataset_name(mcon: str) -> str:
+        """Extract dataset name form MCON"""
+
+        # MCON has the following format:
+        # MCON++{account_uuid}++{resource_uuid}++table++{db:schema.table}
+        _, _, _, _, obj_name = mcon.split("++")
+        return normalize_full_dataset_name(obj_name.replace(":", ".", 1))
 
     def _init_dataset(self, normalized_name: str, platform: DataPlatform) -> Dataset:
         account = self._account if platform == DataPlatform.SNOWFLAKE else None

@@ -32,6 +32,22 @@ If some of the monitored data assets are Snowflake datasets, please provide the 
 snowflake_account: <account_name>
 ```
 
+#### Treat Unhandled Anomalies as Errors
+
+If set to true, the connector will treat unhandled [anomalies](https://docs.getmontecarlo.com/docs/detectors-overview) as data quality errors.
+
+```yaml
+treat_unhandled_anomalies_as_errors: true
+```
+
+#### Anomalies Lookback Days
+
+By default the connector only retrieves anomalies from the last 30 days. You can change this by setting the `anomalies_lookback_days` field.
+
+```yaml
+anomalies_lookback_days: 30
+```
+
 ## Testing
 
 Follow the [Installation](../../README.md) instructions to install `metaphor-connectors` in your environment (or virtualenv). Make sure to include either `all` or `monte_carlo` extra.

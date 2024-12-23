@@ -15,6 +15,12 @@ class MonteCarloRunConfig(BaseConfig):
     # Snowflake data source account
     snowflake_account: Optional[str] = None
 
+    # Treat unhandled anomalies as errors
+    treat_unhandled_anomalies_as_errors: bool = False
+
+    # Number of days to look back for anomalies
+    anomalies_lookback_days = 30
+
     # Errors to be ignored, e.g. timeouts
     ignored_errors: List[str] = field(
         default_factory=lambda: [
