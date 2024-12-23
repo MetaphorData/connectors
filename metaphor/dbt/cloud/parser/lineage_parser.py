@@ -66,14 +66,6 @@ class LineageParser:
         self._virtual_views = virtual_views
         self._metrics = metrics
 
-        logger.info(
-            {
-                "datasets": self._datasets.keys(),
-                "virtual_views": self._virtual_views.keys(),
-                "metrics": self._metrics.keys(),
-            }
-        )
-
     def _parse_metric_lineage(
         self,
         lineage: MetricNode,

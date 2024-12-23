@@ -27,41 +27,6 @@ from .exceptions import (
     GraphQLClientHttpError,
     GraphQLClientInvalidResponseError,
 )
-from .get_environment_adapter_type import (
-    GetEnvironmentAdapterType,
-    GetEnvironmentAdapterTypeEnvironment,
-)
-from .get_job_run_macros import (
-    GetJobRunMacros,
-    GetJobRunMacrosJob,
-    GetJobRunMacrosJobMacros,
-)
-from .get_job_run_metrics import (
-    GetJobRunMetrics,
-    GetJobRunMetricsJob,
-    GetJobRunMetricsJobMetrics,
-    GetJobRunMetricsJobMetricsFilters,
-)
-from .get_job_run_models import (
-    GetJobRunModels,
-    GetJobRunModelsJob,
-    GetJobRunModelsJobModels,
-    GetJobRunModelsJobModelsColumns,
-    GetJobRunModelsJobModelsRunResults,
-)
-from .get_job_run_snapshots import (
-    GetJobRunSnapshots,
-    GetJobRunSnapshotsJob,
-    GetJobRunSnapshotsJobSnapshots,
-    GetJobRunSnapshotsJobSnapshotsColumns,
-)
-from .get_job_run_sources import (
-    GetJobRunSources,
-    GetJobRunSourcesJob,
-    GetJobRunSourcesJobSources,
-    GetJobRunSourcesJobSourcesColumns,
-)
-from .get_job_run_tests import GetJobRunTests, GetJobRunTestsJob, GetJobRunTestsJobTests
 from .get_lineage import (
     GetLineage,
     GetLineageEnvironment,
@@ -73,16 +38,6 @@ from .get_lineage import (
     GetLineageEnvironmentAppliedLineageSemanticModelLineageNode,
     GetLineageEnvironmentAppliedLineageSnapshotLineageNode,
     GetLineageEnvironmentAppliedLineageTestLineageNode,
-)
-from .get_macro_arguments import (
-    GetMacroArguments,
-    GetMacroArgumentsEnvironment,
-    GetMacroArgumentsEnvironmentDefinition,
-    GetMacroArgumentsEnvironmentDefinitionMacros,
-    GetMacroArgumentsEnvironmentDefinitionMacrosEdges,
-    GetMacroArgumentsEnvironmentDefinitionMacrosEdgesNode,
-    GetMacroArgumentsEnvironmentDefinitionMacrosEdgesNodeArguments,
-    GetMacroArgumentsEnvironmentDefinitionMacrosPageInfo,
 )
 from .get_macros import (
     GetMacros,
@@ -176,31 +131,6 @@ __all__ = [
     "ExposureTileFilter",
     "FreshnessStatus",
     "GenericMaterializedFilter",
-    "GetEnvironmentAdapterType",
-    "GetEnvironmentAdapterTypeEnvironment",
-    "GetJobRunMacros",
-    "GetJobRunMacrosJob",
-    "GetJobRunMacrosJobMacros",
-    "GetJobRunMetrics",
-    "GetJobRunMetricsJob",
-    "GetJobRunMetricsJobMetrics",
-    "GetJobRunMetricsJobMetricsFilters",
-    "GetJobRunModels",
-    "GetJobRunModelsJob",
-    "GetJobRunModelsJobModels",
-    "GetJobRunModelsJobModelsColumns",
-    "GetJobRunModelsJobModelsRunResults",
-    "GetJobRunSnapshots",
-    "GetJobRunSnapshotsJob",
-    "GetJobRunSnapshotsJobSnapshots",
-    "GetJobRunSnapshotsJobSnapshotsColumns",
-    "GetJobRunSources",
-    "GetJobRunSourcesJob",
-    "GetJobRunSourcesJobSources",
-    "GetJobRunSourcesJobSourcesColumns",
-    "GetJobRunTests",
-    "GetJobRunTestsJob",
-    "GetJobRunTestsJobTests",
     "GetLineage",
     "GetLineageEnvironment",
     "GetLineageEnvironmentApplied",
@@ -211,14 +141,6 @@ __all__ = [
     "GetLineageEnvironmentAppliedLineageSemanticModelLineageNode",
     "GetLineageEnvironmentAppliedLineageSnapshotLineageNode",
     "GetLineageEnvironmentAppliedLineageTestLineageNode",
-    "GetMacroArguments",
-    "GetMacroArgumentsEnvironment",
-    "GetMacroArgumentsEnvironmentDefinition",
-    "GetMacroArgumentsEnvironmentDefinitionMacros",
-    "GetMacroArgumentsEnvironmentDefinitionMacrosEdges",
-    "GetMacroArgumentsEnvironmentDefinitionMacrosEdgesNode",
-    "GetMacroArgumentsEnvironmentDefinitionMacrosEdgesNodeArguments",
-    "GetMacroArgumentsEnvironmentDefinitionMacrosPageInfo",
     "GetMacros",
     "GetMacrosEnvironment",
     "GetMacrosEnvironmentDefinition",

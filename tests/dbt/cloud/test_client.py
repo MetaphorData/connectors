@@ -1,7 +1,8 @@
 from typing import Dict
 from unittest.mock import patch
 
-from metaphor.dbt.cloud.client import DbtAdminAPIClient
+from metaphor.dbt.cloud.client import DbtAdminAPIClient, DbtProject
+from metaphor.models.metadata_change_event import DataPlatform
 
 
 class Response:
@@ -14,7 +15,7 @@ class Response:
 
 
 @patch("metaphor.dbt.cloud.client.requests")
-def test_get_last_successful_run(mock_requests):
+def test_list_projects(mock_requests):
     client = DbtAdminAPIClient(
         base_url="http://base.url",
         account_id=1111,
@@ -26,223 +27,136 @@ def test_get_last_successful_run(mock_requests):
         {
             "data": [
                 {
-                    "id": 1,
-                    "project_id": 111,
-                    "job_definition_id": 9999,
-                    "status": 20,
-                },
-                {
-                    "id": 2,
-                    "project_id": 222,
-                    "job_definition_id": 8888,
-                    "status": 10,
-                },
+                    "id": 123,
+                    "name": "test-project",
+                    "account_id": 1111,
+                    "connection_id": 456,
+                    "created_at": "2023-01-01T00:00:00Z",
+                    "updated_at": "2023-01-02T00:00:00Z",
+                    "connection": {
+                        "account_id": 1111,
+                        "name": "test-conn",
+                        "type": "snowflake",
+                        "state": 1,
+                        "details": {"account": "test_account"},
+                    },
+                }
             ]
         },
     )
 
-    run = client.get_last_successful_run(2222)
-    assert run
-    assert run.project_id == 222
-    assert run.run_id == 2
-    assert run.job_id == 8888
+    projects = client.list_projects()
+    assert len(projects) == 1
+    assert projects[0].id == 123
+    assert projects[0].name == "test-project"
+    assert projects[0].connection.type == "snowflake"
 
     mock_requests.get.assert_called_once_with(
-        "http://base.url/api/v2/accounts/1111/runs/",
-        params={
-            "job_definition_id": 2222,
-            "order_by": "-id",
-            "limit": 50,
-            "offset": 0,
-        },
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": "Token service_token",
-        },
-        timeout=600,
-    )
-
-
-@patch("metaphor.dbt.cloud.client.requests")
-def test_no_successful_runs(mock_requests):
-    client = DbtAdminAPIClient(
-        base_url="http://base.url",
-        account_id=1111,
-        service_token="service_token",
-    )
-
-    mock_requests.get.return_value = Response(
-        200,
-        {"data": []},
-    )
-
-    run = client.get_last_successful_run(2222)
-    assert not run
-
-    mock_requests.get.assert_called_once_with(
-        "http://base.url/api/v2/accounts/1111/runs/",
-        params={
-            "job_definition_id": 2222,
-            "order_by": "-id",
-            "limit": 50,
-            "offset": 0,
-        },
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": "Token service_token",
-        },
-        timeout=600,
-    )
-
-
-@patch("metaphor.dbt.cloud.client.requests")
-def test_get_last_successful_run_pagination(mock_requests):
-    client = DbtAdminAPIClient(
-        base_url="http://base.url",
-        account_id=1111,
-        service_token="service_token",
-    )
-
-    mock_requests.get.side_effect = [
-        Response(
-            200,
-            {
-                "data": [
-                    {
-                        "id": 1,
-                        "project_id": 111,
-                        "job_definition_id": 9999,
-                        "status": 20,
-                    },
-                ]
-            },
-        ),
-        Response(
-            200,
-            {
-                "data": [
-                    {
-                        "id": 2,
-                        "project_id": 222,
-                        "job_definition_id": 8888,
-                        "status": 10,
-                    },
-                ]
-            },
-        ),
-    ]
-    run = client.get_last_successful_run(2222, page_size=1)
-    assert run
-    assert run.project_id == 222
-    assert run.run_id == 2
-    assert run.job_id == 8888
-
-    assert mock_requests.get.call_count == 2
-
-
-@patch("metaphor.dbt.cloud.client.requests")
-def test_get_snowflake_account(mock_requests):
-    client = DbtAdminAPIClient(
-        base_url="http://base.url",
-        account_id=1111,
-        service_token="service_token",
-    )
-
-    mock_requests.get.return_value = Response(
-        200,
-        {
-            "data": {
-                "connection": {
-                    "type": "snowflake",
-                    "details": {"account": "snowflake_account"},
-                }
-            }
-        },
-    )
-
-    account = client.get_snowflake_account(2222)
-    assert account == "snowflake_account"
-
-    mock_requests.get.assert_called_once_with(
-        "http://base.url/api/v2/accounts/1111/projects/2222",
+        "http://base.url/api/v3/accounts/1111/projects/",
         params=None,
         headers={
             "Content-Type": "application/json",
             "Authorization": "Token service_token",
         },
-        timeout=600,
+        timeout=60,
     )
 
 
 @patch("metaphor.dbt.cloud.client.requests")
-def test_get_project_jobs(mock_requests):
+def test_list_environments(mock_requests):
     client = DbtAdminAPIClient(
         base_url="http://base.url",
         account_id=1111,
         service_token="service_token",
     )
+
     mock_requests.get.return_value = Response(
         200,
         {
             "data": [
                 {
-                    "id": 3333,
-                },
-                {
-                    "id": 2222,
-                },
+                    "id": 789,
+                    "account_id": 1111,
+                    "project_id": 123,
+                    "name": "test-env",
+                    "dbt_version": "1.5.0",
+                    "type": "development",
+                    "state": 1,
+                    "created_at": "2023-01-01T00:00:00Z",
+                    "updated_at": "2023-01-02T00:00:00Z",
+                }
             ]
         },
     )
-    jobs = client.get_project_jobs(4444)
-    assert jobs == [3333, 2222]
+
+    environments = client.list_environments(123)
+    assert len(environments) == 1
+    assert environments[0].id == 789
+    assert environments[0].name == "test-env"
+    assert environments[0].dbt_version == "1.5.0"
+    assert environments[0].type == "development"
+
+    mock_requests.get.assert_called_once_with(
+        "http://base.url/api/v3/accounts/1111/projects/123/environments/",
+        params=None,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": "Token service_token",
+        },
+        timeout=60,
+    )
 
 
 @patch("metaphor.dbt.cloud.client.requests")
-def test_job_is_included(mock_requests):
+def test_extract_platform_and_account(mock_requests):
     client = DbtAdminAPIClient(
         base_url="http://base.url",
         account_id=1111,
         service_token="service_token",
-        included_env_ids={1, 3},
     )
 
-    def mock_get(url: str, **kwargs):
-        job_id = int(url.rsplit("/", 1)[-1])
-        if job_id == 1:
-            return Response(
-                200,
-                {
-                    "data": {
-                        "environment_id": 1,
-                    }
-                },
-            )
-        elif job_id == 2:
-            return Response(
-                200,
-                {
-                    "data": {
-                        "environment_id": 2,
-                    }
-                },
-            )
-        elif job_id == 3:
-            return Response(
-                200,
-                {
-                    "data": {
-                        "environment_id": 4,
-                    }
-                },
-            )
-        return Response(404, {})
+    # Test Snowflake platform
+    project = DbtProject.model_validate(
+        {
+            "id": 123,
+            "name": "test-project",
+            "account_id": 1111,
+            "connection_id": 456,
+            "created_at": "2023-01-01T00:00:00Z",
+            "updated_at": "2023-01-02T00:00:00Z",
+            "connection": {
+                "account_id": 1111,
+                "name": "test-conn",
+                "type": "snowflake",
+                "state": 1,
+                "details": {"account": "test.snowflake.account"},
+            },
+        }
+    )
 
-    mock_requests.get = mock_get
+    platform, account = client.extract_platform_and_account(project)
+    assert platform == DataPlatform.SNOWFLAKE
+    assert account == "test.snowflake.account"
 
-    for i in range(1, 4):
-        included = client.is_job_included(i)
-        if i == 1:
-            assert included
-        else:
-            assert not included
+    # Test PostgreSQL platform
+    project = DbtProject.model_validate(
+        {
+            "id": 123,
+            "name": "test-project",
+            "account_id": 1111,
+            "connection_id": 456,
+            "created_at": "2023-01-01T00:00:00Z",
+            "updated_at": "2023-01-02T00:00:00Z",
+            "connection": {
+                "account_id": 1111,
+                "name": "test-conn",
+                "type": "postgres",
+                "state": 1,
+                "details": {},
+            },
+        }
+    )
+
+    platform, account = client.extract_platform_and_account(project)
+    assert platform == DataPlatform.POSTGRESQL
+    assert account is None

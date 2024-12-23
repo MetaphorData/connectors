@@ -1,20 +1,10 @@
 import json
-from typing import Callable, Dict, List, Union
+from typing import List, Union
 
-from metaphor.common.entity_id import EntityId
-from metaphor.common.utils import dedup_lists, unique_list
-from metaphor.dbt.util import (
-    build_system_tags,
-    get_model_name_from_unique_id,
-    get_snapshot_name_from_unique_id,
-    get_virtual_view_id,
-    init_virtual_view,
-)
+from metaphor.common.utils import dedup_lists
+from metaphor.dbt.util import build_system_tags
 from metaphor.models.metadata_change_event import (
     Dataset,
-    DbtMacro,
-    DbtMetric,
-    DbtModel,
     Metric,
     Ownership,
     OwnershipAssignment,
@@ -23,62 +13,6 @@ from metaphor.models.metadata_change_event import (
 )
 
 DISCOVERY_API_PAGE_LIMIT = 500
-
-
-def parse_depends_on(
-    virtual_views: Dict[str, VirtualView],
-    depends_on: List[str],
-    source_map: Dict[str, EntityId],
-    macro_map: Dict[str, DbtMacro],
-    target: Union[DbtModel, DbtMetric],
-):
-    if not depends_on:
-        return
-
-    target.source_datasets = (
-        unique_list(
-            [str(source_map[n]) for n in depends_on if n.startswith("source.")]
-            + (target.source_datasets or [])
-        )
-        or None
-    )
-
-    def get_source_model_name(n: str) -> Callable[[str], str]:
-        if n.startswith("model."):
-            return get_model_name_from_unique_id
-        if n.startswith("snapshot."):
-            return get_snapshot_name_from_unique_id
-        assert False
-
-    target.source_models = (
-        unique_list(
-            [
-                get_virtual_view_id(init_virtual_view(virtual_views, n, get_source_model_name(n)).logical_id)  # type: ignore
-                for n in depends_on
-                if n.startswith("model.") or n.startswith("snapshot.")
-            ]
-            + (target.source_models or [])
-        )
-        or None
-    )
-
-    if isinstance(target, DbtModel):
-        DbtMacro.__hash__ = lambda macro: hash(json.dumps(macro.to_dict()))  # type: ignore
-        target.macros = (
-            unique_list(
-                [
-                    macro_map[n]
-                    for n in depends_on
-                    if n.startswith("macro.") and n in macro_map
-                ]
-                + (
-                    target.macros
-                    if isinstance(target, DbtModel) and target.macros
-                    else []
-                )
-            )
-            or None
-        )
 
 
 def update_entity_system_tags(

@@ -1,9 +1,13 @@
 ---
+service_token: token
 account_id: 1234
-job_ids:
+project_ids:
   - 5678
   - 9012
-service_token: token
+environment_ids:
+  - 1
+  - 2
+  - 3
 meta_key_tags: tags
 base_url: https://cloud.metaphor.getdbt.com
 output: {}
