@@ -1,5 +1,4 @@
 import re
-import traceback
 from typing import Collection, Dict, List
 
 from dateutil import parser
@@ -102,11 +101,15 @@ class MonteCarloExtractor(BaseExtractor):
         See https://apidocs.getmontecarlo.com/#query-getMonitors
         """
 
-        try:
-            monitors = self._client(
+        offset = 0
+        limit = 200
+
+        monitors = []
+        while True:
+            resp = self._client(
                 """
-                {
-                  getMonitors {
+                query getMonitors($offset: Int, $limit: Int) {
+                  getMonitors(offset: $offset, limit: $limit) {
                     uuid
                     name
                     description
@@ -120,16 +123,20 @@ class MonteCarloExtractor(BaseExtractor):
                     exceptions
                   }
                 }
-                """
+                """,
+                {"offset": offset, "limit": limit},
             )
 
-            logger.info(f"Fetched {len(monitors['get_monitors'])} monitors")
-            json_dump_to_debug_file(monitors, "getMonitors.json")
+            logger.info(f"Querying getMonitors with offset {offset}")
+            monitors.extend(resp["get_monitors"])
+            if len(resp["get_monitors"]) < limit:
+                break
 
-            self._parse_monitors(monitors)
-        except Exception as error:
-            traceback.print_exc()
-            logger.error(f"Failed to get all monitors, error {error}")
+            offset += limit
+
+        logger.info(f"Fetched {len(monitors)} monitors")
+        json_dump_to_debug_file(monitors, "getMonitors.json")
+        self._parse_monitors(monitors)
 
     def _fetch_tables(self) -> None:
         """Fetch all tables
@@ -188,7 +195,7 @@ class MonteCarloExtractor(BaseExtractor):
                 self._mcon_platform_map[mcon] = platform
 
     def _parse_monitors(self, monitors) -> None:
-        for monitor in monitors["get_monitors"]:
+        for monitor in monitors:
             uuid = monitor["uuid"]
             monitor_severity = monitor_severity_map.get(
                 monitor["priority"], DataMonitorSeverity.UNKNOWN
