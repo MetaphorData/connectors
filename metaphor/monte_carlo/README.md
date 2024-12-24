@@ -34,7 +34,7 @@ snowflake_account: <account_name>
 
 #### Treat Unhandled Anomalies as Errors
 
-If set to true, the connector will treat unhandled [anomalies](https://docs.getmontecarlo.com/docs/detectors-overview) as data quality errors.
+If set to true, the connector will treat unhandled [anomalies](https://docs.getmontecarlo.com/docs/detectors-overview) as data quality errors. Default is false.
 
 ```yaml
 treat_unhandled_anomalies_as_errors: true
