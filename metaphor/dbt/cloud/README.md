@@ -15,17 +15,9 @@ Create a YAML config file based the following template.
 ```yaml
 account_id: <dbt_cloud_account_id>
 service_token: <service_account_token>
-job_ids:
-  - <job_id_1>
-  - <job_id_2>
-project_ids:
-  - <project_id_1>
-  - <project_id_2>
 ```
 
-You can extract `account_id` & `job_ids` from particular dbt job URLs, which have the format `https://cloud.getdbt.com/#/accounts/<account_id>/projects/<project_id>/jobs/<job_id>/`.
-
-It is also possible to specify the IDs for the projects to extract. The connector will extract the last successful run of each of the project's jobs.
+You can extract `account_id`, `project_id` and `environment_id` from a dbt environment URLs, which have the format `https://cloud.getdbt.com/deploy/<account_id>/projects/<project_id>/environments/<environment_id>/`.
 
 ### Optional Configurations
 
@@ -49,6 +41,16 @@ Specify this if your dbt instance isn't a North America multi-tenant deployment.
 discovery_api_url: https://metadata.cloud.getdbt.com/graphql
 ```
 
+#### Project IDs
+
+```yaml
+project_ids:
+  - <project_id_1>
+  - <project_id_2>
+```
+
+If `project_ids` are specified, only assets from those projects are collected. If it is not provided, all dbt assets will be collected.
+
 #### Environment IDs
 
 ```yaml
@@ -57,7 +59,7 @@ environment_ids:
   - <environment_id_2>
 ```
 
-If `environment_ids` are specified, only jobs run within those environments are collected. If it is not provided, all dbt jobs will be collected.
+If `environment_ids` are specified, only assets from those environments are collected. If it is not provided, all dbt assets will be collected.
 
 ## Testing
 

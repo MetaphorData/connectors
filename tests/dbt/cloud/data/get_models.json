@@ -1,0 +1,201 @@
+{
+  "environment": {
+    "applied": {
+      "models": {
+        "totalCount": 1,
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "=="
+        },
+        "edges": [
+          {
+            "node": {
+              "alias": "customers",
+              "catalog": {
+                "comment": "",
+                "bytesStat": 65536,
+                "owner": "DEVELOPER",
+                "rowCountStat": 939,
+                "columns": [
+                  {
+                    "comment": null,
+                    "description": "The unique id of the customer.",
+                    "name": "CUSTOMER_ID",
+                    "tags": [],
+                    "type": "TEXT",
+                    "meta": {}
+                  },
+                  {
+                    "comment": null,
+                    "description": "Customers' full name.",
+                    "name": "CUSTOMER_NAME",
+                    "tags": [],
+                    "type": "TEXT",
+                    "meta": {}
+                  },
+                  {
+                    "comment": null,
+                    "description": "The timestamp when a customer placed their first order.",
+                    "name": "FIRST_ORDERED_AT",
+                    "tags": [],
+                    "type": "TIMESTAMP_NTZ",
+                    "meta": {}
+                  }
+                ]
+              },
+              "compiledCode": "with\n\ncustomers as (\n\n    select * from acme.metaphor.stg_customers\n\n),\n\norders_table as (\n\n    select * from acme.metaphor.orders\n\n),\n\norder_items_table as (\n\n    select * from acme.metaphor.order_items\n),\n\norder_summary as (\n\n    select\n        customer_id,\n\n        count(distinct orders.order_id) as count_lifetime_orders,\n        count(distinct orders.order_id) > 1 as is_repeat_buyer,\n        min(orders.ordered_at) as first_ordered_at,\n        max(orders.ordered_at) as last_ordered_at,\n        sum(order_items.product_price) as lifetime_spend_pretax,\n        sum(orders.order_total) as lifetime_spend\n\n    from orders_table as orders\n    \n    left join order_items_table as order_items on orders.order_id = order_items.order_id\n    \n    group by 1\n\n),\n\njoined as (\n\n    select\n        customers.*,\n        order_summary.count_lifetime_orders,\n        order_summary.first_ordered_at,\n        order_summary.last_ordered_at,\n        order_summary.lifetime_spend_pretax,\n        order_summary.lifetime_spend,\n\n        case\n            when order_summary.is_repeat_buyer then 'returning'\n            else 'new'\n        end as customer_type\n\n    from customers\n\n    left join order_summary\n        on customers.customer_id = order_summary.customer_id\n\n)\n\nselect * from joined",
+              "database": "acme",
+              "description": "Customer overview data mart, offering key details for each unique customer. One row per customer.",
+              "environmentId": 200,
+              "materializedType": "table",
+              "meta": {},
+              "name": "customers",
+              "packageName": "metaphor",
+              "rawCode": "with\n\ncustomers as (\n\n    select * from {{ ref('stg_customers') }}\n\n),\n\norders_table as (\n\n    select * from {{ ref('orders') }}\n\n),\n\norder_items_table as (\n\n    select * from {{ ref('order_items') }}\n),\n\norder_summary as (\n\n    select\n        customer_id,\n\n        count(distinct orders.order_id) as count_lifetime_orders,\n        count(distinct orders.order_id) > 1 as is_repeat_buyer,\n        min(orders.ordered_at) as first_ordered_at,\n        max(orders.ordered_at) as last_ordered_at,\n        sum(order_items.product_price) as lifetime_spend_pretax,\n        sum(orders.order_total) as lifetime_spend\n\n    from orders_table as orders\n    \n    left join order_items_table as order_items on orders.order_id = order_items.order_id\n    \n    group by 1\n\n),\n\njoined as (\n\n    select\n        customers.*,\n        order_summary.count_lifetime_orders,\n        order_summary.first_ordered_at,\n        order_summary.last_ordered_at,\n        order_summary.lifetime_spend_pretax,\n        order_summary.lifetime_spend,\n\n        case\n            when order_summary.is_repeat_buyer then 'returning'\n            else 'new'\n        end as customer_type\n\n    from customers\n\n    left join order_summary\n        on customers.customer_id = order_summary.customer_id\n\n)\n\nselect * from joined",
+              "schema": "metaphor",
+              "tags": [],
+              "uniqueId": "model.metaphor.customers",
+              "executionInfo": {
+                "executeCompletedAt": "2024-12-23T04:01:13.197Z",
+                "executionTime": 1.071177005767822,
+                "lastJobDefinitionId": 14659,
+                "lastRunId": 35418,
+                "lastRunStatus": "success"
+              },
+              "tests": [
+                {
+                  "columnName": "customer_id",
+                  "description": "",
+                  "name": "not_null_customers_customer_id",
+                  "uniqueId": "test.metaphor.not_null_customers_customer_id.5c9bf9911d",
+                  "testType": "GENERIC_DATA_TEST",
+                  "executionInfo": {
+                    "executeCompletedAt": "2024-12-23T04:01:19.941Z",
+                    "lastRunStatus": "pass",
+                    "lastRunError": null
+                  }
+                },
+                {
+                  "columnName": "customer_id",
+                  "description": "",
+                  "name": "unique_customers_customer_id",
+                  "uniqueId": "test.metaphor.unique_customers_customer_id.c5af1ff4b1",
+                  "testType": "GENERIC_DATA_TEST",
+                  "executionInfo": {
+                    "executeCompletedAt": "2024-12-23T04:01:20.243Z",
+                    "lastRunStatus": "pass",
+                    "lastRunError": null
+                  }
+                }
+              ],
+              "__typename": "ModelAppliedStateNode"
+            }
+          },
+          {
+            "node": {
+              "alias": "orders",
+              "catalog": {
+                "comment": "",
+                "bytesStat": 3473920,
+                "owner": "DEVELOPER",
+                "rowCountStat": 59652,
+                "columns": [
+                  {
+                    "comment": null,
+                    "description": "The unique key of the orders mart.",
+                    "name": "ORDER_ID",
+                    "tags": [],
+                    "type": "TEXT",
+                    "meta": {}
+                  },
+                  {
+                    "comment": null,
+                    "description": "The foreign key relating to the customer who placed the order.",
+                    "name": "CUSTOMER_ID",
+                    "tags": [],
+                    "type": "TEXT",
+                    "meta": {}
+                  },
+                  {
+                    "comment": null,
+                    "description": "The total amount of the order in USD including tax.",
+                    "name": "ORDER_TOTAL",
+                    "tags": [],
+                    "type": "NUMBER",
+                    "meta": {}
+                  },
+                  {
+                    "comment": null,
+                    "description": "The timestamp the order was placed at.",
+                    "name": "ORDERED_AT",
+                    "tags": [],
+                    "type": "TIMESTAMP_NTZ",
+                    "meta": {}
+                  }
+                ]
+              },
+              "compiledCode": "with \n--test\norders as (\n    \n    select * from acme.metaphor.stg_orders\n\n),\n\norder_items_table as (\n    \n    select * from acme.metaphor.order_items\n\n),\n\norder_items_summary as (\n\n    select\n\n        order_items.order_id,\n\n        sum(supply_cost) as order_cost,\n        sum(is_food_item) as count_food_items,\n        sum(is_drink_item) as count_drink_items\n\n\n    from order_items_table as order_items\n\n    group by 1\n\n),\n\n\ncompute_booleans as (\n    select\n\n        orders.*,\n        count_food_items > 0 as is_food_order,\n        count_drink_items > 0 as is_drink_order,\n        order_cost\n\n    from orders\n    \n    left join order_items_summary on orders.order_id = order_items_summary.order_id\n)\n\nselect * from compute_booleans",
+              "database": "acme",
+              "description": "Order overview data mart, offering key details for each order inlcluding if it's a customer's first order and a food vs. drink item breakdown. One row per order.",
+              "environmentId": 200,
+              "materializedType": "table",
+              "meta": {},
+              "name": "orders",
+              "packageName": "metaphor",
+              "rawCode": "with \n--test\norders as (\n    \n    select * from {{ ref('stg_orders')}}\n\n),\n\norder_items_table as (\n    \n    select * from {{ ref('order_items')}}\n\n),\n\norder_items_summary as (\n\n    select\n\n        order_items.order_id,\n\n        sum(supply_cost) as order_cost,\n        sum(is_food_item) as count_food_items,\n        sum(is_drink_item) as count_drink_items\n\n\n    from order_items_table as order_items\n\n    group by 1\n\n),\n\n\ncompute_booleans as (\n    select\n\n        orders.*,\n        count_food_items > 0 as is_food_order,\n        count_drink_items > 0 as is_drink_order,\n        order_cost\n\n    from orders\n    \n    left join order_items_summary on orders.order_id = order_items_summary.order_id\n)\n\nselect * from compute_booleans",
+              "schema": "metaphor",
+              "tags": [],
+              "uniqueId": "model.metaphor.orders",
+              "executionInfo": {
+                "executeCompletedAt": "2024-12-23T04:01:12.122Z",
+                "executionTime": 0.9518797397613525,
+                "lastJobDefinitionId": 146159,
+                "lastRunId": 354180151,
+                "lastRunStatus": "success"
+              },
+              "tests": [
+                {
+                  "columnName": "order_id",
+                  "description": "",
+                  "name": "not_null_orders_order_id",
+                  "uniqueId": "test.metaphor.not_null_orders_order_id.cf6c17daed",
+                  "testType": "GENERIC_DATA_TEST",
+                  "executionInfo": {
+                    "executeCompletedAt": "2024-12-23T04:01:20.022Z",
+                    "lastRunStatus": "pass",
+                    "lastRunError": null
+                  }
+                },
+                {
+                  "columnName": "customer_id",
+                  "description": "",
+                  "name": "relationships_orders_customer_id__customer_id__ref_stg_customers_",
+                  "uniqueId": "test.metaphor.relationships_orders_customer_id__customer_id__ref_stg_customers_.918495ce16",
+                  "testType": "GENERIC_DATA_TEST",
+                  "executionInfo": {
+                    "executeCompletedAt": "2024-12-23T04:01:20.254Z",
+                    "lastRunStatus": "pass",
+                    "lastRunError": null
+                  }
+                },
+                {
+                  "columnName": "order_id",
+                  "description": "",
+                  "name": "unique_orders_order_id",
+                  "uniqueId": "test.metaphor.unique_orders_order_id.fed79b3a6e",
+                  "testType": "GENERIC_DATA_TEST",
+                  "executionInfo": {
+                    "executeCompletedAt": "2024-12-23T04:01:20.343Z",
+                    "lastRunStatus": "pass",
+                    "lastRunError": null
+                  }
+                }
+              ],
+              "__typename": "ModelAppliedStateNode"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

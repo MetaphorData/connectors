@@ -1,6 +1,0 @@
-{
-  "environment": {
-    "adapterType": "snowflake",
-    "dbtProjectName": "jaffle_shop"
-  }
-}

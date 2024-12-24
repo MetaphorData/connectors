@@ -74,6 +74,11 @@ input AppliedResourcesFilter {
 The output of successful dbt DAG execution that creates or describes the state of the database.
 """
 type AppliedState {
+  """An exposure tile in this environment"""
+  exposureTile(
+    """Exposure Tile Filter"""
+    filter: ExposureTileFilter!
+  ): ExposureTileNode
   exposures(
     after: String
 
@@ -180,6 +185,12 @@ type AppliedState {
     filter: TestAppliedFilter
     first: Int
   ): TestAppliedStateNodeConnection!
+}
+
+"""The BI provider of an auto exposure"""
+enum AutoExposureBIProvider {
+  powerbi
+  tableau
 }
 
 """
@@ -880,6 +891,15 @@ input ExposureFilter {
   uniqueIds: [String!]
 }
 
+enum ExposureHealthIssueType {
+  CautionUpstreamSources
+  DegradedUpstreamSources
+  FailedTestUpstreamModels
+  LastRunFailedUpstreamModels
+  Unknown
+  WarnedTestUpstreamModels
+}
+
 """Exposure Lineage Object"""
 type ExposureLineageNode implements LineageGraphNode & LineageNode & LineageNodeWithParents {
   """The access level of this node"""
@@ -1024,6 +1044,77 @@ type ExposureOwner {
 
   """The name of the owner"""
   name: String!
+}
+
+input ExposureTileFilter {
+  """The auto BI provider of the exposure tile"""
+  autoBiProvider: AutoExposureBIProvider
+
+  """The BI resource ID of the exposure tile"""
+  biResourceId: String
+
+  """The unique ID of the exposure tile"""
+  uniqueId: String
+}
+
+type ExposureTileNode implements EnvironmentAppliedNode {
+  """The account ID of this node"""
+  accountId: BigInt!
+
+  """
+  If not auto exposure, is null. If it is auto exposure, it is the name of the BI provider
+  """
+  autoBiProvider: AutoExposureBIProvider
+
+  """The user-supplied description for this node"""
+  description: String
+
+  """The environment ID of this node"""
+  environmentId: BigInt!
+
+  """Type of this exposure"""
+  exposureType: String
+
+  """Original file path to the node"""
+  filePath: String!
+
+  """Freshness status of the source"""
+  freshnessStatus: FreshnessStatus
+
+  """
+  An empty list would imply that the exposure is healthy. Otherwise, it will list the health issues
+  """
+  healthIssues: [ExposureHealthIssueType!]!
+
+  """The latest snapshotted_at timestamp of the exposure and its ancestors"""
+  maxSnapshottedAt: DateTime
+
+  """The key-value store containing metadata relevant to this node"""
+  meta: JSONObject
+
+  """The user-supplied name of this particular node"""
+  name: String
+
+  """The package name of this exposure"""
+  packageName: String
+
+  """The project ID of this node"""
+  projectId: BigInt!
+
+  """Worst test status from ancestors"""
+  quality: Quality
+
+  """The resource type of this node"""
+  resourceType: String!
+
+  """The tags associated with this node"""
+  tags: [String!]!
+
+  """The unique ID of this node"""
+  uniqueId: String!
+
+  """Stats from upstream dependencies"""
+  upstreamStats: JSONObject
 }
 
 """Public model from another project"""
@@ -2897,6 +2988,14 @@ type PageInfo {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
   startCursor: String
+}
+
+"""Exposure test status quality"""
+enum Quality {
+  Error
+  Pass
+  Unknown
+  Warn
 }
 
 type Query {
@@ -4948,7 +5047,9 @@ type SourceFreshnessNode {
   """The freshness SLA specified for this source table"""
   criteria: Criteria!
 
-  """Whether or not the freshness was checked"""
+  """
+  Whether or not the freshness was checked. If this is null, then the source has its freshness block set to null.
+  """
   freshnessChecked: Boolean
 
   """The job ID of the last run that checked for source freshness"""
@@ -5026,6 +5127,9 @@ type SourceLineageNode implements LineageGraphNode & LineageNode & LineageNodeTe
 
   """The package schema of this node"""
   schema: String
+
+  """The name of this particular source"""
+  sourceName: String
 
   """The tags associated with this node"""
   tags: [String!]!

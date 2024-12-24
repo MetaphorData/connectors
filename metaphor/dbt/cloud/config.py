@@ -16,7 +16,7 @@ class DbtCloudConfig(BaseConfig):
     # Service token for dbt cloud
     service_token: str
 
-    # dbt cloud job IDs
+    # dbt cloud job IDs, deprecated and will not be used
     job_ids: Set[int] = dataclass_field(default_factory=set)
 
     # dbt cloud project IDs

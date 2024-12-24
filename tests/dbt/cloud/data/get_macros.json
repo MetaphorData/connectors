@@ -1,0 +1,14 @@
+{
+  "environment": {
+    "definition": {
+      "macros": {
+        "totalCount": 0,
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": ""
+        },
+        "edges": []
+      }
+    }
+  }
+}

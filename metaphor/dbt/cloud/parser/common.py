@@ -1,20 +1,12 @@
 import json
-from typing import Callable, Dict, List, Union
+from typing import List, Optional, Tuple, Union
 
-from metaphor.common.entity_id import EntityId
-from metaphor.common.utils import dedup_lists, unique_list
-from metaphor.dbt.util import (
-    build_system_tags,
-    get_model_name_from_unique_id,
-    get_snapshot_name_from_unique_id,
-    get_virtual_view_id,
-    init_virtual_view,
-)
+from metaphor.common.utils import dedup_lists
+from metaphor.dbt.cloud.client import DbtProject
+from metaphor.dbt.util import build_system_tags
 from metaphor.models.metadata_change_event import (
+    DataPlatform,
     Dataset,
-    DbtMacro,
-    DbtMetric,
-    DbtModel,
     Metric,
     Ownership,
     OwnershipAssignment,
@@ -22,61 +14,17 @@ from metaphor.models.metadata_change_event import (
     VirtualView,
 )
 
+"""
+Maximum number of items to fetch in one request from the discovery API.
+"""
+DISCOVERY_API_PAGE_LIMIT = 500
 
-def parse_depends_on(
-    virtual_views: Dict[str, VirtualView],
-    depends_on: List[str],
-    source_map: Dict[str, EntityId],
-    macro_map: Dict[str, DbtMacro],
-    target: Union[DbtModel, DbtMetric],
-):
-    if not depends_on:
-        return
-
-    target.source_datasets = (
-        unique_list(
-            [str(source_map[n]) for n in depends_on if n.startswith("source.")]
-            + (target.source_datasets or [])
-        )
-        or None
-    )
-
-    def get_source_model_name(n: str) -> Callable[[str], str]:
-        if n.startswith("model."):
-            return get_model_name_from_unique_id
-        if n.startswith("snapshot."):
-            return get_snapshot_name_from_unique_id
-        assert False
-
-    target.source_models = (
-        unique_list(
-            [
-                get_virtual_view_id(init_virtual_view(virtual_views, n, get_source_model_name(n)).logical_id)  # type: ignore
-                for n in depends_on
-                if n.startswith("model.") or n.startswith("snapshot.")
-            ]
-            + (target.source_models or [])
-        )
-        or None
-    )
-
-    if isinstance(target, DbtModel):
-        DbtMacro.__hash__ = lambda macro: hash(json.dumps(macro.to_dict()))  # type: ignore
-        target.macros = (
-            unique_list(
-                [
-                    macro_map[n]
-                    for n in depends_on
-                    if n.startswith("macro.") and n in macro_map
-                ]
-                + (
-                    target.macros
-                    if isinstance(target, DbtModel) and target.macros
-                    else []
-                )
-            )
-            or None
-        )
+"""
+Mapping from dbt platform name to DataPlatform if the name differs.
+"""
+PLATFORM_NAME_MAP = {
+    "POSTGRES": "POSTGRESQL",
+}
 
 
 def update_entity_system_tags(
@@ -126,3 +74,22 @@ def update_entity_tag_assignments(
     entity.tag_assignment.tag_names = dedup_lists(
         entity.tag_assignment.tag_names, tag_names
     )
+
+
+def extract_platform_and_account(
+    project: DbtProject,
+) -> Tuple[DataPlatform, Optional[str]]:
+    """Get the platform and account from a dbt project"""
+    type = project.connection.type.upper()
+    platform_name = PLATFORM_NAME_MAP.get(type, type)
+    assert (
+        platform_name in DataPlatform.__members__
+    ), f"Invalid platform {platform_name}"
+    platform = DataPlatform[platform_name]
+
+    account = (
+        project.connection.details.get("account")
+        if platform == DataPlatform.SNOWFLAKE
+        else None
+    )
+    return platform, account
