@@ -11,6 +11,16 @@
           "targets": [],
           "title": "auto_monitor_name_cd5b69bd-e465-4545-b3f9-a5d507ea766c",
           "url": "https://getmontecarlo.com/monitors/e0dc143e-dd8a-4cb9-b4cc-dedec715d955"
+        },
+        {
+          "description": "Anomaly 1",
+          "lastRun": "2023-06-23T03:54:35.817000+00:00",
+          "owner": "yi@metaphor.io",
+          "severity": "HIGH",
+          "status": "ERROR",
+          "targets": [],
+          "title": "Anomaly 1",
+          "url": "https://getmontecarlo.com/alerts/1"
         }
       ],
       "provider": "MONTE_CARLO",
