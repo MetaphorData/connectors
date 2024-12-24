@@ -1,80 +1,36 @@
 import json
-from typing import List, Set
 from unittest.mock import MagicMock, patch
 
 import pytest
-from httpx import Response
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.dbt.cloud.client import DbtRun
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.extractor import DbtCloudExtractor
-from tests.dbt.cloud.fake_graphql_server import endpoints, targets
+from tests.dbt.cloud.mock_client import MockAdminClient, MockDiscoveryClient
 from tests.test_utils import load_json
 
 
-def mock_post(url: str, content: str, **kwargs):
-    content_json = json.loads(content)
-    operation_name = content_json["operationName"]
-    variables = content_json["variables"]
-    results = endpoints[operation_name](variables)
-    payload = {"data": json.loads(results)}
-    return Response(200, content=json.dumps(payload))
-
-
-class MockAdminClient:
-    def __init__(
-        self,
-        base_url: str,
-        account_id: int,
-        service_token: str,
-        included_env_ids: Set[int] = set(),
-    ):
-        self.job_env = {
-            j: e
-            for j, e in zip(
-                targets.job_targets.keys(), targets.environment_targets.keys()
-            )
-        }
-
-    def get_project_jobs(self, project_id: int) -> List[int]:
-        return list(self.job_env.keys())
-
-    def is_job_included(self, job_id: int):
-        return True
-
-    def get_last_successful_run(self, job_id: int, page_size=50):
-        return DbtRun(
-            project_id=123,
-            job_id=job_id,
-            run_id=job_id * 10 + 1,
-            environment_id=self.job_env[job_id],
-        )
-
-    def get_snowflake_account(self, project_id: int):
-        return "john.doe@metaphor.io"
-
-
 @pytest.mark.asyncio()
+@patch("metaphor.dbt.cloud.extractor.DiscoveryAPIClient")
 @patch("metaphor.dbt.cloud.extractor.DbtAdminAPIClient")
-@patch("httpx.Client.post")
 async def test_extractor(
-    mock_httpx_client_post: MagicMock,
     mock_admin_client: MagicMock,
+    mock_discovery_client: MagicMock,
     test_root_dir: str,
 ):
-    mock_httpx_client_post.side_effect = mock_post
-    mock_admin_client.side_effect = MockAdminClient
+    mock_admin_client.return_value = MockAdminClient(test_root_dir)
+    mock_discovery_client.return_value = MockDiscoveryClient(test_root_dir)
 
     extractor = DbtCloudExtractor(
         DbtCloudConfig(
             output=OutputConfig(),
-            account_id=1,
+            account_id=123,
             service_token="tok",
-            project_ids={123},
         )
     )
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
-    expected = f"{test_root_dir}/dbt/cloud/expected.json"
+
+    expected = f"{test_root_dir}/dbt/cloud/data/expected.json"
+    print(json.dumps(events))
     assert events == load_json(expected)

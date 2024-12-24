@@ -1,0 +1,204 @@
+[
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "lastRun": "2024-12-23T04:01:19.941000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~940865829297D27DAB8B8340F66F775F"
+            }
+          ],
+          "title": "not_null_customers_customer_id"
+        },
+        {
+          "lastRun": "2024-12-23T04:01:20.243000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~940865829297D27DAB8B8340F66F775F"
+            }
+          ],
+          "title": "unique_customers_customer_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "documentation": {
+      "datasetDocumentations": [
+        "Customers table"
+      ],
+      "fieldDocumentations": []
+    },
+    "logicalId": {
+      "account": "metaphor-dev",
+      "name": "acme.metaphor.customers",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with\n\ncustomers as (\n\n    select * from acme.metaphor.stg_customers\n\n),\n\norders_table as (\n\n    select * from acme.metaphor.orders\n\n),\n\norder_items_table as (\n\n    select * from acme.metaphor.order_items\n),\n\norder_summary as (\n\n    select\n        customer_id,\n\n        count(distinct orders.order_id) as count_lifetime_orders,\n        count(distinct orders.order_id) > 1 as is_repeat_buyer,\n        min(orders.ordered_at) as first_ordered_at,\n        max(orders.ordered_at) as last_ordered_at,\n        sum(order_items.product_price) as lifetime_spend_pretax,\n        sum(orders.order_total) as lifetime_spend\n\n    from orders_table as orders\n    \n    left join order_items_table as order_items on orders.order_id = order_items.order_id\n    \n    group by 1\n\n),\n\njoined as (\n\n    select\n        customers.*,\n        order_summary.count_lifetime_orders,\n        order_summary.first_ordered_at,\n        order_summary.last_ordered_at,\n        order_summary.lifetime_spend_pretax,\n        order_summary.lifetime_spend,\n\n        case\n            when order_summary.is_repeat_buyer then 'returning'\n            else 'new'\n        end as customer_type\n\n    from customers\n\n    left join order_summary\n        on customers.customer_id = order_summary.customer_id\n\n)\n\nselect * from joined",
+      "description": "Customer overview data mart, offering key details for each unique customer. One row per customer.",
+      "fields": [
+        {
+          "description": "The unique id of the customer.",
+          "fieldName": "CUSTOMER_ID",
+          "fieldPath": "customer_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "Customers' full name.",
+          "fieldName": "CUSTOMER_NAME",
+          "fieldPath": "customer_name",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "The timestamp when a customer placed their first order.",
+          "fieldName": "FIRST_ORDERED_AT",
+          "fieldPath": "first_ordered_at",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~940865829297D27DAB8B8340F66F775F",
+        "type": "TABLE"
+      },
+      "packageName": "metaphor",
+      "rawSql": "with\n\ncustomers as (\n\n    select * from {{ ref('stg_customers') }}\n\n),\n\norders_table as (\n\n    select * from {{ ref('orders') }}\n\n),\n\norder_items_table as (\n\n    select * from {{ ref('order_items') }}\n),\n\norder_summary as (\n\n    select\n        customer_id,\n\n        count(distinct orders.order_id) as count_lifetime_orders,\n        count(distinct orders.order_id) > 1 as is_repeat_buyer,\n        min(orders.ordered_at) as first_ordered_at,\n        max(orders.ordered_at) as last_ordered_at,\n        sum(order_items.product_price) as lifetime_spend_pretax,\n        sum(orders.order_total) as lifetime_spend\n\n    from orders_table as orders\n    \n    left join order_items_table as order_items on orders.order_id = order_items.order_id\n    \n    group by 1\n\n),\n\njoined as (\n\n    select\n        customers.*,\n        order_summary.count_lifetime_orders,\n        order_summary.first_ordered_at,\n        order_summary.last_ordered_at,\n        order_summary.lifetime_spend_pretax,\n        order_summary.lifetime_spend,\n\n        case\n            when order_summary.is_repeat_buyer then 'returning'\n            else 'new'\n        end as customer_type\n\n    from customers\n\n    left join order_summary\n        on customers.customer_id = order_summary.customer_id\n\n)\n\nselect * from joined",
+      "tests": [
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "name": "not_null_customers_customer_id",
+          "uniqueId": "test.metaphor.not_null_customers_customer_id.5c9bf9911d"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "name": "unique_customers_customer_id",
+          "uniqueId": "test.metaphor.unique_customers_customer_id.c5af1ff4b1"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/123/projects/128/environments/production/details/model.metaphor.customers"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~4BBFA279A785B75D27C15E958EAAA774",
+        "DATASET~940865829297D27DAB8B8340F66F775F"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor.customers",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor"
+      ],
+      "name": "customers"
+    }
+  },
+  {
+    "dbtModel": {
+      "compiledSql": "with \n--test\norders as (\n    \n    select * from acme.metaphor.stg_orders\n\n),\n\norder_items_table as (\n    \n    select * from acme.metaphor.order_items\n\n),\n\norder_items_summary as (\n\n    select\n\n        order_items.order_id,\n\n        sum(supply_cost) as order_cost,\n        sum(is_food_item) as count_food_items,\n        sum(is_drink_item) as count_drink_items\n\n\n    from order_items_table as order_items\n\n    group by 1\n\n),\n\n\ncompute_booleans as (\n    select\n\n        orders.*,\n        count_food_items > 0 as is_food_order,\n        count_drink_items > 0 as is_drink_order,\n        order_cost\n\n    from orders\n    \n    left join order_items_summary on orders.order_id = order_items_summary.order_id\n)\n\nselect * from compute_booleans",
+      "description": "Order overview data mart, offering key details for each order inlcluding if it's a customer's first order and a food vs. drink item breakdown. One row per order.",
+      "fields": [
+        {
+          "description": "The unique key of the orders mart.",
+          "fieldName": "ORDER_ID",
+          "fieldPath": "order_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "The foreign key relating to the customer who placed the order.",
+          "fieldName": "CUSTOMER_ID",
+          "fieldPath": "customer_id",
+          "nativeType": "TEXT",
+          "tags": []
+        },
+        {
+          "description": "The total amount of the order in USD including tax.",
+          "fieldName": "ORDER_TOTAL",
+          "fieldPath": "order_total",
+          "nativeType": "NUMBER",
+          "tags": []
+        },
+        {
+          "description": "The timestamp the order was placed at.",
+          "fieldName": "ORDERED_AT",
+          "fieldPath": "ordered_at",
+          "nativeType": "TIMESTAMP_NTZ",
+          "tags": []
+        }
+      ],
+      "materialization": {
+        "targetDataset": "DATASET~063F3BC4FAD4CFED98F7460286399178",
+        "type": "TABLE"
+      },
+      "packageName": "metaphor",
+      "rawSql": "with \n--test\norders as (\n    \n    select * from {{ ref('stg_orders')}}\n\n),\n\norder_items_table as (\n    \n    select * from {{ ref('order_items')}}\n\n),\n\norder_items_summary as (\n\n    select\n\n        order_items.order_id,\n\n        sum(supply_cost) as order_cost,\n        sum(is_food_item) as count_food_items,\n        sum(is_drink_item) as count_drink_items\n\n\n    from order_items_table as order_items\n\n    group by 1\n\n),\n\n\ncompute_booleans as (\n    select\n\n        orders.*,\n        count_food_items > 0 as is_food_order,\n        count_drink_items > 0 as is_drink_order,\n        order_cost\n\n    from orders\n    \n    left join order_items_summary on orders.order_id = order_items_summary.order_id\n)\n\nselect * from compute_booleans",
+      "tests": [
+        {
+          "columns": [
+            "order_id"
+          ],
+          "name": "not_null_orders_order_id",
+          "uniqueId": "test.metaphor.not_null_orders_order_id.cf6c17daed"
+        },
+        {
+          "columns": [
+            "customer_id"
+          ],
+          "name": "relationships_orders_customer_id__customer_id__ref_stg_customers_",
+          "uniqueId": "test.metaphor.relationships_orders_customer_id__customer_id__ref_stg_customers_.918495ce16"
+        },
+        {
+          "columns": [
+            "order_id"
+          ],
+          "name": "unique_orders_order_id",
+          "uniqueId": "test.metaphor.unique_orders_order_id.fed79b3a6e"
+        }
+      ],
+      "url": "https://cloud.getdbt.com/explore/123/projects/128/environments/production/details/model.metaphor.orders"
+    },
+    "logicalId": {
+      "name": "metaphor.orders",
+      "type": "DBT_MODEL"
+    },
+    "structure": {
+      "directories": [
+        "metaphor"
+      ],
+      "name": "orders"
+    }
+  },
+  {
+    "dbtMetric": {
+      "description": "The cumulative revenue for all orders.",
+      "packageName": "metaphor",
+      "sql": "revenue",
+      "type": "cumulative",
+      "url": "https://cloud.getdbt.com/explore/123/projects/128/environments/production/details/metric.metaphor.cumulative_revenue"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~4BBFA279A785B75D27C15E958EAAA774"
+      ]
+    },
+    "logicalId": {
+      "name": "metaphor.cumulative_revenue",
+      "type": "DBT_METRIC"
+    }
+  }
+]

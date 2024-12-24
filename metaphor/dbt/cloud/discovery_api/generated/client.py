@@ -198,8 +198,6 @@ class Client(BaseClient):
             """
             query GetSources($environmentId: BigInt!, $first: Int, $after: String) {
               environment(id: $environmentId) {
-                adapterType
-                dbtProjectName
                 applied {
                   sources(first: $first, after: $after) {
                     totalCount

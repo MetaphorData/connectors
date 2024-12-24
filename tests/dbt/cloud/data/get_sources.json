@@ -1,0 +1,26 @@
+{
+  "environment": {
+    "applied": {
+      "sources": {
+        "totalCount": 1,
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "=="
+        },
+        "edges": [
+          {
+            "node": {
+              "catalog": null,
+              "database": "acme",
+              "description": "Customers table",
+              "identifier": "customers",
+              "schema": "metaphor",
+              "uniqueId": "source.metaphor.conversion_sources.customers"
+            },
+            "__typename": "SourceAppliedStateNodeEdge"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -2,6 +2,7 @@ from typing import Dict
 from unittest.mock import patch
 
 from metaphor.dbt.cloud.client import DbtAdminAPIClient, DbtProject
+from metaphor.dbt.cloud.parser.common import extract_platform_and_account
 from metaphor.models.metadata_change_event import DataPlatform
 
 
@@ -107,14 +108,7 @@ def test_list_environments(mock_requests):
     )
 
 
-@patch("metaphor.dbt.cloud.client.requests")
-def test_extract_platform_and_account(mock_requests):
-    client = DbtAdminAPIClient(
-        base_url="http://base.url",
-        account_id=1111,
-        service_token="service_token",
-    )
-
+def test_extract_platform_and_account():
     # Test Snowflake platform
     project = DbtProject.model_validate(
         {
@@ -134,7 +128,7 @@ def test_extract_platform_and_account(mock_requests):
         }
     )
 
-    platform, account = client.extract_platform_and_account(project)
+    platform, account = extract_platform_and_account(project)
     assert platform == DataPlatform.SNOWFLAKE
     assert account == "test.snowflake.account"
 
@@ -157,6 +151,6 @@ def test_extract_platform_and_account(mock_requests):
         }
     )
 
-    platform, account = client.extract_platform_and_account(project)
+    platform, account = extract_platform_and_account(project)
     assert platform == DataPlatform.POSTGRESQL
     assert account is None

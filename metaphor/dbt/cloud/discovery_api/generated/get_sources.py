@@ -13,8 +13,6 @@ class GetSources(BaseModel):
 
 
 class GetSourcesEnvironment(BaseModel):
-    adapter_type: Optional[str] = Field(alias="adapterType")
-    dbt_project_name: Optional[str] = Field(alias="dbtProjectName")
     applied: Optional["GetSourcesEnvironmentApplied"]
 
 

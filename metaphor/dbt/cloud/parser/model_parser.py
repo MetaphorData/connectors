@@ -23,6 +23,7 @@ from metaphor.dbt.cloud.parser.common import (
 )
 from metaphor.dbt.util import (
     add_data_quality_monitor,
+    find_dataset_by_parts,
     get_dbt_tags_from_meta,
     get_metaphor_tags_from_meta,
     get_model_name_from_unique_id,
@@ -285,15 +286,19 @@ class ModelParser:
             )
             return
 
-        dataset = init_dataset(
+        dataset = find_dataset_by_parts(
             self._datasets,
+            self._platform,
+            self._account,
             model.database,
             model.schema_,
             model_name,
-            self._platform,
-            self._account,
-            model.unique_id,
         )
+        if dataset is None:
+            logger.warning(
+                f"Dataset {model.database}.{model.schema_}.{model_name} doesn't exist, skip updating data quality for test {test.unique_id}"
+            )
+            return
 
         status = dbt_run_result_output_data_monitor_status_map[
             test.execution_info.last_run_status

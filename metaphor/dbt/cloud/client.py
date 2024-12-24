@@ -1,10 +1,9 @@
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import requests
 from pydantic import BaseModel
 
 from metaphor.common.logger import get_logger
-from metaphor.models.metadata_change_event import DataPlatform
 
 logger = get_logger()
 
@@ -41,14 +40,6 @@ class DbtEnvironment(BaseModel, extra="allow"):
     state: int
     created_at: str
     updated_at: str
-
-
-"""
-Mapping from dbt platform name to DataPlatform if the name differs.
-"""
-PLATFORM_NAME_MAP = {
-    "POSTGRES": "POSTGRESQL",
-}
 
 
 class DbtAdminAPIClient:
@@ -92,21 +83,3 @@ class DbtAdminAPIClient:
         """Get all environments under the project"""
         resp = self._get(f"projects/{project_id}/environments/")
         return [DbtEnvironment.model_validate(env) for env in resp.get("data")]
-
-    def extract_platform_and_account(
-        self, project: DbtProject
-    ) -> Tuple[DataPlatform, Optional[str]]:
-        """Get the platform and account from a project"""
-        type = project.connection.type.upper()
-        platform_name = PLATFORM_NAME_MAP.get(type, type)
-        assert (
-            platform_name in DataPlatform.__members__
-        ), f"Invalid platform {platform_name}"
-        platform = DataPlatform[platform_name]
-
-        account = (
-            project.connection.details.get("account")
-            if platform == DataPlatform.SNOWFLAKE
-            else None
-        )
-        return platform, account

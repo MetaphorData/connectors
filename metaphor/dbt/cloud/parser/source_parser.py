@@ -41,16 +41,17 @@ class SourceParser:
         )
 
         init_documentation(dataset)
+        documentation = dataset.documentation
         assert (
-            dataset.documentation is not None
-            and dataset.documentation.dataset_documentations is not None
-            and dataset.documentation.field_documentations is not None
+            documentation is not None
+            and documentation.dataset_documentations is not None
+            and documentation.field_documentations is not None
         )
 
         if source.description:
-            dataset.documentation.dataset_documentations.append(source.description)
+            documentation.dataset_documentations.append(source.description)
 
-        field_documentations = dataset.documentation.field_documentations
+        field_documentations = documentation.field_documentations
 
         if source.catalog and source.catalog.columns:
             for col in source.catalog.columns:
@@ -75,6 +76,13 @@ class SourceParser:
                     )
                 else:
                     field_documentation.documentation = col.description
+
+        if (
+            not documentation.dataset_documentations
+            and not documentation.field_documentations
+        ):
+            # remove documentation if it's empty
+            dataset.documentation = None
 
     def _get_sources_in_environment(self, environment_id: int) -> List[Node]:
         """

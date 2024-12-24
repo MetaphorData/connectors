@@ -9,6 +9,7 @@ from metaphor.dbt.cloud.client import DbtAdminAPIClient, DbtProject
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
 from metaphor.dbt.cloud.http import LogTransport
+from metaphor.dbt.cloud.parser.common import extract_platform_and_account
 from metaphor.dbt.cloud.parser.env_parser import EnvironmentParser
 from metaphor.dbt.util import should_be_included
 from metaphor.models.crawler_run_metadata import Platform
@@ -76,7 +77,7 @@ class DbtCloudExtractor(BaseExtractor):
         return datasets + views + metrics
 
     async def _extract_project(self, project: DbtProject):
-        platform, account = self._client.extract_platform_and_account(project)
+        platform, account = extract_platform_and_account(project)
         project_explore_url = f"{self._base_url}/explore/{self._account_id}/projects/{project.id}/environments/production/details"
 
         logger.info(f"Extracting project: {project.id}")
