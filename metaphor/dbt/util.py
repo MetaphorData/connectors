@@ -171,7 +171,7 @@ def find_dataset_by_parts(
         if (
             logical_id.platform == platform
             and logical_id.account == account
-            and logical_id.name == f"{database}.{schema}.{name}"
+            and logical_id.name == dataset_normalized_name(database, schema, name)
         ):
             return dataset
     return None
