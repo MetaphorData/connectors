@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from metaphor.common.entity_id import to_person_entity_id
 from metaphor.dbt.config import MetaOwnership, MetaTag
 from metaphor.dbt.util import (
@@ -5,6 +7,7 @@ from metaphor.dbt.util import (
     get_dbt_tags_from_meta,
     get_metaphor_tags_from_meta,
     get_ownerships_from_meta,
+    parse_date_time_from_result,
 )
 from metaphor.models.metadata_change_event import DataPlatform, Ownership
 
@@ -170,3 +173,17 @@ def test_get_data_platform_from_manifest(test_root_dir: str) -> None:
     manifest_path = f"{test_root_dir}/dbt/data/databricks/manifest.json"
     platform = get_data_platform_from_manifest(manifest_path)
     assert platform is DataPlatform.UNITY_CATALOG
+
+
+def test_parse_date_time_from_result() -> None:
+    assert parse_date_time_from_result(None) is None
+    assert parse_date_time_from_result("") is None
+    assert parse_date_time_from_result("not a date") is None
+
+    # Test ISO format
+    assert parse_date_time_from_result("2023-01-01T12:34:56") == datetime(
+        2023, 1, 1, 12, 34, 56
+    )
+
+    # Test date only
+    assert parse_date_time_from_result("2023-01-01") == datetime(2023, 1, 1)
