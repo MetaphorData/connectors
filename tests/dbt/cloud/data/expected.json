@@ -31,11 +31,65 @@
       "datasetDocumentations": [
         "Customers table"
       ],
-      "fieldDocumentations": []
+      "fieldDocumentations": [
+        {
+          "documentation": "The unique id of the customer.",
+          "fieldPath": "customer_id"
+        },
+        {
+          "documentation": "Customers' full name.",
+          "fieldPath": "customer_name"
+        }
+      ]
     },
     "logicalId": {
       "account": "metaphor-dev",
       "name": "acme.metaphor.customers",
+      "platform": "SNOWFLAKE"
+    }
+  },
+  {
+    "dataQuality": {
+      "monitors": [
+        {
+          "lastRun": "2024-12-23T04:01:20.022000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~063F3BC4FAD4CFED98F7460286399178"
+            }
+          ],
+          "title": "not_null_orders_order_id"
+        },
+        {
+          "lastRun": "2024-12-23T04:01:20.254000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "customer_id",
+              "dataset": "DATASET~063F3BC4FAD4CFED98F7460286399178"
+            }
+          ],
+          "title": "relationships_orders_customer_id__customer_id__ref_stg_customers_"
+        },
+        {
+          "lastRun": "2024-12-23T04:01:20.343000+00:00",
+          "status": "PASSED",
+          "targets": [
+            {
+              "column": "order_id",
+              "dataset": "DATASET~063F3BC4FAD4CFED98F7460286399178"
+            }
+          ],
+          "title": "unique_orders_order_id"
+        }
+      ],
+      "provider": "DBT"
+    },
+    "logicalId": {
+      "account": "metaphor-dev",
+      "name": "acme.metaphor.orders",
       "platform": "SNOWFLAKE"
     }
   },
@@ -171,6 +225,11 @@
         }
       ],
       "url": "https://cloud.getdbt.com/explore/123/projects/128/environments/production/details/model.metaphor.orders"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "DATASET~063F3BC4FAD4CFED98F7460286399178"
+      ]
     },
     "logicalId": {
       "name": "metaphor.orders",
