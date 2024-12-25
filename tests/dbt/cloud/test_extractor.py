@@ -26,6 +26,7 @@ async def test_extractor(
             output=OutputConfig(),
             account_id=123,
             service_token="tok",
+            meta_key_tags="my_tags",
         )
     )
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]

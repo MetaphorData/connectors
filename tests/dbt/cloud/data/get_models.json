@@ -48,7 +48,9 @@
               "description": "Customer overview data mart, offering key details for each unique customer. One row per customer.",
               "environmentId": 200,
               "materializedType": "table",
-              "meta": {},
+              "meta": {
+                "my_tags": "marketplace"
+              },
               "name": "customers",
               "packageName": "metaphor",
               "rawCode": "with\n\ncustomers as (\n\n    select * from {{ ref('stg_customers') }}\n\n),\n\norders_table as (\n\n    select * from {{ ref('orders') }}\n\n),\n\norder_items_table as (\n\n    select * from {{ ref('order_items') }}\n),\n\norder_summary as (\n\n    select\n        customer_id,\n\n        count(distinct orders.order_id) as count_lifetime_orders,\n        count(distinct orders.order_id) > 1 as is_repeat_buyer,\n        min(orders.ordered_at) as first_ordered_at,\n        max(orders.ordered_at) as last_ordered_at,\n        sum(order_items.product_price) as lifetime_spend_pretax,\n        sum(orders.order_total) as lifetime_spend\n\n    from orders_table as orders\n    \n    left join order_items_table as order_items on orders.order_id = order_items.order_id\n    \n    group by 1\n\n),\n\njoined as (\n\n    select\n        customers.*,\n        order_summary.count_lifetime_orders,\n        order_summary.first_ordered_at,\n        order_summary.last_ordered_at,\n        order_summary.lifetime_spend_pretax,\n        order_summary.lifetime_spend,\n\n        case\n            when order_summary.is_repeat_buyer then 'returning'\n            else 'new'\n        end as customer_type\n\n    from customers\n\n    left join order_summary\n        on customers.customer_id = order_summary.customer_id\n\n)\n\nselect * from joined",
