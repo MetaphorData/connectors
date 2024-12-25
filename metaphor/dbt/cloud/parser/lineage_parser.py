@@ -96,6 +96,7 @@ class LineageParser:
     def _parse_model_lineage(
         self,
         lineage: Union[ModelNode, SnapshotNode],
+        macros: Dict[str, DbtMacro],
     ) -> None:
         model = self._virtual_views.get(lineage.unique_id, None)
         if not model:
@@ -120,25 +121,15 @@ class LineageParser:
         if source_entities:
             model.entity_upstream = EntityUpstream(source_entities=source_entities)
 
-    def _parse_macro_lineage(
-        self,
-        lineage: MacroNode,
-        macros: Dict[str, DbtMacro],
-    ) -> None:
-        macro = macros.get(lineage.unique_id, None)
-        if not macro:
-            logger.warning(f"Macro not found: {lineage.unique_id}")
-            return
-
-        for n in lineage.parent_ids:
-            if (
-                n.startswith("model.") or n.startswith("snapshot.")
-            ) and n in self._virtual_views:
-                source_model = self._virtual_views[n]
-                dbt_model = source_model.dbt_model
-                assert dbt_model, "Virtual view does not have dbt_model"
-                DbtMacro.__hash__ = lambda macro: hash(macro.uniqueId)
-                dbt_model.macros = unique_list((dbt_model.macros or []) + [macro])
+        depends_on_macros = [
+            macros[n]
+            for n in lineage.parent_ids
+            if n.startswith("macro.") and n in macros
+        ]
+        if depends_on_macros:
+            dbt_model = model.dbt_model
+            assert dbt_model, "Virtual view does not have dbt_model"
+            dbt_model.macros = (dbt_model.macros or []) + depends_on_macros
 
     def _parse_lineage(
         self,
@@ -152,12 +143,8 @@ class LineageParser:
             self._parse_metric_lineage(lineage)
             return
 
-        if isinstance(lineage, MacroNode):
-            self._parse_macro_lineage(lineage, macros)
-            return
-
         if isinstance(lineage, ModelNode) or isinstance(lineage, SnapshotNode):
-            self._parse_model_lineage(lineage)
+            self._parse_model_lineage(lineage, macros)
             return
 
     def _get_lineage_in_environment(self, environment_id: int) -> List[NodeType]:

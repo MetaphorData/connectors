@@ -120,6 +120,16 @@
           "tags": []
         }
       ],
+      "macros": [
+        {
+          "arguments": [],
+          "description": "",
+          "name": "date_trunc",
+          "packageName": "dbt",
+          "sql": "{% macro date_trunc(date, part) %}\n    {{ make_hook_config(sql, inside_transaction=False) }}\n{% endmacro %}",
+          "uniqueId": "macro.dbt.date_trunc"
+        }
+      ],
       "materialization": {
         "targetDataset": "DATASET~940865829297D27DAB8B8340F66F775F",
         "type": "TABLE"

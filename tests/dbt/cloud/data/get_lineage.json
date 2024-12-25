@@ -5,6 +5,7 @@
         {
           "uniqueId": "model.metaphor.customers",
           "parentIds": [
+            "macro.dbt.date_trunc",
             "model.metaphor.orders",
             "source.metaphor.conversion_sources.customers"
           ],
