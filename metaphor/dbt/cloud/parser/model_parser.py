@@ -270,7 +270,7 @@ class ModelParser:
         """
         model_name = model.alias or model.name
         if model.database is None or model.schema_ is None or model_name is None:
-            logger.warning(
+            logger.debug(
                 f"Skipping model without dataset {model.unique_id} for test {test.unique_id}"
             )
             return
