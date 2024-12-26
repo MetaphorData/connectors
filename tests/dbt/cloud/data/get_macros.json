@@ -1,0 +1,27 @@
+{
+  "environment": {
+    "definition": {
+      "macros": {
+        "totalCount": 0,
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": ""
+        },
+        "edges": [
+          {
+            "node": {
+              "description": "",
+              "environmentId": 200,
+              "macroSql": "{% macro date_trunc(date, part) %}\n    {{ make_hook_config(sql, inside_transaction=False) }}\n{% endmacro %}",
+              "meta": {},
+              "name": "date_trunc",
+              "packageName": "dbt",
+              "uniqueId": "macro.dbt.date_trunc",
+              "arguments": []
+            }
+          }
+        ]
+      }
+    }
+  }
+}

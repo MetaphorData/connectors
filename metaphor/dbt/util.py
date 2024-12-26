@@ -2,11 +2,12 @@ import json
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from metaphor.common.entity_id import (
     EntityId,
     dataset_normalized_name,
+    parts_to_dataset_logical_id,
     to_dataset_entity_id,
     to_dataset_entity_id_from_logical_id,
     to_person_entity_id,
@@ -26,7 +27,6 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     DatasetDataQuality,
     DatasetDocumentation,
-    DatasetLogicalID,
     DatasetSchema,
     DbtTest,
     FieldDocumentation,
@@ -154,6 +154,29 @@ def get_dbt_tags_from_meta(
     raise ValueError(f"Unexpected type for meta.{meta_key_tags}: {type(value)}")
 
 
+def find_dataset_by_parts(
+    datasets: Dict[str, Dataset],
+    platform: DataPlatform,
+    account: Optional[str],
+    database: str,
+    schema: str,
+    name: str,
+) -> Optional[Dataset]:
+    """
+    Find a dataset in existing datasets dict by its platform, account, database, schema, and name
+    """
+    for dataset in datasets.values():
+        logical_id = dataset.logical_id
+        assert logical_id is not None
+        if (
+            logical_id.platform == platform
+            and logical_id.account == account
+            and logical_id.name == dataset_normalized_name(database, schema, name)
+        ):
+            return dataset
+    return None
+
+
 def init_dataset(
     datasets: Dict[str, Dataset],
     database: str,
@@ -164,12 +187,11 @@ def init_dataset(
     unique_id: str,
 ) -> Dataset:
     if unique_id not in datasets:
+        logical_id = parts_to_dataset_logical_id(
+            platform, account, database, schema, name
+        )
         datasets[unique_id] = Dataset(
-            logical_id=DatasetLogicalID(
-                name=dataset_normalized_name(database, schema, name),
-                platform=platform,
-                account=account,
-            )
+            logical_id=logical_id,
         )
     return datasets[unique_id]
 
@@ -368,3 +390,25 @@ def should_be_included(entity: ENTITY_TYPES) -> bool:
             or entity.entity_upstream is not None
         )
     return False
+
+
+def parse_date_time_from_result(
+    field: Optional[Any],
+) -> Optional[datetime]:
+    """
+    Parse a date time from a result object
+    """
+    if isinstance(field, datetime):
+        return field
+
+    if isinstance(field, str):
+        completed_at = field
+        if completed_at.endswith("Z"):
+            # Convert Zulu to +00:00
+            completed_at = f"{completed_at[:-1]}+00:00"
+        try:
+            return datetime.fromisoformat(completed_at)
+        except Exception:
+            return None
+
+    return None

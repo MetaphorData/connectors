@@ -9,6 +9,7 @@ from .base_model import BaseModel
 from .enums import (
     AccessLevel,
     AppliedModelSortField,
+    AutoExposureBIProvider,
     FreshnessStatus,
     ResourceNodeType,
     RunStatus,
@@ -38,6 +39,14 @@ class ExposureFilter(BaseModel):
     exposure_type: Optional[str] = Field(alias="exposureType", default=None)
     tags: Optional[List[str]] = None
     unique_ids: Optional[List[str]] = Field(alias="uniqueIds", default=None)
+
+
+class ExposureTileFilter(BaseModel):
+    auto_bi_provider: Optional[AutoExposureBIProvider] = Field(
+        alias="autoBiProvider", default=None
+    )
+    bi_resource_id: Optional[str] = Field(alias="biResourceId", default=None)
+    unique_id: Optional[str] = Field(alias="uniqueId", default=None)
 
 
 class GenericMaterializedFilter(BaseModel):

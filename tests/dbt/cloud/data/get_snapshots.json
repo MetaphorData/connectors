@@ -1,0 +1,14 @@
+{
+  "environment": {
+    "applied": {
+      "snapshots": {
+        "totalCount": 0,
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": ""
+        },
+        "edges": []
+      }
+    }
+  }
+}

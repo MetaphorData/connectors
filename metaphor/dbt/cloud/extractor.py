@@ -1,16 +1,16 @@
-from typing import Collection, Dict, Set
+from typing import Collection, Dict
 
 import httpx
 
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.event_util import ENTITY_TYPES
 from metaphor.common.logger import get_logger
-from metaphor.dbt.cloud.client import DbtAdminAPIClient
+from metaphor.dbt.cloud.client import DbtAdminAPIClient, DbtProject
 from metaphor.dbt.cloud.config import DbtCloudConfig
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
 from metaphor.dbt.cloud.http import LogTransport
-from metaphor.dbt.cloud.parser.parser import Parser
-from metaphor.dbt.cloud.utils import parse_environment
+from metaphor.dbt.cloud.parser.common import extract_platform_and_account
+from metaphor.dbt.cloud.parser.env_parser import EnvironmentParser
 from metaphor.dbt.util import should_be_included
 from metaphor.models.crawler_run_metadata import Platform
 from metaphor.models.metadata_change_event import Dataset, Metric, VirtualView
@@ -34,24 +34,19 @@ class DbtCloudExtractor(BaseExtractor):
         super().__init__(config)
         self._config = config
         self._account_id = config.account_id
-        self._job_ids = config.job_ids
         self._project_ids = config.project_ids
+        self._environment_ids = config.environment_ids
         self._base_url = config.base_url
         self._discovery_api_url = config.discovery_api_url
-
-        self._project_accounts: Dict[int, str] = {}
 
         self._datasets: Dict[str, Dataset] = {}
         self._virtual_views: Dict[str, VirtualView] = {}
         self._metrics: Dict[str, Metric] = {}
 
-        self._parsed_runs: Set[int] = set()
-
         self._client = DbtAdminAPIClient(
             base_url=self._base_url,
             account_id=self._account_id,
             service_token=config.service_token,
-            included_env_ids=config.environment_ids,
         )
         headers = {
             "Authorization": f"Bearer {config.service_token}",
@@ -70,11 +65,10 @@ class DbtCloudExtractor(BaseExtractor):
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from DBT cloud")
 
-        for project_id in self._project_ids:
-            self._job_ids.update(self._client.get_project_jobs(project_id))
-
-        for job_id in self._job_ids:
-            await self._extract_job(job_id)
+        projects = self._client.list_projects()
+        for project in projects:
+            if not self._project_ids or project.id in self._project_ids:
+                await self._extract_project(project)
 
         datasets = [d for d in self._datasets.values() if should_be_included(d)]
         views = [v for v in self._virtual_views.values() if should_be_included(v)]
@@ -82,49 +76,30 @@ class DbtCloudExtractor(BaseExtractor):
 
         return datasets + views + metrics
 
-    async def _extract_job(self, job_id: int):
-        if not self._client.is_job_included(job_id):
-            logger.info(f"Ignoring job ID: {job_id}")
-            return
+    async def _extract_project(self, project: DbtProject):
+        platform, account = extract_platform_and_account(project)
+        project_explore_url = f"{self._base_url}/explore/{self._account_id}/projects/{project.id}/environments/production/details"
 
-        logger.info(f"Fetching metadata for job ID: {job_id}")
-
-        run = self._client.get_last_successful_run(job_id)
-        if not run:
-            logger.warning(f"Cannot find any successful run for job ID: {job_id}")
-            return
-
-        if run.run_id in self._parsed_runs:
-            logger.info(f"Found already extracted run: {run}")
-            return
-
-        logger.info(f"Last successful run: {run}")
-
-        account = self._client.get_snowflake_account(run.project_id)
-        if account is not None:
-            logger.info(f"Snowflake account: {account}")
-
-        docs_base_url = (
-            f"{self._base_url}/accounts/{self._account_id}/jobs/{run.job_id}/docs"
-        )
-        project_explore_url = f"{self._base_url}/explore/{self._account_id}/projects/{run.project_id}/environments/production/details"
-
-        environment = self._discovery_api_client.get_environment_adapter_type(
-            run.environment_id
-        ).environment
-        platform, project_name = parse_environment(environment)
-
-        job_run_parser = Parser(
-            self._discovery_api_client,
-            self._config,
-            platform,
-            account,
-            project_name,
-            docs_base_url,
-            project_explore_url=project_explore_url,
-            datasets=self._datasets,
-            virtual_views=self._virtual_views,
-            metrics=self._metrics,
-        )
-        job_run_parser.parse_run(run)
-        self._parsed_runs.add(run.run_id)
+        logger.info(f"Extracting project: {project.id}")
+        environments = self._client.list_environments(project.id)
+        for environment in environments:
+            if (
+                environment.type == "deployment"
+                and environment.deployment_type == "production"
+                and (
+                    not self._environment_ids or environment.id in self._environment_ids
+                )
+            ):  # only fetch production environment
+                parser = EnvironmentParser(
+                    self._discovery_api_client,
+                    self._config,
+                    platform,
+                    account,
+                    project_explore_url,
+                    self._datasets,
+                    self._virtual_views,
+                    self._metrics,
+                )
+                parser.parse(environment.id)
+            else:
+                logger.info(f"Skipping environment {environment.id}")

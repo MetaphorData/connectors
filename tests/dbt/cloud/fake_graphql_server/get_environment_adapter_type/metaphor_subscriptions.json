@@ -1,6 +1,0 @@
-{
-  "environment": {
-    "adapterType": "snowflake",
-    "dbtProjectName": "metaphor_subscriptions"
-  }
-}

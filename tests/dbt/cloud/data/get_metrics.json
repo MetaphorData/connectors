@@ -1,0 +1,65 @@
+{
+  "environment": {
+    "definition": {
+      "metrics": {
+        "totalCount": 1,
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "=="
+        },
+        "edges": [
+          {
+            "node": {
+              "fqn": [
+                "metaphor",
+                "marts",
+                "customer",
+                "cumulative_revenue"
+              ],
+              "name": "cumulative_revenue",
+              "type": "cumulative",
+              "filter": null,
+              "formula": "revenue",
+              "typeParams": {
+                "expr": null,
+                "window": null,
+                "measure": {
+                  "name": "revenue",
+                  "alias": null,
+                  "filter": null,
+                  "fill_nulls_with": null,
+                  "join_to_timespine": false
+                },
+                "metrics": [],
+                "measures": null,
+                "numerator": null,
+                "denominator": null,
+                "grain_to_date": null,
+                "input_measures": [
+                  {
+                    "name": "revenue",
+                    "alias": null,
+                    "filter": null,
+                    "fill_nulls_with": null,
+                    "join_to_timespine": false
+                  }
+                ],
+                "conversion_type_params": null,
+                "cumulative_type_params": {
+                  "window": null,
+                  "period_agg": "first",
+                  "grain_to_date": null
+                }
+              },
+              "uniqueId": "metric.metaphor.cumulative_revenue",
+              "tags": [],
+              "description": "The cumulative revenue for all orders.",
+              "meta": {},
+              "packageName": "metaphor"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

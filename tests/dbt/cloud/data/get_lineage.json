@@ -1,0 +1,31 @@
+{
+  "environment": {
+    "applied": {
+      "lineage": [
+        {
+          "uniqueId": "model.metaphor.customers",
+          "parentIds": [
+            "macro.dbt.date_trunc",
+            "model.metaphor.orders",
+            "source.metaphor.conversion_sources.customers"
+          ],
+          "__typename": "ModelLineageNode"
+        },
+        {
+          "uniqueId": "model.metaphor.orders",
+          "parentIds": [
+            "source.metaphor.conversion_sources.orders"
+          ],
+          "__typename": "ModelLineageNode"
+        },
+        {
+          "uniqueId": "metric.metaphor.cumulative_revenue",
+          "parentIds": [
+            "model.metaphor.orders"
+          ],
+          "__typename": "MetricLineageNode"
+        }
+      ]
+    }
+  }
+}

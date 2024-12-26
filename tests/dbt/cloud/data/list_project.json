@@ -1,0 +1,45 @@
+[
+  {
+    "id": 128,
+    "name": "metaphor",
+    "account_id": 123,
+    "connection_id": 277,
+    "description": "",
+    "skipped_setup": false,
+    "state": 1,
+    "dbt_project_subdirectory": "metaphor",
+    "docs_job_id": null,
+    "freshness_job_id": null,
+    "created_at": "2021-09-29 21:56:35.252703+00:00",
+    "updated_at": "2022-08-16 23:56:37.319420+00:00",
+    "connection": {
+      "id": 125,
+      "account_id": 123,
+      "project_id": 128,
+      "name": "Snowflake",
+      "type": "snowflake",
+      "adapter_version": "snowflake_v0",
+      "created_by_id": 376,
+      "created_by_service_token_id": null,
+      "details": {
+        "id": null,
+        "account": "metaphor-dev",
+        "database": "ACME",
+        "warehouse": "COMPUTE_WH",
+        "allow_sso": false,
+        "client_session_keep_alive": false,
+        "role": "SYSADMIN",
+        "is_configured_for_oauth": false
+      },
+      "state": 1,
+      "private_link_endpoint_id": null,
+      "oauth_redirect_uri": "https://cloud.getdbt.com/complete/snowflake",
+      "oauth_configuration_id": null,
+      "created_at": "2021-09-29 21:58:45.180984+00:00",
+      "updated_at": "2022-06-23 15:01:52.565588+00:00"
+    },
+    "environments": null,
+    "docs_job": null,
+    "freshness_job": null
+  }
+]

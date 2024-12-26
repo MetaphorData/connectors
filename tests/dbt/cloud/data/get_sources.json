@@ -1,0 +1,50 @@
+{
+  "environment": {
+    "applied": {
+      "sources": {
+        "totalCount": 1,
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "=="
+        },
+        "edges": [
+          {
+            "node": {
+              "database": "acme",
+              "description": "Customers table",
+              "identifier": "customers",
+              "schema": "metaphor",
+              "catalog": {
+                "columns": [
+                  {
+                    "name": "CUSTOMER_ID",
+                    "description": "The unique id of the customer.",
+                    "type": "TEXT"
+                  },
+                  {
+                    "name": "CUSTOMER_NAME",
+                    "description": "Customers' full name.",
+                    "type": "TEXT"
+                  }
+                ]
+              },
+              "uniqueId": "source.metaphor.conversion_sources.customers"
+            },
+            "__typename": "SourceAppliedStateNodeEdge"
+          },
+          {
+            "node": {
+              "catalog": null,
+              "database": "acme",
+              "description": null,
+              "identifier": "orders",
+              "schema": "metaphor",
+              "uniqueId": "source.metaphor.conversion_sources.orders"
+            },
+            "__typename": "SourceAppliedStateNodeEdge"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -14,6 +14,7 @@ from metaphor.models.metadata_change_event import (
     EntityType,
     HierarchyLogicalID,
     KnowledgeCardLogicalID,
+    MetricLogicalID,
     PipelineLogicalID,
     PipelineType,
     VirtualViewLogicalID,
@@ -29,6 +30,7 @@ class EntityId:
         DatasetLogicalID,
         HierarchyLogicalID,
         KnowledgeCardLogicalID,
+        MetricLogicalID,
         PersonLogicalID,
         PipelineLogicalID,
         VirtualViewLogicalID,
@@ -105,6 +107,13 @@ def to_dashboard_entity_id_from_logical_id(logical_id: DashboardLogicalID) -> En
     return EntityId(EntityType.DASHBOARD, logical_id)
 
 
+def to_metric_entity_id_from_logical_id(logical_id: MetricLogicalID) -> EntityId:
+    """
+    converts a metric logical ID to entity ID
+    """
+    return EntityId(EntityType.METRIC, logical_id)
+
+
 def to_entity_id_from_virtual_view_logical_id(
     logical_id: VirtualViewLogicalID,
 ) -> EntityId:
@@ -134,6 +143,23 @@ def dataset_normalized_name(
     )
 
 
+def parts_to_dataset_logical_id(
+    platform: DataPlatform,
+    account: Optional[str],
+    database: Optional[str] = None,
+    schema: Optional[str] = None,
+    table: Optional[str] = None,
+) -> DatasetLogicalID:
+    """
+    Builds a dataset logical ID from parts of a dataset
+    """
+    return DatasetLogicalID(
+        name=dataset_normalized_name(database, schema, table),
+        platform=platform,
+        account=account,
+    )
+
+
 def parts_to_dataset_entity_id(
     platform: DataPlatform,
     account: Optional[str],
@@ -144,10 +170,9 @@ def parts_to_dataset_entity_id(
     """
     converts parts of a dataset, its platform and account into a dataset entity ID
     """
-    return to_dataset_entity_id(
-        dataset_normalized_name(database, schema, table),
-        platform,
-        account,
+    return EntityId(
+        EntityType.DATASET,
+        parts_to_dataset_logical_id(platform, account, database, schema, table),
     )
 
 
