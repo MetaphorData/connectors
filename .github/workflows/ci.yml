@@ -3,7 +3,7 @@ name: CI
 
 env:
   PYTHON_VERSION: 3.9
-  POETRY_VERSION: 1.8.3
+  POETRY_VERSION: 1.8.5
 
 # Run this build workflow for every new PR
 on:
@@ -33,7 +33,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Setup Poetry
-        uses: abatilo/actions-poetry@v2
+        uses: abatilo/actions-poetry@v3
         with:
           poetry-version: ${{ env.POETRY_VERSION }}
 
@@ -85,7 +85,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Setup Poetry
-        uses: abatilo/actions-poetry@v2
+        uses: abatilo/actions-poetry@v3
         with:
           poetry-version: ${{ env.POETRY_VERSION }}
 
