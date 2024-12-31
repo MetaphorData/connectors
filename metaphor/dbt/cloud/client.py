@@ -26,6 +26,8 @@ class DbtProject(BaseModel, extra="allow"):
     created_at: str
     updated_at: str
     deleted_at: Optional[str] = None
+
+    # connection can be None even though it's marked as required in https://docs.getdbt.com/dbt-cloud/api-v3#/operations/List%20Projects
     connection: Optional[DbtConnection] = None
 
 
