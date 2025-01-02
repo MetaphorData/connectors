@@ -46,6 +46,14 @@
       "account": "metaphor-dev",
       "name": "acme.metaphor.customers",
       "platform": "SNOWFLAKE"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Business Owner",
+          "person": "PERSON~A4E6D5476CBA8F511D032D4CCC72147B"
+        }
+      ]
     }
   },
   {
@@ -138,6 +146,10 @@
         {
           "key": "my_tags",
           "value": "\"marketplace\""
+        },
+        {
+          "key": "Business Owner",
+          "value": "\"yi\""
         }
       ],
       "packageName": "metaphor",
@@ -169,6 +181,14 @@
     "logicalId": {
       "name": "metaphor.customers",
       "type": "DBT_MODEL"
+    },
+    "ownershipAssignment": {
+      "ownerships": [
+        {
+          "contactDesignationName": "Business Owner",
+          "person": "PERSON~A4E6D5476CBA8F511D032D4CCC72147B"
+        }
+      ]
     },
     "structure": {
       "directories": [

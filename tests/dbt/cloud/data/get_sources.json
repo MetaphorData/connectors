@@ -42,6 +42,17 @@
               "uniqueId": "source.metaphor.conversion_sources.orders"
             },
             "__typename": "SourceAppliedStateNodeEdge"
+          },
+          {
+            "node": {
+              "catalog": null,
+              "database": "acme",
+              "description": null,
+              "identifier": "foo",
+              "schema": null,
+              "uniqueId": "source.metaphor.conversion_sources.foo"
+            },
+            "__typename": "SourceAppliedStateNodeEdge"
           }
         ]
       }
