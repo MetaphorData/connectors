@@ -41,5 +41,18 @@
     "environments": null,
     "docs_job": null,
     "freshness_job": null
+  },
+  {
+    "id": 135,
+    "name": "foo",
+    "account_id": 123,
+    "description": "",
+    "skipped_setup": false,
+    "state": 1,
+    "dbt_project_subdirectory": "metaphor",
+    "docs_job_id": null,
+    "freshness_job_id": null,
+    "created_at": "2021-09-29 21:56:35.252703+00:00",
+    "updated_at": "2022-08-16 23:56:37.319420+00:00"
   }
 ]

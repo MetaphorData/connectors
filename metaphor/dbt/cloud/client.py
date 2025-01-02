@@ -22,11 +22,12 @@ class DbtProject(BaseModel, extra="allow"):
     name: str
     account_id: int
     description: Optional[str] = None
-    connection_id: int
     created_at: str
     updated_at: str
     deleted_at: Optional[str] = None
-    connection: DbtConnection
+
+    # connection can be None even though it's marked as required in https://docs.getdbt.com/dbt-cloud/api-v3#/operations/List%20Projects
+    connection: Optional[DbtConnection] = None
 
 
 class DbtEnvironment(BaseModel, extra="allow"):

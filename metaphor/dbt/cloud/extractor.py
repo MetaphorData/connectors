@@ -68,7 +68,10 @@ class DbtCloudExtractor(BaseExtractor):
         projects = self._client.list_projects()
         for project in projects:
             if not self._project_ids or project.id in self._project_ids:
-                await self._extract_project(project)
+                try:
+                    await self._extract_project(project)
+                except Exception as e:
+                    logger.error(f"Error extracting project {project.id}: {e}")
 
         datasets = [d for d in self._datasets.values() if should_be_included(d)]
         views = [v for v in self._virtual_views.values() if should_be_included(v)]
@@ -90,6 +93,7 @@ class DbtCloudExtractor(BaseExtractor):
                     not self._environment_ids or environment.id in self._environment_ids
                 )
             ):  # only fetch production environment
+                logger.info(f"extracting environment {environment.id}")
                 parser = EnvironmentParser(
                     self._discovery_api_client,
                     self._config,

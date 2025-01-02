@@ -17,7 +17,7 @@ from metaphor.models.metadata_change_event import (
 """
 Maximum number of items to fetch in one request from the discovery API.
 """
-DISCOVERY_API_PAGE_LIMIT = 500
+DISCOVERY_API_PAGE_LIMIT = 100
 
 """
 Mapping from dbt platform name to DataPlatform if the name differs.
@@ -80,6 +80,8 @@ def extract_platform_and_account(
     project: DbtProject,
 ) -> Tuple[DataPlatform, Optional[str]]:
     """Get the platform and account from a dbt project"""
+    assert project.connection is not None, "Project has no connection"
+
     type = project.connection.type.upper()
     platform_name = PLATFORM_NAME_MAP.get(type, type)
     assert (
