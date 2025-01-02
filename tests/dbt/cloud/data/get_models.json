@@ -49,7 +49,8 @@
               "environmentId": 200,
               "materializedType": "table",
               "meta": {
-                "my_tags": "marketplace"
+                "my_tags": "marketplace",
+                "Business Owner": "yi"
               },
               "name": "customers",
               "packageName": "metaphor",

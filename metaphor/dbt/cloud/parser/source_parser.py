@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional
 
+from metaphor.common.logger import get_logger
 from metaphor.dbt.cloud.discovery_api import DiscoveryAPIClient
 from metaphor.dbt.cloud.discovery_api.generated.get_sources import (
     GetSourcesEnvironmentAppliedSourcesEdgesNode as Node,
@@ -11,6 +12,8 @@ from metaphor.models.metadata_change_event import (
     Dataset,
     FieldDocumentation,
 )
+
+logger = get_logger()
 
 
 class SourceParser:
@@ -28,6 +31,9 @@ class SourceParser:
 
     def _parse_source(self, source: Node) -> None:
         if not source.database or not source.schema_ or not source.identifier:
+            logger.error(
+                f"Source connection missing parts: database {source.database} schema {source.schema_} table {source.identifier}"
+            )
             return None
 
         dataset = init_dataset(

@@ -1,6 +1,8 @@
 import json
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
+from metaphor.common.entity_id import dataset_normalized_name
+from metaphor.common.logger import get_logger
 from metaphor.common.utils import dedup_lists
 from metaphor.dbt.cloud.client import DbtProject
 from metaphor.dbt.util import build_system_tags
@@ -14,6 +16,8 @@ from metaphor.models.metadata_change_event import (
     VirtualView,
 )
 
+logger = get_logger()
+
 """
 Maximum number of items to fetch in one request from the discovery API.
 """
@@ -25,6 +29,29 @@ Mapping from dbt platform name to DataPlatform if the name differs.
 PLATFORM_NAME_MAP = {
     "POSTGRES": "POSTGRESQL",
 }
+
+
+def find_dataset_by_parts(
+    datasets: Dict[str, Dataset],
+    database: str,
+    schema: str,
+    name: str,
+    platform: DataPlatform,
+    account: Optional[str],
+) -> Optional[Dataset]:
+    """
+    Find a dataset in existing datasets dict by its platform, account, database, schema, and name
+    """
+    for dataset in datasets.values():
+        logical_id = dataset.logical_id
+        assert logical_id is not None
+        if (
+            logical_id.platform == platform
+            and logical_id.account == account
+            and logical_id.name == dataset_normalized_name(database, schema, name)
+        ):
+            return dataset
+    return None
 
 
 def update_entity_system_tags(
