@@ -17,13 +17,13 @@ from metaphor.dbt.cloud.discovery_api.generated.get_snapshots import (
 )
 from metaphor.dbt.cloud.parser.common import (
     DISCOVERY_API_PAGE_LIMIT,
+    find_dataset_by_parts,
     update_entity_ownership_assignments,
     update_entity_system_tags,
     update_entity_tag_assignments,
 )
 from metaphor.dbt.util import (
     add_data_quality_monitor,
-    find_dataset_by_parts,
     get_dbt_tags_from_meta,
     get_metaphor_tags_from_meta,
     get_model_name_from_unique_id,
@@ -99,36 +99,26 @@ class ModelParser:
             return get_model_name_from_unique_id
         return get_snapshot_name_from_unique_id
 
-    def _parse_model_meta(self, model: NODE_TYPE, virtual_view: VirtualView) -> None:
-        if not model.meta:
-            return
-
-        table = model.alias or model.name
-        if not model.database or not model.schema_ or not table:
+    def _parse_model_meta(self, node: NODE_TYPE, virtual_view: VirtualView) -> None:
+        if not node.meta:
             return
 
         # Assign ownership & tags to materialized table/view
-        ownerships = get_ownerships_from_meta(model.meta, self._meta_ownerships)
-        tag_names = get_metaphor_tags_from_meta(model.meta, self._meta_tags)
+        ownerships = get_ownerships_from_meta(node.meta, self._meta_ownerships)
+        tag_names = get_metaphor_tags_from_meta(node.meta, self._meta_tags)
         update_entity_ownership_assignments(virtual_view, ownerships.dbt_model)
 
         # Only init the dataset if there's ownership or tag names
         if ownerships.materialized_table or tag_names:
-            dataset = init_dataset(
-                self._datasets,
-                model.database,
-                model.schema_,
-                table,
-                self._platform,
-                self._account,
-                model.unique_id,
-            )
+            dataset = self._init_dataset(node)
+            if dataset is None:
+                return
 
             update_entity_ownership_assignments(dataset, ownerships.materialized_table)
             update_entity_tag_assignments(dataset, tag_names)
 
         # Capture the whole "meta" field as key-value pairs
-        if len(model.meta) > 0:
+        if len(node.meta) > 0:
             assert virtual_view.dbt_model
 
             # Dedups the meta items - if a key appears multiple times with different values
@@ -138,7 +128,7 @@ class ModelParser:
             for meta in virtual_view.dbt_model.meta or []:
                 assert meta.key
                 metas[meta.key].add(meta.value)
-            for key, value in cast(Dict[str, Any], model.meta).items():
+            for key, value in cast(Dict[str, Any], node.meta).items():
                 metas[key].add(json.dumps(value))
 
             virtual_view.dbt_model.meta = [
@@ -195,23 +185,14 @@ class ModelParser:
                 self._parse_column_meta(node, col.name.lower(), col.meta)
 
     def _parse_column_meta(self, node: NODE_TYPE, column_name: str, meta: Dict) -> None:
-        table = node.alias or node.name
-        if not node.database or not node.schema_ or not table:
-            return
-
         tag_names = get_metaphor_tags_from_meta(meta, self._meta_tags)
         if len(tag_names) == 0:
             return
 
-        dataset = init_dataset(
-            self._datasets,
-            node.database,
-            node.schema_,
-            table,
-            self._platform,
-            self._account,
-            node.unique_id,
-        )
+        dataset = self._init_dataset(node)
+        if dataset is None:
+            return
+
         if dataset.tag_assignment is None:
             dataset.tag_assignment = TagAssignment()
 
@@ -225,7 +206,7 @@ class ModelParser:
             )
         )
 
-    def _init_dbt_model(self, node: NODE_TYPE, virtual_view: VirtualView):
+    def _init_dbt_model(self, node: NODE_TYPE, virtual_view: VirtualView) -> DbtModel:
         if not virtual_view.dbt_model:
             virtual_view.dbt_model = DbtModel(
                 package_name=node.package_name,
@@ -234,6 +215,35 @@ class ModelParser:
                 fields=[],
             )
         return virtual_view.dbt_model
+
+    def _init_dataset(self, node: NODE_TYPE) -> Optional[Dataset]:
+        """
+        Initialize a dataset associated with a given node
+        If dataset not found (created by source parser), return initialized a new dataset
+        """
+        table = node.alias or node.name
+        if not node.database or not node.schema_ or not table:
+            logger.warning(
+                f"Missing dataset parts: database {node.database} schema {node.schema_} table {table}"
+            )
+            return None
+
+        return find_dataset_by_parts(
+            self._datasets,
+            node.database,
+            node.schema_,
+            table,
+            self._platform,
+            self._account,
+        ) or init_dataset(
+            self._datasets,
+            node.database,
+            node.schema_,
+            table,
+            self._platform,
+            self._account,
+            node.unique_id,
+        )
 
     def _set_system_tags(self, node: NODE_TYPE, virtual_view: VirtualView):
         # Treat dbt tags as system tags
@@ -262,19 +272,12 @@ class ModelParser:
 
     def _parse_test_execution_result(
         self,
-        model: NODE_TYPE,
+        node: NODE_TYPE,
         test: TEST_NODE,
     ) -> None:
         """
         Parse a test execution result and update the dataset's data quality monitors
         """
-        model_name = model.alias or model.name
-        if model.database is None or model.schema_ is None or model_name is None:
-            logger.debug(
-                f"Skipping model without dataset {model.unique_id} for test {test.unique_id}"
-            )
-            return
-
         if (
             not test.name
             or not test.execution_info
@@ -286,18 +289,8 @@ class ModelParser:
             )
             return
 
-        dataset = find_dataset_by_parts(
-            self._datasets,
-            self._platform,
-            self._account,
-            model.database,
-            model.schema_,
-            model_name,
-        )
+        dataset = self._init_dataset(node)
         if dataset is None:
-            logger.warning(
-                f"Dataset {model.database}.{model.schema_}.{model_name} doesn't exist, skip updating data quality for test {test.unique_id}"
-            )
             return
 
         status = dbt_run_result_output_data_monitor_status_map[

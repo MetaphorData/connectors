@@ -154,29 +154,6 @@ def get_dbt_tags_from_meta(
     raise ValueError(f"Unexpected type for meta.{meta_key_tags}: {type(value)}")
 
 
-def find_dataset_by_parts(
-    datasets: Dict[str, Dataset],
-    platform: DataPlatform,
-    account: Optional[str],
-    database: str,
-    schema: str,
-    name: str,
-) -> Optional[Dataset]:
-    """
-    Find a dataset in existing datasets dict by its platform, account, database, schema, and name
-    """
-    for dataset in datasets.values():
-        logical_id = dataset.logical_id
-        assert logical_id is not None
-        if (
-            logical_id.platform == platform
-            and logical_id.account == account
-            and logical_id.name == dataset_normalized_name(database, schema, name)
-        ):
-            return dataset
-    return None
-
-
 def init_dataset(
     datasets: Dict[str, Dataset],
     database: str,
