@@ -22,7 +22,6 @@ class DbtProject(BaseModel, extra="allow"):
     name: str
     account_id: int
     description: Optional[str] = None
-    connection_id: Optional[int] = None
     created_at: str
     updated_at: str
     deleted_at: Optional[str] = None
