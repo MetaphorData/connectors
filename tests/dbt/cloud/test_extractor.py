@@ -1,4 +1,3 @@
-import json
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -32,7 +31,7 @@ async def test_extractor(
             meta_ownerships=[
                 MetaOwnership(
                     meta_key="Business Owner",
-                    ownership_type="Business Owner",
+                    ownership_type="Business_Owner",
                     email_domain="metaphor.com",
                 )
             ],
@@ -41,5 +40,4 @@ async def test_extractor(
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     expected = f"{test_root_dir}/dbt/cloud/data/expected.json"
-    print(json.dumps(events))
     assert events == load_json(expected)
