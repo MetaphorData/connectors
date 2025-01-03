@@ -1,6 +1,5 @@
 import json
-from collections import defaultdict
-from typing import Any, Dict, List, Mapping, Optional, Set, Union, cast
+from typing import Any, Dict, List, Optional, Union, cast
 
 from metaphor.common.entity_id import EntityId, parts_to_dataset_entity_id
 from metaphor.common.logger import get_logger
@@ -100,7 +99,7 @@ class ModelParser:
         return get_snapshot_name_from_unique_id
 
     def _parse_model_meta(self, node: NODE_TYPE, virtual_view: VirtualView) -> None:
-        if not node.meta:
+        if not node.meta or not virtual_view.dbt_model:
             return
 
         # Assign ownership & tags to materialized table/view
@@ -118,24 +117,10 @@ class ModelParser:
             update_entity_tag_assignments(dataset, tag_names)
 
         # Capture the whole "meta" field as key-value pairs
-        if len(node.meta) > 0:
-            assert virtual_view.dbt_model
-
-            # Dedups the meta items - if a key appears multiple times with different values
-            # we store them as separate metadata items. If there is any duplicate, it is
-            # discarded.
-            metas: Mapping[str, Set[Any]] = defaultdict(set)
-            for meta in virtual_view.dbt_model.meta or []:
-                assert meta.key
-                metas[meta.key].add(meta.value)
-            for key, value in cast(Dict[str, Any], node.meta).items():
-                metas[key].add(json.dumps(value))
-
-            virtual_view.dbt_model.meta = [
-                DbtMetadataItem(key, value)
-                for key, values in metas.items()
-                for value in values
-            ]
+        virtual_view.dbt_model.meta = [
+            DbtMetadataItem(key, json.dumps(value))
+            for key, value in cast(Dict[str, Any], node.meta).items()
+        ]
 
     def _parse_model_materialization(
         self, node: NODE_TYPE, dbt_model: DbtModel
@@ -168,10 +153,11 @@ class ModelParser:
         )
 
     def _parse_node_columns(self, node: NODE_TYPE, dbt_model: DbtModel) -> None:
-        if dbt_model.fields is None:
-            dbt_model.fields = []
         if not node.catalog or not node.catalog.columns:
             return
+
+        if dbt_model.fields is None:
+            dbt_model.fields = []
 
         for col in node.catalog.columns:
             if not col.name:
@@ -181,7 +167,7 @@ class ModelParser:
             field.native_type = col.type or field.native_type or "Not Set"
             field.tags = dedup_lists(field.tags, col.tags)
 
-            if col.meta is not None:
+            if col.meta:
                 self._parse_column_meta(node, col.name.lower(), col.meta)
 
     def _parse_column_meta(self, node: NODE_TYPE, column_name: str, meta: Dict) -> None:
