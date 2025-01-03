@@ -23,7 +23,9 @@
                     "name": "CUSTOMER_ID",
                     "tags": [],
                     "type": "TEXT",
-                    "meta": {}
+                    "meta": {
+                      "my_tags": "customer"
+                    }
                   },
                   {
                     "comment": null,
