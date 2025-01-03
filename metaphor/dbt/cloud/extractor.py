@@ -77,6 +77,9 @@ class DbtCloudExtractor(BaseExtractor):
         views = [v for v in self._virtual_views.values() if should_be_included(v)]
         metrics = [m for m in self._metrics.values() if should_be_included(m)]
 
+        logger.info(
+            f"Extracted {len(datasets)} datasets, {len(views)} virtual views, and {len(metrics)} metrics"
+        )
         return datasets + views + metrics
 
     async def _extract_project(self, project: DbtProject):
