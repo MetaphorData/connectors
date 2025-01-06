@@ -3,7 +3,7 @@ FROM python:3.9-slim AS base
 # Builder - Dependencies
 FROM base AS builder
 
-RUN pip install poetry
+RUN pip install poetry==1.8.5
 
 COPY pyproject.toml poetry.lock src/
 WORKDIR /src
