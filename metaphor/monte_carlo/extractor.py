@@ -2,7 +2,7 @@ import re
 from datetime import datetime, timedelta
 from typing import Collection, Dict, List
 
-from dateutil import parser
+from metaphor.common.utils import safe_parse_ISO8601
 
 try:
     from pycarlo.core import Client, Session
@@ -302,7 +302,7 @@ class MonteCarloExtractor(BaseExtractor):
                 status=self._parse_monitor_status(monitor),
                 severity=monitor_severity,
                 url=f"{monitors_base_url}/{uuid}",
-                last_run=parser.parse(monitor["prevExecutionTime"]),
+                last_run=safe_parse_ISO8601(monitor["prevExecutionTime"]),
                 targets=[
                     DataMonitorTarget(column=field.upper())
                     for field in monitor["monitorFields"] or []
@@ -354,7 +354,7 @@ class MonteCarloExtractor(BaseExtractor):
                 status=DataMonitorStatus.ERROR,
                 severity=alert_severity,
                 url=f"{alerts_base_url}/{id}",
-                last_run=parser.parse(alert["createdTime"]),
+                last_run=safe_parse_ISO8601(alert["createdTime"]),
                 targets=[],
             )
 
