@@ -5,8 +5,10 @@ import boto3
 from pydantic.dataclasses import dataclass
 
 from metaphor.common.aws import AwsCredentials
-from metaphor.common.logger import json_dump_to_debug_file
+from metaphor.common.logger import get_logger, json_dump_to_debug_file
 from metaphor.quick_sight.models import Dashboard, DataSet, DataSource, ResourceType
+
+logger = get_logger()
 
 
 def create_quick_sight_client(aws: AwsCredentials) -> boto3.client:
@@ -52,22 +54,29 @@ class Client:
         paginator = self._client.get_paginator(endpoint.value)
         paginator_response = paginator.paginate(AwsAccountId=self._aws_account_id)
 
+        results = []
         ids = []
         settings = ENDPOINT_SETTING[endpoint]
         for page in paginator_response:
             for item in page[settings.list_key]:
+                results.append(item)
                 ids.append(item[settings.item_key])
+
+        json_dump_to_debug_file(results, f"{endpoint.value}.json")
         return ids
 
     def _get_dataset_detail(self) -> None:
         results = []
         for dataset_id in self._get_resource_ids(Endpoint.list_data_sets):
-            result = self._client.describe_data_set(
-                AwsAccountId=self._aws_account_id, DataSetId=dataset_id
-            )
+            try:
+                result = self._client.describe_data_set(
+                    AwsAccountId=self._aws_account_id, DataSetId=dataset_id
+                )
+            except Exception as e:
+                logger.error(f"Error getting dataset {dataset_id}: {e}")
+                continue
 
             results.append(result)
-
             dataset = DataSet(**(result["DataSet"]))
 
             if dataset.Arn is None:
@@ -80,9 +89,14 @@ class Client:
     def _get_dashboard_detail(self):
         results = []
         for dashboard_id in self._get_resource_ids(Endpoint.list_dashboards):
-            result = self._client.describe_dashboard(
-                AwsAccountId=self._aws_account_id, DashboardId=dashboard_id
-            )
+            try:
+                result = self._client.describe_dashboard(
+                    AwsAccountId=self._aws_account_id, DashboardId=dashboard_id
+                )
+            except Exception as e:
+                logger.error(f"Error getting dashboard {dashboard_id}: {e}")
+                continue
+
             results.append(result)
             dashboard = Dashboard(**(result["Dashboard"]))
 
@@ -96,11 +110,15 @@ class Client:
     def _get_data_source_detail(self):
         results = []
         for data_source_id in self._get_resource_ids(Endpoint.list_data_sources):
-            result = self._client.describe_data_source(
-                AwsAccountId=self._aws_account_id, DataSourceId=data_source_id
-            )
-            results.append(result)
+            try:
+                result = self._client.describe_data_source(
+                    AwsAccountId=self._aws_account_id, DataSourceId=data_source_id
+                )
+            except Exception as e:
+                logger.error(f"Error getting data source {data_source_id}: {e}")
+                continue
 
+            results.append(result)
             data_source = DataSource(**(result["DataSource"]))
 
             if data_source.Arn is None:
