@@ -208,42 +208,6 @@ class Analysis:
     Definition: AnalysisDefinition
 
 
-class DataSourceType(Enum):
-    """
-    @see: https://docs.aws.amazon.com/quicksight/latest/APIReference/API_DataSource.html
-    """
-
-    ADOBE_ANALYTICS = "ADOBE_ANALYTICS"
-    AMAZON_ELASTICSEARCH = "AMAZON_ELASTICSEARCH"
-    ATHENA = "ATHENA"
-    AURORA = "AURORA"
-    AURORA_POSTGRESQL = "AURORA_POSTGRESQL"
-    AWS_IOT_ANALYTICS = "AWS_IOT_ANALYTICS"
-    GITHUB = "GITHUB"
-    JIRA = "JIRA"
-    MARIADB = "MARIADB"
-    MYSQL = "MYSQL"
-    ORACLE = "ORACLE"
-    POSTGRESQL = "POSTGRESQL"
-    PRESTO = "PRESTO"
-    REDSHIFT = "REDSHIFT"
-    S3 = "S3"
-    SALESFORCE = "SALESFORCE"
-    SERVICENOW = "SERVICENOW"
-    SNOWFLAKE = "SNOWFLAKE"
-    SPARK = "SPARK"
-    SQLSERVER = "SQLSERVER"
-    TERADATA = "TERADATA"
-    TWITTER = "TWITTER"
-    TIMESTREAM = "TIMESTREAM"
-    AMAZON_OPENSEARCH = "AMAZON_OPENSEARCH"
-    EXASOL = "EXASOL"
-    DATABRICKS = "DATABRICKS"
-    STARBURST = "STARBURST"
-    TRINO = "TRINO"
-    BIGQUERY = "BIGQUERY"
-
-
 @dataclass
 class DatabaseParameters:
     Database: str
@@ -336,11 +300,15 @@ class TypeDataSourceParameters:
 
 @dataclass
 class DataSource:
+    """
+    @see: https://docs.aws.amazon.com/quicksight/latest/APIReference/API_DataSource.html
+    """
+
     Arn: Optional[str] = None
     CreatedTime: Optional[datetime] = None
     DataSourceId: Optional[str] = None
     Name: Optional[str] = None
-    Type: Optional[DataSourceType] = None
+    Type: Optional[str] = None
     DataSourceParameters: Optional[TypeDataSourceParameters] = None
 
 

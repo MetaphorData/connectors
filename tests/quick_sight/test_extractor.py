@@ -14,7 +14,7 @@ def dummy_config():
         aws=AwsCredentials(
             access_key_id="key", secret_access_key="secret", region_name="region"
         ),
-        aws_account_id=123,
+        aws_account_id="123",
         output=OutputConfig(),
     )
 
@@ -31,7 +31,10 @@ async def test_extractor(mock_create_client: MagicMock, test_root_dir: str):
     list_data_sets_response = [
         {
             "DataSetSummaries": [
-                {"DataSetId": item["DataSet"]["DataSetId"]}
+                {
+                    "DataSetId": item["DataSet"]["DataSetId"],
+                    "Name": item["DataSet"]["Name"],
+                }
                 for item in datasets_response
             ]
         }
@@ -40,7 +43,10 @@ async def test_extractor(mock_create_client: MagicMock, test_root_dir: str):
     list_dashboards_response = [
         {
             "DashboardSummaryList": [
-                {"DashboardId": item["Dashboard"]["DashboardId"]}
+                {
+                    "DashboardId": item["Dashboard"]["DashboardId"],
+                    "Name": item["Dashboard"]["Name"],
+                }
                 for item in dashboards_response
             ]
         }
@@ -49,7 +55,10 @@ async def test_extractor(mock_create_client: MagicMock, test_root_dir: str):
     list_data_sources_response = [
         {
             "DataSources": [
-                {"DataSourceId": item["DataSource"]["DataSourceId"]}
+                {
+                    "DataSourceId": item["DataSource"]["DataSourceId"],
+                    "Name": item["DataSource"]["Name"],
+                }
                 for item in data_sources_response
             ]
         }

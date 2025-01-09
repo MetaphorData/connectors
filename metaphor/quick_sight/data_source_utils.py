@@ -2,24 +2,27 @@ from typing import Optional
 
 from metaphor.common.snowflake import normalize_snowflake_account
 from metaphor.models.metadata_change_event import DataPlatform
-from metaphor.quick_sight.models import (
-    DataSource,
-    DataSourceType,
-    TypeDataSourceParameters,
-)
+from metaphor.quick_sight.models import DataSource, TypeDataSourceParameters
 
+"""
+See https://docs.aws.amazon.com/quicksight/latest/APIReference/API_DataSource.html
+"""
 DATA_SOURCE_PLATFORM_MAP = {
-    DataSourceType.AURORA: DataPlatform.MYSQL,
-    DataSourceType.AURORA_POSTGRESQL: DataPlatform.POSTGRESQL,
-    DataSourceType.BIGQUERY: DataPlatform.BIGQUERY,
-    DataSourceType.DATABRICKS: DataPlatform.UNITY_CATALOG,
-    DataSourceType.MARIADB: DataPlatform.MYSQL,
-    DataSourceType.MYSQL: DataPlatform.MYSQL,
-    DataSourceType.POSTGRESQL: DataPlatform.POSTGRESQL,
-    DataSourceType.REDSHIFT: DataPlatform.REDSHIFT,
-    DataSourceType.ORACLE: DataPlatform.ORACLE,
-    DataSourceType.SNOWFLAKE: DataPlatform.SNOWFLAKE,
-    DataSourceType.SQLSERVER: DataPlatform.MSSQL,
+    "ATHENA": DataPlatform.ATHENA,
+    "AURORA": DataPlatform.MYSQL,
+    "AURORA_POSTGRESQL": DataPlatform.POSTGRESQL,
+    "BIGQUERY": DataPlatform.BIGQUERY,
+    "DATABRICKS": DataPlatform.UNITY_CATALOG,
+    "MARIADB": DataPlatform.MYSQL,
+    "MYSQL": DataPlatform.MYSQL,
+    "PRESTO": DataPlatform.TRINO,
+    "POSTGRESQL": DataPlatform.POSTGRESQL,
+    "REDSHIFT": DataPlatform.REDSHIFT,
+    "ORACLE": DataPlatform.ORACLE,
+    "S3": DataPlatform.S3,
+    "SNOWFLAKE": DataPlatform.SNOWFLAKE,
+    "SQLSERVER": DataPlatform.MSSQL,
+    "TRINO": DataPlatform.TRINO,
 }
 
 

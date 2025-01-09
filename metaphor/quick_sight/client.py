@@ -1,5 +1,5 @@
 import enum
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import boto3
 from pydantic.dataclasses import dataclass
@@ -25,12 +25,15 @@ class Endpoint(enum.Enum):
 class EndpointDictKeys:
     list_key: str
     item_key: str
+    name_key: str
 
 
 ENDPOINT_SETTING = {
-    Endpoint.list_data_sets: EndpointDictKeys("DataSetSummaries", "DataSetId"),
-    Endpoint.list_dashboards: EndpointDictKeys("DashboardSummaryList", "DashboardId"),
-    Endpoint.list_data_sources: EndpointDictKeys("DataSources", "DataSourceId"),
+    Endpoint.list_data_sets: EndpointDictKeys("DataSetSummaries", "DataSetId", "Name"),
+    Endpoint.list_dashboards: EndpointDictKeys(
+        "DashboardSummaryList", "DashboardId", "Name"
+    ),
+    Endpoint.list_data_sources: EndpointDictKeys("DataSources", "DataSourceId", "Name"),
 }
 
 
@@ -50,80 +53,85 @@ class Client:
         self._get_dashboard_detail()
         self._get_data_source_detail()
 
-    def _get_resource_ids(self, endpoint: Endpoint) -> List[str]:
+    def _get_resource_ids(self, endpoint: Endpoint) -> List[Tuple[str, str]]:
+        """
+        List resource entities and return a list of (id, name)
+        """
         paginator = self._client.get_paginator(endpoint.value)
         paginator_response = paginator.paginate(AwsAccountId=self._aws_account_id)
 
         results = []
-        ids = []
+        entities = []
         settings = ENDPOINT_SETTING[endpoint]
         for page in paginator_response:
             for item in page[settings.list_key]:
                 results.append(item)
-                ids.append(item[settings.item_key])
+                entities.append((item[settings.item_key], item[settings.name_key]))
 
         json_dump_to_debug_file(results, f"{endpoint.value}.json")
-        return ids
+        return entities
 
     def _get_dataset_detail(self) -> None:
         results = []
-        for dataset_id in self._get_resource_ids(Endpoint.list_data_sets):
+        for dataset_id, name in self._get_resource_ids(Endpoint.list_data_sets):
             try:
                 result = self._client.describe_data_set(
                     AwsAccountId=self._aws_account_id, DataSetId=dataset_id
                 )
+
+                results.append(result)
+                dataset = DataSet(**(result["DataSet"]))
+
+                if dataset.Arn is None:
+                    continue
+
+                self._resources[dataset.Arn] = dataset
             except Exception as e:
-                logger.error(f"Error getting dataset {dataset_id}: {e}")
+                logger.warning(f"Error getting dataset {name} id {dataset_id}: {e}")
                 continue
-
-            results.append(result)
-            dataset = DataSet(**(result["DataSet"]))
-
-            if dataset.Arn is None:
-                continue
-
-            self._resources[dataset.Arn] = dataset
 
         json_dump_to_debug_file(results, "datasets.json")
 
     def _get_dashboard_detail(self):
         results = []
-        for dashboard_id in self._get_resource_ids(Endpoint.list_dashboards):
+        for dashboard_id, name in self._get_resource_ids(Endpoint.list_dashboards):
             try:
                 result = self._client.describe_dashboard(
                     AwsAccountId=self._aws_account_id, DashboardId=dashboard_id
                 )
+
+                results.append(result)
+                dashboard = Dashboard(**(result["Dashboard"]))
+
+                if dashboard.Arn is None:
+                    continue
+
+                self._resources[dashboard.Arn] = dashboard
             except Exception as e:
-                logger.error(f"Error getting dashboard {dashboard_id}: {e}")
+                logger.error(f"Error getting dashboard {name} id {dashboard_id}: {e}")
                 continue
-
-            results.append(result)
-            dashboard = Dashboard(**(result["Dashboard"]))
-
-            if dashboard.Arn is None:
-                continue
-
-            self._resources[dashboard.Arn] = dashboard
 
         json_dump_to_debug_file(results, "dashboards.json")
 
     def _get_data_source_detail(self):
         results = []
-        for data_source_id in self._get_resource_ids(Endpoint.list_data_sources):
+        for data_source_id, name in self._get_resource_ids(Endpoint.list_data_sources):
             try:
                 result = self._client.describe_data_source(
                     AwsAccountId=self._aws_account_id, DataSourceId=data_source_id
                 )
+
+                results.append(result)
+                data_source = DataSource(**(result["DataSource"]))
+
+                if data_source.Arn is None:
+                    continue
+
+                self._resources[data_source.Arn] = data_source
             except Exception as e:
-                logger.error(f"Error getting data source {data_source_id}: {e}")
+                logger.error(
+                    f"Error getting data source {name} id {data_source_id}: {e}"
+                )
                 continue
-
-            results.append(result)
-            data_source = DataSource(**(result["DataSource"]))
-
-            if data_source.Arn is None:
-                continue
-
-            self._resources[data_source.Arn] = data_source
 
         json_dump_to_debug_file(results, "data_sources.json")

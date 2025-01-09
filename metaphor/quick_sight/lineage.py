@@ -68,7 +68,7 @@ def _get_source_from_custom_sql(
     ):
         return None, None
 
-    data_platform = DATA_SOURCE_PLATFORM_MAP.get(data_source.Type)
+    data_platform = DATA_SOURCE_PLATFORM_MAP.get(data_source.Type.upper(), None)
     if not data_platform:
         return None, None
 
@@ -157,7 +157,7 @@ class LineageProcessor:
         ):
             return None
 
-        data_platform = DATA_SOURCE_PLATFORM_MAP.get(data_source.Type)
+        data_platform = DATA_SOURCE_PLATFORM_MAP.get(data_source.Type.upper(), None)
         if not data_platform:
             return None
 
