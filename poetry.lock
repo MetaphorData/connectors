@@ -632,17 +632,17 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.35.89"
+version = "1.35.97"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "boto3-1.35.89-py3-none-any.whl", hash = "sha256:40a980841771bdba49214aeb045b0e8046b4c1b0788987f03fc966a34c4d0d2f"},
-    {file = "boto3-1.35.89.tar.gz", hash = "sha256:966bb926688f086d609d1c3044f06a66405461077abe8b66a26cbabe30689f7d"},
+    {file = "boto3-1.35.97-py3-none-any.whl", hash = "sha256:8e49416216a6e3a62c2a0c44fba4dd2852c85472e7b702516605b1363867d220"},
+    {file = "boto3-1.35.97.tar.gz", hash = "sha256:7d398f66a11e67777c189d1f58c0a75d9d60f98d0ee51b8817e828930bf19e4e"},
 ]
 
 [package.dependencies]
-botocore = ">=1.35.89,<1.36.0"
+botocore = ">=1.35.97,<1.36.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.10.0,<0.11.0"
 
@@ -651,21 +651,21 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.35.89"
+version = "1.35.97"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "botocore-1.35.89-py3-none-any.whl", hash = "sha256:70d55f9882a40e2a5fea1f2fc1efed3fd27c35d87f0a949b1cbac32d25bb49e1"},
-    {file = "botocore-1.35.89.tar.gz", hash = "sha256:b073751c5a33eec2879f73120e2636d9bed3178f7498c49aca76274d9d8a5442"},
+    {file = "botocore-1.35.97-py3-none-any.whl", hash = "sha256:fed4f156b1a9b8ece53738f702ba5851b8c6216b4952de326547f349cc494f14"},
+    {file = "botocore-1.35.97.tar.gz", hash = "sha256:88f2fab29192ffe2f2115d5bafbbd823ff4b6eb2774296e03ec8b5b0fe074f61"},
 ]
 
 [package.dependencies]
 jmespath = ">=0.7.1,<2.0.0"
 python-dateutil = ">=2.1,<3.0.0"
 urllib3 = [
-    {version = ">=1.25.4,<2.2.0 || >2.2.0,<3", markers = "python_version >= \"3.10\""},
     {version = ">=1.25.4,<1.27", markers = "python_version < \"3.10\""},
+    {version = ">=1.25.4,<2.2.0 || >2.2.0,<3", markers = "python_version >= \"3.10\""},
 ]
 
 [package.extras]
@@ -1182,8 +1182,8 @@ files = [
 [package.dependencies]
 lz4 = ">=4.0.2,<5.0.0"
 numpy = [
-    {version = ">=1.23.4", markers = "python_version >= \"3.11\""},
     {version = ">=1.16.6", markers = "python_version >= \"3.8\" and python_version < \"3.11\""},
+    {version = ">=1.23.4", markers = "python_version >= \"3.11\""},
 ]
 oauthlib = ">=3.1.0,<4.0.0"
 openpyxl = ">=3.0.10,<4.0.0"
@@ -1233,8 +1233,8 @@ isort = ">=4.3.21,<6.0"
 jinja2 = ">=2.10.1,<4.0"
 packaging = "*"
 pydantic = [
-    {version = ">=1.10.0,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version >= \"3.11\" and python_version < \"4.0\""},
     {version = ">=1.5.1,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version < \"3.10\""},
+    {version = ">=1.10.0,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version >= \"3.11\" and python_version < \"4.0\""},
     {version = ">=1.9.0,<2.4.0 || >2.4.0,<3.0", extras = ["email"], markers = "python_version >= \"3.10\" and python_version < \"3.11\""},
 ]
 pyyaml = ">=6.0.1"
@@ -1729,12 +1729,12 @@ files = [
 google-auth = ">=2.14.1,<3.0.dev0"
 googleapis-common-protos = ">=1.56.2,<2.0.dev0"
 grpcio = [
-    {version = ">=1.49.1,<2.0dev", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""},
     {version = ">=1.33.2,<2.0dev", optional = true, markers = "python_version < \"3.11\" and extra == \"grpc\""},
+    {version = ">=1.49.1,<2.0dev", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""},
 ]
 grpcio-status = [
-    {version = ">=1.49.1,<2.0.dev0", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""},
     {version = ">=1.33.2,<2.0.dev0", optional = true, markers = "python_version < \"3.11\" and extra == \"grpc\""},
+    {version = ">=1.49.1,<2.0.dev0", optional = true, markers = "python_version >= \"3.11\" and extra == \"grpc\""},
 ]
 proto-plus = ">=1.22.3,<2.0.0dev"
 protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<6.0.0.dev0"
@@ -1871,8 +1871,8 @@ google-cloud-core = ">=2.0.0,<3.0.0dev"
 grpc-google-iam-v1 = ">=0.12.4,<1.0.0dev"
 opentelemetry-api = ">=1.9.0"
 proto-plus = [
-    {version = ">=1.22.2,<2.0.0dev", markers = "python_version >= \"3.11\""},
     {version = ">=1.22.0,<2.0.0dev", markers = "python_version < \"3.11\""},
+    {version = ">=1.22.2,<2.0.0dev", markers = "python_version >= \"3.11\""},
 ]
 protobuf = ">=3.20.2,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<6.0.0dev"
 
@@ -2014,13 +2014,13 @@ jsonschema = ">=2.5.1"
 marshmallow = ">=3.7.1,<4.0.0"
 mistune = ">=0.8.4"
 numpy = [
-    {version = ">=1.22.4", markers = "python_version >= \"3.10\""},
     {version = ">=1.21.6", markers = "python_version == \"3.9\""},
+    {version = ">=1.22.4", markers = "python_version >= \"3.10\""},
 ]
 packaging = "*"
 pandas = [
-    {version = ">=1.3.0,<2.2", markers = "python_version >= \"3.10\""},
     {version = ">=1.1.3,<2.2", markers = "python_version == \"3.9\""},
+    {version = ">=1.3.0,<2.2", markers = "python_version >= \"3.10\""},
 ]
 posthog = ">=2.1.0,<3"
 pydantic = ">=1.10.7"
@@ -4084,8 +4084,8 @@ files = [
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.23.2,<2", markers = "python_version == \"3.11\""},
     {version = ">=1.22.4,<2", markers = "python_version < \"3.11\""},
+    {version = ">=1.23.2,<2", markers = "python_version == \"3.11\""},
 ]
 python-dateutil = ">=2.8.2"
 pytz = ">=2020.1"
@@ -6467,7 +6467,7 @@ test = ["argparse", "black", "mock", "mypy", "pytest (>=7.0)", "pytest-subtests"
 name = "tenacity"
 version = "8.5.0"
 description = "Retry code until it succeeds"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "tenacity-8.5.0-py3-none-any.whl", hash = "sha256:b594c2a5945830c267ce6b79a166228323ed52718f30302c1359836112346687"},
@@ -7183,7 +7183,7 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 type = ["pytest-mypy"]
 
 [extras]
-all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "beautifulsoup4", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "fastavro", "google-cloud-bigquery", "google-cloud-logging", "gql", "great-expectations", "grpcio-tools", "httpx", "lkml", "llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence", "llama-index-readers-notion", "looker-sdk", "lxml", "more-itertools", "msal", "msgraph-beta-sdk", "nltk", "oracledb", "parse", "psycopg2", "pycarlo", "pyhive", "pymongo", "pymssql", "pymysql", "sasl", "snowflake-connector-python", "snowflake-sqlalchemy", "sql-metadata", "sqlglot", "sqllineage", "tableauserverclient", "thoughtspot_rest_api_v1", "thrift", "thrift-sasl", "trino"]
+all = ["GitPython", "SQLAlchemy", "asyncpg", "avro", "azure-identity", "azure-mgmt-datafactory", "beautifulsoup4", "confluent-kafka", "databricks-sdk", "databricks-sql-connector", "fastavro", "google-cloud-bigquery", "google-cloud-logging", "gql", "great-expectations", "grpcio-tools", "httpx", "lkml", "llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence", "llama-index-readers-notion", "looker-sdk", "lxml", "more-itertools", "msal", "msgraph-beta-sdk", "nltk", "oracledb", "parse", "psycopg2", "pycarlo", "pyhive", "pymongo", "pymssql", "pymysql", "sasl", "snowflake-connector-python", "snowflake-sqlalchemy", "sql-metadata", "sqlglot", "sqllineage", "tableauserverclient", "tenacity", "thoughtspot_rest_api_v1", "thrift", "thrift-sasl", "trino"]
 bigquery = ["google-cloud-bigquery", "google-cloud-logging", "sql-metadata"]
 confluence = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-readers-confluence", "nltk"]
 datafactory = ["azure-identity", "azure-mgmt-datafactory"]
@@ -7203,6 +7203,7 @@ notion = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-rea
 oracle = ["SQLAlchemy", "oracledb"]
 postgresql = ["asyncpg"]
 power-bi = ["msal", "msgraph-beta-sdk"]
+quicksight = ["boto3", "botocore", "tenacity"]
 redshift = ["asyncpg"]
 s3 = ["fastavro", "more-itertools", "parse"]
 sharepoint = ["azure-identity", "beautifulsoup4", "llama-index", "lxml", "msgraph-beta-sdk", "nltk"]
@@ -7217,4 +7218,4 @@ unity-catalog = ["databricks-sdk", "databricks-sql-connector", "sqlglot"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "3c23cd9d4265aac3a2ad605aedd944742afd4afe744a31c396915f88e47db135"
+content-hash = "204044f1f9586be0ea53e62a7d15bd036dc22c822b38ee98ed76e3ec4c5e7fb2"

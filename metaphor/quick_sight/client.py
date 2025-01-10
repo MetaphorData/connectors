@@ -1,8 +1,15 @@
 import enum
-from typing import Dict, List, Tuple
+import signal
+from typing import Any, Callable, Dict, List, Tuple
 
 import boto3
 from pydantic.dataclasses import dataclass
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from metaphor.common.aws import AwsCredentials
 from metaphor.common.logger import get_logger, json_dump_to_debug_file
@@ -68,16 +75,48 @@ class Client:
                 results.append(item)
                 entities.append((item[settings.item_key], item[settings.name_key]))
 
+        logger.info(f"Found {len(entities)} entities from {endpoint.value}")
         json_dump_to_debug_file(results, f"{endpoint.value}.json")
         return entities
 
+    @retry(
+        retry=retry_if_exception_type(TimeoutError),
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=10, max=120),
+    )
+    def _get_resource_detail(self, func: Callable) -> Any:
+        """
+        Function wrapper to timeout long running queries and handle rate limit with exponential backoff and retry
+        """
+
+        def _handle_timeout(signum, frame):
+            logger.error("Data fetch timeout")
+            raise TimeoutError("Data fetch timeout")
+
+        signal.signal(signal.SIGALRM, _handle_timeout)
+        signal.alarm(10)  # set timeout to 10 seconds
+        try:
+            result = func()
+            if result["Status"] == 429:
+                logger.error("Rate limit hit, retrying...")
+                raise TimeoutError("Rate limit hit")
+            return result
+        finally:
+            signal.alarm(0)
+
     def _get_dataset_detail(self) -> None:
         results = []
+        count = 0
         for dataset_id, name in self._get_resource_ids(Endpoint.list_data_sets):
             try:
-                result = self._client.describe_data_set(
-                    AwsAccountId=self._aws_account_id, DataSetId=dataset_id
+                result = self._get_resource_detail(
+                    lambda: self._client.describe_data_set(
+                        AwsAccountId=self._aws_account_id, DataSetId=dataset_id
+                    )
                 )
+                count += 1
+                if count % 100 == 0:
+                    logger.info(f"Fetched {count} datasets")
 
                 results.append(result)
                 dataset = DataSet(**(result["DataSet"]))
@@ -94,11 +133,17 @@ class Client:
 
     def _get_dashboard_detail(self):
         results = []
+        count = 0
         for dashboard_id, name in self._get_resource_ids(Endpoint.list_dashboards):
             try:
-                result = self._client.describe_dashboard(
-                    AwsAccountId=self._aws_account_id, DashboardId=dashboard_id
+                result = self._get_resource_detail(
+                    lambda: self._client.describe_dashboard(
+                        AwsAccountId=self._aws_account_id, DashboardId=dashboard_id
+                    )
                 )
+                count += 1
+                if count % 100 == 0:
+                    logger.info(f"Fetched {count} dashboards")
 
                 results.append(result)
                 dashboard = Dashboard(**(result["Dashboard"]))
@@ -115,11 +160,17 @@ class Client:
 
     def _get_data_source_detail(self):
         results = []
+        count = 0
         for data_source_id, name in self._get_resource_ids(Endpoint.list_data_sources):
             try:
-                result = self._client.describe_data_source(
-                    AwsAccountId=self._aws_account_id, DataSourceId=data_source_id
+                result = self._get_resource_detail(
+                    lambda: self._client.describe_data_source(
+                        AwsAccountId=self._aws_account_id, DataSourceId=data_source_id
+                    )
                 )
+                count += 1
+                if count % 100 == 0:
+                    logger.info(f"Fetched {count} data sources")
 
                 results.append(result)
                 data_source = DataSource(**(result["DataSource"]))
