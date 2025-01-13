@@ -87,6 +87,8 @@ class QuickSightExtractor(BaseExtractor):
                 view.entity_upstream = output.entity_upstream
                 self._virtual_views.pop(output_logical_table_id)
 
+        logger.info(f"Parsed {len(self._virtual_views)} virtual views")
+
     def _extract_dashboards(self) -> None:
         for dashboard in self._resources.values():
             if (
@@ -100,6 +102,8 @@ class QuickSightExtractor(BaseExtractor):
             metaphor_dashboard.entity_upstream = self._get_dashboard_upstream(
                 dataset_arns=dashboard.Version.DataSetArns or []
             )
+
+        logger.info(f"Parsed {len(self._dashboards)} dashboards")
 
     def _make_entities_list(self) -> Collection[ENTITY_TYPES]:
         entities: List[ENTITY_TYPES] = []

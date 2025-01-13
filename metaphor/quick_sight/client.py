@@ -129,6 +129,7 @@ class Client:
                 logger.warning(f"Error getting dataset {name} id {dataset_id}: {e}")
                 continue
 
+        logger.info(f"Fetched {len(results)} datasets")
         json_dump_to_debug_file(results, "datasets.json")
 
     def _get_dashboard_detail(self):
@@ -156,6 +157,7 @@ class Client:
                 logger.error(f"Error getting dashboard {name} id {dashboard_id}: {e}")
                 continue
 
+        logger.info(f"Fetched {len(results)} dashboards")
         json_dump_to_debug_file(results, "dashboards.json")
 
     def _get_data_source_detail(self):
@@ -185,4 +187,5 @@ class Client:
                 )
                 continue
 
+        logger.info(f"Fetched {len(results)} data sources")
         json_dump_to_debug_file(results, "data_sources.json")
