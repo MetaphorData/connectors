@@ -10,9 +10,9 @@ from pydantic import BaseModel, Field
 
 class Tag(BaseModel):
     name: str
-    isDeleted: bool
-    isHidden: bool
-    isDeprecated: bool
+    isDeleted: bool = False
+    isHidden: bool = False
+    isDeprecated: bool = False
 
 
 class Header(BaseModel):
