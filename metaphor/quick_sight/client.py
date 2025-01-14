@@ -1,8 +1,8 @@
 import enum
-import signal
 from typing import Any, Callable, Dict, List, Tuple
 
 import boto3
+from func_timeout import FunctionTimedOut, func_timeout
 from pydantic.dataclasses import dataclass
 from tenacity import (
     retry,
@@ -80,7 +80,7 @@ class Client:
         return entities
 
     @retry(
-        retry=retry_if_exception_type(TimeoutError),
+        retry=retry_if_exception_type(FunctionTimedOut),
         stop=stop_after_attempt(5),
         wait=wait_exponential(multiplier=10, max=120),
     )
@@ -88,21 +88,11 @@ class Client:
         """
         Function wrapper to timeout long running queries and handle rate limit with exponential backoff and retry
         """
-
-        def _handle_timeout(signum, frame):
-            logger.error("Data fetch timeout")
-            raise TimeoutError("Data fetch timeout")
-
-        signal.signal(signal.SIGALRM, _handle_timeout)
-        signal.alarm(10)  # set timeout to 10 seconds
-        try:
-            result = func()
-            if result["Status"] == 429:
-                logger.error("Rate limit hit, retrying...")
-                raise TimeoutError("Rate limit hit")
-            return result
-        finally:
-            signal.alarm(0)
+        result: Any = func_timeout(10, func)
+        if result["Status"] == 429:
+            logger.error("Rate limit hit, retrying...")
+            raise FunctionTimedOut("Rate limit hit")
+        return result
 
     def _get_dataset_detail(self) -> None:
         results = []

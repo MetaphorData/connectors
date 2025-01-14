@@ -1,11 +1,11 @@
 import logging
 import re
-import signal
 from collections import defaultdict
 from typing import Dict, Optional, Set
 
 import sqlglot
 import sqlglot.errors
+from func_timeout import FunctionTimedOut, func_timeout
 from sqlglot import Expression, exp, maybe_parse
 from sqlglot.optimizer.scope import build_scope
 
@@ -129,10 +129,6 @@ def _find_sources(expression: Expression) -> Set[Table]:
     return sources
 
 
-def _handle_parser_timeout(signum, frame):
-    raise TimeoutError("Parser timeout")
-
-
 def extract_table_level_lineage(
     sql: str,
     platform: DataPlatform,
@@ -146,12 +142,15 @@ def extract_table_level_lineage(
         # No target, no TLL possible
         return Result()
 
-    signal.signal(signal.SIGALRM, _handle_parser_timeout)
-    signal.alarm(10)  # set timeout to 10 seconds
     try:
-        expression: Expression = maybe_parse(
-            sql, dialect=PLATFORM_TO_DIALECT.get(platform)
-        )
+        expression: Expression = func_timeout(
+            10,
+            maybe_parse,
+            kwargs={
+                "sql_or_expression": sql,
+                "dialect": PLATFORM_TO_DIALECT.get(platform),
+            },
+        )  # type: ignore
     except (sqlglot.errors.ParseError, sqlglot.errors.TokenError):
         if not _is_truncated_insert_into_with_values(sql) and query_id:
             logger.warning(f"Cannot parse sql with query_id = {query_id}")
@@ -162,12 +161,10 @@ def extract_table_level_lineage(
                 f"Cannot parse sql with SQLGlot (max recursion level exceeded), query_id = {query_id}"
             )
         return Result()
-    except TimeoutError:
+    except FunctionTimedOut:
         if query_id:
             logger.warning(f"Parser timeout, query_id = {query_id}")
         return Result()
-    finally:
-        signal.alarm(0)
 
     try:
         return Result(

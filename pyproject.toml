@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "metaphor-connectors"
-version = "0.14.175"
+version = "0.14.176"
 license = "Apache-2.0"
 description = "A collection of Python-based 'connectors' that extract metadata from various sources to ingest into the Metaphor app."
 authors = ["Metaphor <dev@metaphor.io>"]
@@ -28,6 +28,7 @@ confluent-kafka = { version = "^2.7.0", optional = true }
 databricks-sdk = { version = "^0.40.0", optional = true }
 databricks-sql-connector = { version = "^3.7.0", optional = true }
 fastavro = { version = "^1.9.2", optional = true }
+func-timeout = "^4.3.5"
 GitPython = "^3.1.37"
 google-cloud-bigquery = { version = "^3.25.0", optional = true }
 google-cloud-logging = { version = "^3.5.0", optional = true }
@@ -90,6 +91,7 @@ all = [
   "databricks-sdk",
   "databricks-sql-connector",
   "fastavro",
+  "func-timeout",
   "GitPython",
   "google-cloud-bigquery",
   "google-cloud-logging",
@@ -151,7 +153,7 @@ notion = ["llama-index", "llama-index-embeddings-azure-openai", "llama-index-rea
 oracle = ["oracledb", "SQLAlchemy"]
 postgresql = ["asyncpg"]
 power_bi = ["msal", "msgraph-beta-sdk"]
-quicksight = ["boto3", "botocore", "tenacity"]
+quicksight = ["boto3", "botocore", "tenacity", "func-timeout"]
 redshift = ["asyncpg"]
 s3 = ["fastavro", "more-itertools", "parse"]
 sharepoint = ["azure-identity", "beautifulsoup4", "llama-index", "lxml", "msgraph-beta-sdk", "nltk"]

@@ -1,5 +1,7 @@
 from typing import Collection, Dict, List
 
+from func_timeout import FunctionTimedOut, func_set_timeout
+
 from metaphor.common.base_extractor import BaseExtractor
 from metaphor.common.entity_id import to_entity_id_from_virtual_view_logical_id
 from metaphor.common.event_util import ENTITY_TYPES
@@ -70,26 +72,43 @@ class QuickSightExtractor(BaseExtractor):
 
         return self._make_entities_list()
 
+    @func_set_timeout(20)
+    def _extract_virtual_view(self, data_set: DataSet) -> None:
+        assert data_set.Arn
+        view = self._init_virtual_view(data_set.Arn, data_set)
+        output_logical_table_id = LineageProcessor(
+            self._resources, self._virtual_views, data_set
+        ).run()
+
+        # The last logical_table is the output table for the dataset
+        output = self._virtual_views.get(output_logical_table_id)
+        if output:
+            view.schema = output.schema
+            view.entity_upstream = output.entity_upstream
+            self._virtual_views.pop(output_logical_table_id)
+
     def _extract_virtual_views(self):
+        count = 0
         for data_set in self._resources.values():
             if not isinstance(data_set, DataSet) or data_set.Arn is None:
                 continue
 
-            view = self._init_virtual_view(data_set.Arn, data_set)
-            output_logical_table_id = LineageProcessor(
-                self._resources, self._virtual_views, data_set
-            ).run()
+            try:
+                self._extract_virtual_view(data_set)
+            except FunctionTimedOut:
+                logger.warning(
+                    f"Failed to extract virtual view from DataSet {data_set.Arn}"
+                )
+                continue
 
-            # The last logical_table is the output table for the dataset
-            output = self._virtual_views.get(output_logical_table_id)
-            if output:
-                view.schema = output.schema
-                view.entity_upstream = output.entity_upstream
-                self._virtual_views.pop(output_logical_table_id)
+            count += 1
+            if count % 1 == 0:
+                logger.info(f"Parsed {count} virtual views")
 
-        logger.info(f"Parsed {len(self._virtual_views)} virtual views")
+        logger.info(f"Parsed {count} virtual views")
 
     def _extract_dashboards(self) -> None:
+        count = 0
         for dashboard in self._resources.values():
             if (
                 not isinstance(dashboard, Dashboard)
@@ -103,7 +122,11 @@ class QuickSightExtractor(BaseExtractor):
                 dataset_arns=dashboard.Version.DataSetArns or []
             )
 
-        logger.info(f"Parsed {len(self._dashboards)} dashboards")
+            count += 1
+            if count % 100 == 0:
+                logger.info(f"Parsed {count} dashboards")
+
+        logger.info(f"Parsed {count} dashboards")
 
     def _make_entities_list(self) -> Collection[ENTITY_TYPES]:
         entities: List[ENTITY_TYPES] = []
