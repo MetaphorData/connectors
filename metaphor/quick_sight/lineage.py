@@ -57,6 +57,7 @@ TypeColumnMap = Dict[str, Column]
 
 def _get_source_from_custom_sql(
     resources: Dict[str, ResourceType],
+    table_id: str,
     custom_sql: TypeCustomSql,
 ) -> Tuple[Optional[List[str]], Optional[VirtualViewQuery]]:
     data_source = resources.get(custom_sql.DataSourceArn)
@@ -80,7 +81,7 @@ def _get_source_from_custom_sql(
         query,
         platform=data_platform,
         account=account,
-        query_id="",
+        query_id=table_id,
         default_database=database,
     )
 
@@ -198,7 +199,7 @@ class LineageProcessor:
 
             if physical_table.CustomSql:
                 source_entities, query = _get_source_from_custom_sql(
-                    self._resources, physical_table.CustomSql
+                    self._resources, table_id, physical_table.CustomSql
                 )
 
                 # CLL of custom sql is not supported

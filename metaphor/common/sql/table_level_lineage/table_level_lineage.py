@@ -1,5 +1,6 @@
 import logging
 import re
+import signal
 from collections import defaultdict
 from typing import Dict, Optional, Set
 
@@ -128,6 +129,10 @@ def _find_sources(expression: Expression) -> Set[Table]:
     return sources
 
 
+def _handle_parser_timeout(signum, frame):
+    raise TimeoutError("Parser timeout")
+
+
 def extract_table_level_lineage(
     sql: str,
     platform: DataPlatform,
@@ -137,18 +142,19 @@ def extract_table_level_lineage(
     default_database: Optional[str] = None,
     default_schema: Optional[str] = None,
 ) -> Result:
-
     if statement_type and statement_type.upper() not in _VALID_STATEMENT_TYPES:
         # No target, no TLL possible
         return Result()
 
+    signal.signal(signal.SIGALRM, _handle_parser_timeout)
+    signal.alarm(10)  # set timeout to 10 seconds
     try:
         expression: Expression = maybe_parse(
             sql, dialect=PLATFORM_TO_DIALECT.get(platform)
         )
     except (sqlglot.errors.ParseError, sqlglot.errors.TokenError):
         if not _is_truncated_insert_into_with_values(sql) and query_id:
-            logger.warning(f"Cannot parse sql with SQLGlot, query_id = {query_id}")
+            logger.warning(f"Cannot parse sql with query_id = {query_id}")
         return Result()
     except RecursionError:
         if query_id:
@@ -156,6 +162,12 @@ def extract_table_level_lineage(
                 f"Cannot parse sql with SQLGlot (max recursion level exceeded), query_id = {query_id}"
             )
         return Result()
+    except TimeoutError:
+        if query_id:
+            logger.warning(f"Parser timeout, query_id = {query_id}")
+        return Result()
+    finally:
+        signal.alarm(0)
 
     try:
         return Result(
