@@ -97,12 +97,12 @@ class QuickSightExtractor(BaseExtractor):
                 self._extract_virtual_view(data_set)
             except FunctionTimedOut:
                 logger.warning(
-                    f"Failed to extract virtual view from DataSet {data_set.Arn}"
+                    f"Timeout when extracting virtual view from DataSet {data_set.Arn}"
                 )
                 continue
 
             count += 1
-            if count % 1 == 0:
+            if count % 100 == 0:
                 logger.info(f"Parsed {count} virtual views")
 
         logger.info(f"Parsed {count} virtual views")
