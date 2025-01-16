@@ -1,8 +1,9 @@
 PRIVATE_LINK_SUFFIX = ".privatelink"
 SNOWFLAKE_HOST_SUFFIX = ".snowflakecomputing.com"
+SNOWFLAKE_DEFAULT_REGION = ".us-west-2"
 
 
-def normalize_snowflake_account(host: str) -> str:
+def normalize_snowflake_account(host: str, remove_default_region: bool = False) -> str:
     """
     Normalize different variations of Snowflake account.
     See https://docs.snowflake.com/en/user-guide/admin-account-identifier
@@ -16,6 +17,9 @@ def normalize_snowflake_account(host: str) -> str:
 
     # Strip PrivateLink suffix
     if host.endswith(PRIVATE_LINK_SUFFIX):
-        return host[: -len(PRIVATE_LINK_SUFFIX)]
+        host = host[: -len(PRIVATE_LINK_SUFFIX)]
+
+    if remove_default_region and host.endswith(SNOWFLAKE_DEFAULT_REGION):
+        host = host[: -len(SNOWFLAKE_DEFAULT_REGION)]
 
     return host

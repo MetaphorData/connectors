@@ -23,7 +23,7 @@
       "LastUpdatedTime": "2024-09-18 16:13:10.685000+08:00",
       "DataSourceParameters": {
         "SnowflakeParameters": {
-          "Host": "account.snowflakecomputing.com",
+          "Host": "account.us-west-2.snowflakecomputing.com",
           "Database": "ACME",
           "Warehouse": "COMPUTE_WH"
         }

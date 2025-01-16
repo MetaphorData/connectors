@@ -98,11 +98,19 @@ def get_account(data_source: DataSource) -> Optional[str]:
 
     if parameters.SnowflakeParameters:
         return (
-            normalize_snowflake_account(parameters.SnowflakeParameters.Host)
+            normalize_snowflake_account(parameters.SnowflakeParameters.Host, True)
             if parameters.SnowflakeParameters.Host
             else None
         )
 
     if parameters.SqlServerParameters:
         return parameters.SqlServerParameters.Host
+
     return None
+
+
+def get_id_from_arn(arn: str) -> str:
+    """
+    Extract id from arn (e.g. arn:aws:quicksight:us-west-2:1231048943:[dataset/dashboard/datasource]/xxx)
+    """
+    return arn.split("/")[-1]
