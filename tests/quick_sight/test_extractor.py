@@ -4,19 +4,33 @@ import pytest
 
 from metaphor.common.base_config import OutputConfig
 from metaphor.common.event_util import EventUtil
-from metaphor.quick_sight.config import AwsCredentials, QuickSightRunConfig
+from metaphor.quick_sight.config import (
+    AwsCredentials,
+    QuickSightFilter,
+    QuickSightRunConfig,
+)
 from metaphor.quick_sight.extractor import QuickSightExtractor
 from tests.test_utils import load_json
 
+dummy_config = QuickSightRunConfig(
+    aws=AwsCredentials(
+        access_key_id="key", secret_access_key="secret", region_name="region"
+    ),
+    aws_account_id="123",
+    output=OutputConfig(),
+)
 
-def dummy_config():
-    return QuickSightRunConfig(
-        aws=AwsCredentials(
-            access_key_id="key", secret_access_key="secret", region_name="region"
-        ),
-        aws_account_id="123",
-        output=OutputConfig(),
-    )
+
+config_with_filter = QuickSightRunConfig(
+    aws=AwsCredentials(
+        access_key_id="key", secret_access_key="secret", region_name="region"
+    ),
+    aws_account_id="123",
+    filter=QuickSightFilter(
+        include_dashboard_ids=["eb39c0d9-d071-43e6-b75a-cc303752b702"]
+    ),
+    output=OutputConfig(),
+)
 
 
 @patch("metaphor.quick_sight.client.create_quick_sight_client")
@@ -106,7 +120,12 @@ async def test_extractor(mock_create_client: MagicMock, test_root_dir: str):
     mock_client.describe_data_source = mock_describe_data_source
     mock_create_client.return_value = mock_client
 
-    extractor = QuickSightExtractor(dummy_config())
+    extractor = QuickSightExtractor(dummy_config)
     events = [EventUtil.trim_event(e) for e in await extractor.extract()]
 
     assert events == load_json(f"{test_root_dir}/quick_sight/expected.json")
+
+    extractor_with_filter = QuickSightExtractor(config_with_filter)
+    events = [EventUtil.trim_event(e) for e in await extractor_with_filter.extract()]
+
+    assert events == load_json(f"{test_root_dir}/quick_sight/expected_with_filter.json")

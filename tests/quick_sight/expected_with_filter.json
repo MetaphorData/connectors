@@ -1,0 +1,381 @@
+[
+  {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "total_minutes",
+          "sources": [
+            {
+              "field": "total_minutes",
+              "sourceEntityId": "VIRTUAL_VIEW~8664CF3991BE407B385522A9C0AA05B3"
+            }
+          ]
+        },
+        {
+          "destination": "start_station_name",
+          "sources": [
+            {
+              "field": "start_station_name",
+              "sourceEntityId": "VIRTUAL_VIEW~8664CF3991BE407B385522A9C0AA05B3"
+            }
+          ]
+        },
+        {
+          "destination": "month",
+          "sources": [
+            {
+              "field": "month",
+              "sourceEntityId": "VIRTUAL_VIEW~8664CF3991BE407B385522A9C0AA05B3"
+            }
+          ]
+        },
+        {
+          "destination": "start_station_id",
+          "sources": [
+            {
+              "field": "start_station_id",
+              "sourceEntityId": "VIRTUAL_VIEW~8664CF3991BE407B385522A9C0AA05B3"
+            }
+          ]
+        },
+        {
+          "destination": "docks_count",
+          "sources": [
+            {
+              "field": "docks_count",
+              "sourceEntityId": "VIRTUAL_VIEW~9427B43C5DB15C9C4FAD1EA70FEAE41B"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "VIRTUAL_VIEW~8664CF3991BE407B385522A9C0AA05B3",
+        "VIRTUAL_VIEW~9427B43C5DB15C9C4FAD1EA70FEAE41B"
+      ]
+    },
+    "id": "VIRTUAL_VIEW~D288BB7726CE69F66EB18C3AF1DD9FA7",
+    "logicalId": {
+      "name": "7c6a5c47-fbc7-4307-afd3-57f79864593e",
+      "type": "QUICK_SIGHT"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "DOCKS_COUNT",
+          "fieldPath": "docks_count",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "MONTH",
+          "fieldPath": "month",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "START_STATION_ID",
+          "fieldPath": "start_station_id",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "START_STATION_NAME",
+          "fieldPath": "start_station_name",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "TOTAL_MINUTES",
+          "fieldPath": "total_minutes",
+          "type": "DECIMAL"
+        }
+      ]
+    },
+    "sourceInfo": {
+      "createdAtSource": "2024-09-18T16:17:33.463000+08:00",
+      "lastUpdated": "2024-09-18T16:42:39.096000+08:00"
+    },
+    "structure": {
+      "directories": [
+        "DATA_SET"
+      ],
+      "name": "Bike data"
+    }
+  },
+  {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "docks_count",
+          "sources": []
+        },
+        {
+          "destination": "id",
+          "sources": []
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~83E8304683CD6C30CA41557A39C4DF25"
+      ]
+    },
+    "id": "VIRTUAL_VIEW~F908650C2FC967EE56C1FFBBF061089A",
+    "isNonProd": true,
+    "logicalId": {
+      "name": "1b016641-23c2-4b17-ab94-c773333bc76d",
+      "type": "QUICK_SIGHT"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "DOCKS_COUNT",
+          "fieldPath": "docks_count",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "ID",
+          "fieldPath": "id",
+          "type": "INTEGER"
+        }
+      ],
+      "query": {
+        "defaultDatabase": "ACME",
+        "query": "SELECT docks_count, id FROM RIDE_SHARE.RAW_BIKE_STATIONS",
+        "sourceDatasetAccount": "account",
+        "sourcePlatform": "SNOWFLAKE"
+      }
+    }
+  },
+  {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "total_minutes",
+          "sources": []
+        },
+        {
+          "destination": "start_station_name",
+          "sources": []
+        },
+        {
+          "destination": "month",
+          "sources": []
+        },
+        {
+          "destination": "start_station_id",
+          "sources": []
+        }
+      ],
+      "sourceEntities": [
+        "DATASET~E2EB9491F5BDD97D1591D2454917F450"
+      ]
+    },
+    "id": "VIRTUAL_VIEW~3DC76D1D06345542B062CFB396C26AE4",
+    "isNonProd": true,
+    "logicalId": {
+      "name": "2a463fad-08c9-4a63-9aab-a786f1b41752",
+      "type": "QUICK_SIGHT"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "MONTH",
+          "fieldPath": "month",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "START_STATION_ID",
+          "fieldPath": "start_station_id",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "START_STATION_NAME",
+          "fieldPath": "start_station_name",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "TOTAL_MINUTES",
+          "fieldPath": "total_minutes",
+          "type": "DECIMAL"
+        }
+      ],
+      "query": {
+        "defaultDatabase": "ACME",
+        "query": "SELECT total_minutes, start_station_name, month, start_station_id FROM RIDE_SHARE.CLEANED_BIKE_RIDES",
+        "sourceDatasetAccount": "account",
+        "sourcePlatform": "SNOWFLAKE"
+      }
+    }
+  },
+  {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "docks_count",
+          "sources": [
+            {
+              "field": "docks_count",
+              "sourceEntityId": "VIRTUAL_VIEW~F908650C2FC967EE56C1FFBBF061089A"
+            }
+          ]
+        },
+        {
+          "destination": "id",
+          "sources": [
+            {
+              "field": "id",
+              "sourceEntityId": "VIRTUAL_VIEW~F908650C2FC967EE56C1FFBBF061089A"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "VIRTUAL_VIEW~F908650C2FC967EE56C1FFBBF061089A"
+      ]
+    },
+    "id": "VIRTUAL_VIEW~9427B43C5DB15C9C4FAD1EA70FEAE41B",
+    "isNonProd": true,
+    "logicalId": {
+      "name": "12f0dcb4-ff96-4123-8568-00781596eb37",
+      "type": "QUICK_SIGHT"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "DOCKS_COUNT",
+          "fieldPath": "docks_count",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "ID",
+          "fieldPath": "id",
+          "type": "INTEGER"
+        }
+      ]
+    }
+  },
+  {
+    "entityUpstream": {
+      "fieldMappings": [
+        {
+          "destination": "total_minutes",
+          "sources": [
+            {
+              "field": "total_minutes",
+              "sourceEntityId": "VIRTUAL_VIEW~3DC76D1D06345542B062CFB396C26AE4"
+            }
+          ]
+        },
+        {
+          "destination": "start_station_name",
+          "sources": [
+            {
+              "field": "start_station_name",
+              "sourceEntityId": "VIRTUAL_VIEW~3DC76D1D06345542B062CFB396C26AE4"
+            }
+          ]
+        },
+        {
+          "destination": "month",
+          "sources": [
+            {
+              "field": "month",
+              "sourceEntityId": "VIRTUAL_VIEW~3DC76D1D06345542B062CFB396C26AE4"
+            }
+          ]
+        },
+        {
+          "destination": "start_station_id",
+          "sources": [
+            {
+              "field": "start_station_id",
+              "sourceEntityId": "VIRTUAL_VIEW~3DC76D1D06345542B062CFB396C26AE4"
+            }
+          ]
+        }
+      ],
+      "sourceEntities": [
+        "VIRTUAL_VIEW~3DC76D1D06345542B062CFB396C26AE4"
+      ]
+    },
+    "id": "VIRTUAL_VIEW~8664CF3991BE407B385522A9C0AA05B3",
+    "isNonProd": true,
+    "logicalId": {
+      "name": "82e644be-26ce-44a0-bbc9-95cc88e16a5c",
+      "type": "QUICK_SIGHT"
+    },
+    "schema": {
+      "fields": [
+        {
+          "fieldName": "MONTH",
+          "fieldPath": "month",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "START_STATION_ID",
+          "fieldPath": "start_station_id",
+          "type": "INTEGER"
+        },
+        {
+          "fieldName": "START_STATION_NAME",
+          "fieldPath": "start_station_name",
+          "type": "STRING"
+        },
+        {
+          "fieldName": "TOTAL_MINUTES",
+          "fieldPath": "total_minutes",
+          "type": "DECIMAL"
+        }
+      ]
+    }
+  },
+  {
+    "dashboardInfo": {
+      "charts": [
+        {
+          "chartType": "OTHER",
+          "title": "Relation between minutes and docks"
+        }
+      ],
+      "title": "Bike rides"
+    },
+    "entityUpstream": {
+      "sourceEntities": [
+        "VIRTUAL_VIEW~D288BB7726CE69F66EB18C3AF1DD9FA7"
+      ]
+    },
+    "logicalId": {
+      "dashboardId": "eb39c0d9-d071-43e6-b75a-cc303752b702",
+      "platform": "QUICK_SIGHT"
+    },
+    "sourceInfo": {
+      "createdAtSource": "2024-09-18T16:24:00.929000+08:00",
+      "lastUpdated": "2024-09-18T16:24:00.923000+08:00"
+    },
+    "structure": {
+      "directories": [
+        "DASHBOARD"
+      ],
+      "name": "Bike rides"
+    }
+  },
+  {
+    "hierarchyInfo": {
+      "name": "Dashboards",
+      "type": "VIRTUAL_HIERARCHY"
+    },
+    "logicalId": {
+      "path": [
+        "QUICK_SIGHT",
+        "DASHBOARD"
+      ]
+    }
+  },
+  {
+    "hierarchyInfo": {
+      "name": "DataSets",
+      "type": "VIRTUAL_HIERARCHY"
+    },
+    "logicalId": {
+      "path": [
+        "QUICK_SIGHT",
+        "DATA_SET"
+      ]
+    }
+  }
+]
