@@ -1,4 +1,4 @@
-from typing import Collection, Dict, List
+from typing import Collection, Dict, List, Optional
 
 from func_timeout import FunctionTimedOut, func_set_timeout
 
@@ -26,6 +26,7 @@ from metaphor.models.metadata_change_event import (
 )
 from metaphor.quick_sight.client import Client
 from metaphor.quick_sight.config import QuickSightRunConfig
+from metaphor.quick_sight.data_source_utils import get_id_from_arn
 from metaphor.quick_sight.folder import (
     DASHBOARD_DIRECTORIES,
     DATA_SET_DIRECTORIES,
@@ -55,10 +56,10 @@ class QuickSightExtractor(BaseExtractor):
         # Arn -> Resource
         self._resources: Dict[str, ResourceType] = {}
 
-        # Arn -> VirtualView
+        # DataSetId -> VirtualView
         self._virtual_views: Dict[str, VirtualView] = {}
 
-        # Arn -> Dashboard
+        # DashboardId -> Dashboard
         self._dashboards: Dict[str, MetaphorDashboard] = {}
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
@@ -74,8 +75,7 @@ class QuickSightExtractor(BaseExtractor):
 
     @func_set_timeout(20)
     def _extract_virtual_view(self, data_set: DataSet) -> None:
-        assert data_set.Arn
-        view = self._init_virtual_view(data_set.Arn, data_set)
+        view = self._init_virtual_view(data_set)
         output_logical_table_id = LineageProcessor(
             self._resources, self._virtual_views, data_set
         ).run()
@@ -90,7 +90,7 @@ class QuickSightExtractor(BaseExtractor):
     def _extract_virtual_views(self):
         count = 0
         for data_set in self._resources.values():
-            if not isinstance(data_set, DataSet) or data_set.Arn is None:
+            if not isinstance(data_set, DataSet):
                 continue
 
             try:
@@ -110,14 +110,10 @@ class QuickSightExtractor(BaseExtractor):
     def _extract_dashboards(self) -> None:
         count = 0
         for dashboard in self._resources.values():
-            if (
-                not isinstance(dashboard, Dashboard)
-                or dashboard.Arn is None
-                or dashboard.Version is None
-            ):
+            if not isinstance(dashboard, Dashboard) or dashboard.Version is None:
                 continue
 
-            metaphor_dashboard = self._init_dashboard(dashboard.Arn, dashboard)
+            metaphor_dashboard = self._init_dashboard(dashboard)
             metaphor_dashboard.entity_upstream = self._get_dashboard_upstream(
                 dataset_arns=dashboard.Version.DataSetArns or []
             )
@@ -135,10 +131,13 @@ class QuickSightExtractor(BaseExtractor):
         entities.extend(create_top_level_folders())
         return entities
 
-    def _init_virtual_view(self, arn: str, data_set: DataSet) -> VirtualView:
+    def _init_virtual_view(self, data_set: DataSet) -> VirtualView:
+        data_set_id = data_set.DataSetId
+        assert data_set_id
+
         view = VirtualView(
             logical_id=VirtualViewLogicalID(
-                name=arn,
+                name=data_set_id,
                 type=VirtualViewType.QUICK_SIGHT,
             ),
             structure=AssetStructure(
@@ -150,16 +149,17 @@ class QuickSightExtractor(BaseExtractor):
             ),
         )
 
-        self._virtual_views[arn] = view
-
+        self._virtual_views[data_set_id] = view
         return view
 
-    def _init_dashboard(self, arn: str, dashboard: Dashboard) -> MetaphorDashboard:
+    def _init_dashboard(self, dashboard: Dashboard) -> MetaphorDashboard:
+        dashboard_id = dashboard.DashboardId
+        assert dashboard_id
         assert dashboard.Version
 
         metaphor_dashboard = MetaphorDashboard(
             logical_id=MetaphorDashboardLogicalId(
-                dashboard_id=arn,
+                dashboard_id=dashboard_id,
                 platform=MetaphorDashboardPlatform.QUICK_SIGHT,
             ),
             source_info=SourceInfo(
@@ -187,21 +187,26 @@ class QuickSightExtractor(BaseExtractor):
             ],
         )
 
-        self._dashboards[arn] = metaphor_dashboard
-
+        self._dashboards[dashboard_id] = metaphor_dashboard
         return metaphor_dashboard
 
-    def _get_dashboard_upstream(self, dataset_arns: List[str]) -> EntityUpstream:
+    def _get_dashboard_upstream(
+        self, dataset_arns: List[str]
+    ) -> Optional[EntityUpstream]:
         source_entities: List[str] = []
 
         for arn in dataset_arns:
-            virtual_view = self._virtual_views.get(arn)
+            dataset_id = get_id_from_arn(arn)
+            virtual_view = self._virtual_views.get(dataset_id)
             if not virtual_view:
+                logger.warning(f"Virtual view not found for dataset {dataset_id}")
                 continue
+
             source_entities.append(
                 str(to_entity_id_from_virtual_view_logical_id(virtual_view.logical_id))
             )
 
-        return EntityUpstream(
-            source_entities=(unique_list(source_entities) if source_entities else None)
-        )
+        if not source_entities:
+            return None
+
+        return EntityUpstream(source_entities=(unique_list(source_entities)))
