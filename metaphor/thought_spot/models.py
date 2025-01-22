@@ -229,14 +229,22 @@ class TMLColumn(BaseModel):
     formula_id: Optional[str] = None
 
 
+# https://docs.thoughtspot.com/cloud/latest/tml-worksheets
 class TMLWorksheet(TMLBase):
     worksheet_columns: List[TMLColumn]
 
 
+# https://docs.thoughtspot.com/cloud/latest/tml-views
 class TMLView(TMLBase):
     view_columns: List[TMLColumn]
 
 
+# https://docs.thoughtspot.com/cloud/latest/tml-models
+class TMLModel(TMLBase):
+    columns: List[TMLColumn]
+
+
+# https://docs.thoughtspot.com/cloud/latest/tml-tables
 class TMLTable(BaseModel):
     name: str
     id: Optional[str] = None
@@ -247,6 +255,7 @@ class TMLAnswerTableObject(BaseModel):
     ordered_column_ids: List[str] = Field(default_factory=list)
 
 
+# https://docs.thoughtspot.com/cloud/latest/tml-answers
 class TMLAnswer(TMLBase):
     tables: List[TMLTable]
     table: TMLAnswerTableObject
@@ -256,4 +265,5 @@ class TMLObject(BaseModel):
     guid: str
     worksheet: Optional[TMLWorksheet] = None
     view: Optional[TMLView] = None
+    model: Optional[TMLModel] = None
     answer: Optional[TMLAnswer] = None
