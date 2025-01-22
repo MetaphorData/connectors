@@ -270,8 +270,12 @@ class ThoughtSpotExtractor(BaseExtractor):
         elif tml.view:
             formula_map = build_formula_map(tml.view)
             columns = tml.view.view_columns
+        elif tml.model:
+            formula_map = build_formula_map(tml.model)
+            columns = tml.model.columns
         else:
-            return
+            logger.warning(f"Unknown TML object type: {tml}")
+            return {}
 
         expr_map = {}
         for column in columns:
