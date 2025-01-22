@@ -1,4 +1,4 @@
-from typing import Collection, Dict, List, Optional
+from typing import Collection, Dict, List, Optional, Set
 
 from func_timeout import FunctionTimedOut, func_set_timeout
 
@@ -52,6 +52,7 @@ class QuickSightExtractor(BaseExtractor):
         super().__init__(config)
         self._aws_config = config.aws
         self._aws_account_id = config.aws_account_id
+        self._filter = config.filter
 
         # Arn -> Resource
         self._resources: Dict[str, ResourceType] = {}
@@ -61,6 +62,12 @@ class QuickSightExtractor(BaseExtractor):
 
         # DashboardId -> Dashboard
         self._dashboards: Dict[str, MetaphorDashboard] = {}
+
+        # VirtualViewId -> VirtualView
+        self._virtual_view_reference: Dict[str, VirtualView] = {}
+
+        # Set of virtual view IDs that are referenced by dashboards
+        self._referenced_virtual_views: Set[str] = set()
 
     async def extract(self) -> Collection[ENTITY_TYPES]:
         logger.info("Fetching metadata from QuickSight")
@@ -87,7 +94,7 @@ class QuickSightExtractor(BaseExtractor):
             view.entity_upstream = output.entity_upstream
             self._virtual_views.pop(output_logical_table_id)
 
-    def _extract_virtual_views(self):
+    def _extract_virtual_views(self) -> None:
         count = 0
         for data_set in self._resources.values():
             if not isinstance(data_set, DataSet):
@@ -107,10 +114,38 @@ class QuickSightExtractor(BaseExtractor):
 
         logger.info(f"Parsed {count} virtual views")
 
+        # Create a reference map of metaphor virtual view ID -> virtual views
+        for virtual_view in self._virtual_views.values():
+            assert virtual_view.virtual_view_id
+            self._virtual_view_reference[virtual_view.virtual_view_id] = virtual_view
+
+    def _include_dashboard(self, dashboard_id: str) -> bool:
+        """
+        Check if the dashboard should be included based on the filter
+        """
+        if (
+            self._filter.include_dashboard_ids
+            and dashboard_id not in self._filter.include_dashboard_ids
+        ):
+            return False
+
+        if (
+            self._filter.exclude_dashboard_ids
+            and dashboard_id in self._filter.exclude_dashboard_ids
+        ):
+            return False
+
+        return True
+
     def _extract_dashboards(self) -> None:
         count = 0
         for dashboard in self._resources.values():
             if not isinstance(dashboard, Dashboard) or dashboard.Version is None:
+                continue
+
+            if not dashboard.DashboardId or not self._include_dashboard(
+                dashboard.DashboardId
+            ):
                 continue
 
             metaphor_dashboard = self._init_dashboard(dashboard)
@@ -124,9 +159,27 @@ class QuickSightExtractor(BaseExtractor):
 
         logger.info(f"Parsed {count} dashboards")
 
+    def _include_virtual_view(self, virtual_view_id: str) -> bool:
+        """
+        Check if the virtual view should be included in the final output.
+        If the filter is set, only include virtual views that are referenced by dashboards,
+        Otherwise, include all virtual views
+        """
+        if self._filter.include_dashboard_ids or self._filter.exclude_dashboard_ids:
+            return virtual_view_id in self._referenced_virtual_views
+        return True
+
     def _make_entities_list(self) -> Collection[ENTITY_TYPES]:
         entities: List[ENTITY_TYPES] = []
-        entities.extend(self._virtual_views.values())
+        # Only include virtual views that are referenced by dashboards
+        entities.extend(
+            [
+                view
+                for view in self._virtual_views.values()
+                if view.virtual_view_id
+                and self._include_virtual_view(view.virtual_view_id)
+            ]
+        )
         entities.extend(self._dashboards.values())
         entities.extend(create_top_level_folders())
         return entities
@@ -135,11 +188,14 @@ class QuickSightExtractor(BaseExtractor):
         data_set_id = data_set.DataSetId
         assert data_set_id
 
+        logical_id = VirtualViewLogicalID(
+            name=data_set_id,
+            type=VirtualViewType.QUICK_SIGHT,
+        )
+
         view = VirtualView(
-            logical_id=VirtualViewLogicalID(
-                name=data_set_id,
-                type=VirtualViewType.QUICK_SIGHT,
-            ),
+            logical_id=logical_id,
+            virtual_view_id=str(to_entity_id_from_virtual_view_logical_id(logical_id)),
             structure=AssetStructure(
                 name=data_set.Name, directories=DATA_SET_DIRECTORIES
             ),
@@ -193,20 +249,36 @@ class QuickSightExtractor(BaseExtractor):
     def _get_dashboard_upstream(
         self, dataset_arns: List[str]
     ) -> Optional[EntityUpstream]:
-        source_entities: List[str] = []
+        source_entities = []
 
         for arn in dataset_arns:
             dataset_id = get_id_from_arn(arn)
             virtual_view = self._virtual_views.get(dataset_id)
-            if not virtual_view:
+            if not virtual_view or not virtual_view.virtual_view_id:
                 logger.warning(f"Virtual view not found for dataset {dataset_id}")
                 continue
 
-            source_entities.append(
-                str(to_entity_id_from_virtual_view_logical_id(virtual_view.logical_id))
-            )
+            source_entities.append(virtual_view.virtual_view_id)
+            self._mark_virtual_view_as_referenced(virtual_view)
 
         if not source_entities:
             return None
 
         return EntityUpstream(source_entities=(unique_list(source_entities)))
+
+    def _mark_virtual_view_as_referenced(self, virtual_view: VirtualView) -> None:
+        """
+        Recursively mark a virtual view as referenced by dashboards
+        """
+        assert virtual_view.virtual_view_id
+        if virtual_view.virtual_view_id in self._referenced_virtual_views:
+            return
+
+        self._referenced_virtual_views.add(virtual_view.virtual_view_id)
+
+        if virtual_view.entity_upstream:
+            for upstream in virtual_view.entity_upstream.source_entities or []:
+                if upstream in self._virtual_view_reference:
+                    self._mark_virtual_view_as_referenced(
+                        self._virtual_view_reference[upstream]
+                    )

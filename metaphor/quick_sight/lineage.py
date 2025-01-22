@@ -166,11 +166,15 @@ class LineageProcessor:
         if table_id in self._virtual_views:
             return self._virtual_views[table_id]
 
+        logical_id = VirtualViewLogicalID(
+            name=table_id,
+            type=VirtualViewType.QUICK_SIGHT,
+        )
+        virtual_view_id = str(to_entity_id_from_virtual_view_logical_id(logical_id))
         view = VirtualView(
-            logical_id=VirtualViewLogicalID(
-                name=table_id,
-                type=VirtualViewType.QUICK_SIGHT,
-            ),
+            virtual_view_id=virtual_view_id,
+            logical_id=logical_id,
+            is_non_prod=True,  # set as non-prod to indicate incomplete metadata
         )
 
         self._virtual_views[table_id] = view

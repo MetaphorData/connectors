@@ -57,6 +57,22 @@ aws_account_id: <quick_aws_account_id>
 
 ### Optional Configurations
 
+#### Dashboard Filter
+
+You can optionally specify a list of dashboard IDs to include or exclude in the output.
+
+```yaml
+filter:
+  include_dashboard_ids:
+    - <dashboard_id_1>
+    - <dashboard_id_2>
+  exclude_dashboard_ids:
+    - <dashboard_id_3>
+    - <dashboard_id_4>
+```
+
+If the filter is set, only the dashboards specified in the filter and the associated data sets will be included in the output. Otherwise, all dashboards and data sets will be included.
+
 #### Output Destination
 
 See [Output Config](../common/docs/output.md) for more information.
