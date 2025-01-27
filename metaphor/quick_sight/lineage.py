@@ -186,6 +186,9 @@ class LineageProcessor:
         physical_table_map: Dict[str, DataSetPhysicalTable],
     ) -> None:
         for table_id, physical_table in physical_table_map.items():
+            view = self._init_virtual_view(table_id)
+            tables[table_id] = {}
+
             column_lineage: TypeColumnMap = {}
             source_entities: List[str] = []
             query: Optional[VirtualViewQuery] = None
@@ -226,7 +229,6 @@ class LineageProcessor:
                     physical_table.S3Source.InputColumns
                 )
 
-            view = self._init_virtual_view(table_id)
             view.entity_upstream = self._extract_virtual_view_upstream(
                 column_lineage, source_entities
             )
@@ -327,7 +329,7 @@ class LineageProcessor:
                     upstream_id = self._entity_id(source.PhysicalTableId)
                     source_entities.append(upstream_id)
 
-                    if upstream_table:
+                    if upstream_table is not None:
                         column_lineage.update(
                             **self._replace_upstream_id(upstream_table, upstream_id)
                         )
