@@ -1,4 +1,3 @@
-from dataclasses import field
 from typing import List, Optional
 
 from pydantic.dataclasses import dataclass
@@ -21,9 +20,5 @@ class MonteCarloRunConfig(BaseConfig):
     # Number of days to look back for anomalies
     anomalies_lookback_days = 30
 
-    # Errors to be ignored, e.g. timeouts
-    ignored_errors: List[str] = field(
-        default_factory=lambda: [
-            "Monitor timed out",
-        ]
-    )
+    # Deprecated. Not used anymore
+    ignored_errors: Optional[List[str]] = None

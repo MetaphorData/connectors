@@ -1,4 +1,3 @@
-import re
 from datetime import datetime, timedelta
 from typing import Collection, Dict, List
 
@@ -39,23 +38,19 @@ monitors_base_url = "https://getmontecarlo.com/monitors"
 alerts_base_url = "https://getmontecarlo.com/alerts"
 
 
-monitor_status_map = {
-    "SNOOZED": DataMonitorStatus.UNKNOWN,
-    "PAUSE": DataMonitorStatus.UNKNOWN,
-    "SUCCESS": DataMonitorStatus.PASSED,
-    "ERROR": DataMonitorStatus.ERROR,
-    "IN_PROGRESS": DataMonitorStatus.UNKNOWN,
-    "NO_STATUS": DataMonitorStatus.UNKNOWN,
-    "MISCONFIGURED": DataMonitorStatus.ERROR,
-    "IN_TRAINING": DataMonitorStatus.UNKNOWN,
+# https://apidocs.getmontecarlo.com/#definition-MonitorBreachType
+monitor_breached_map = {
+    "BREACHED": DataMonitorStatus.ERROR,
+    "NOT_BREACHED": DataMonitorStatus.PASSED,
 }
 
-monitor_severity_map = {
+monitor_priority_map = {
     "P1": DataMonitorSeverity.HIGH,
     "P2": DataMonitorSeverity.MEDIUM,
     "P3": DataMonitorSeverity.LOW,
 }
 
+# https://apidocs.getmontecarlo.com/#definition-Severity
 alert_severity_map = {
     "SEV_1": DataMonitorSeverity.HIGH,
     "SEV_2": DataMonitorSeverity.MEDIUM,
@@ -87,7 +82,6 @@ class MonteCarloExtractor(BaseExtractor):
             if config.snowflake_account
             else None
         )
-        self._ignored_errors = config.ignored_errors
 
         self._treat_unhandled_anomalies_as_errors = (
             config.treat_unhandled_anomalies_as_errors
@@ -126,14 +120,14 @@ class MonteCarloExtractor(BaseExtractor):
         while True:
             resp = self._client(
                 """
-                query getMonitors($offset: Int, $limit: Int) {
-                  getMonitors(offset: $offset, limit: $limit) {
+                query getMonitors($offset: Int, $limit: Int, $consolidatedStatusTypes: [ConsolidatedMonitorStatusType]) {
+                  getMonitors(offset: $offset, limit: $limit, consolidatedStatusTypes: $consolidatedStatusTypes) {
                     uuid
                     name
                     description
                     entityMcons
                     priority
-                    monitorStatus
+                    breached
                     monitorFields
                     creatorId
                     prevExecutionTime
@@ -141,7 +135,11 @@ class MonteCarloExtractor(BaseExtractor):
                   }
                 }
                 """,
-                {"offset": offset, "limit": limit},
+                {
+                    "offset": offset,
+                    "limit": limit,
+                    "consolidatedStatusTypes": ["ENABLED"],
+                },
             )
 
             logger.info(f"Querying getMonitors with offset {offset}")
@@ -286,20 +284,20 @@ class MonteCarloExtractor(BaseExtractor):
     def _parse_monitors(self, monitors) -> None:
         for monitor in monitors:
             uuid = monitor["uuid"]
-            monitor_severity = monitor_severity_map.get(
-                monitor["priority"], DataMonitorSeverity.UNKNOWN
+
+            monitor_status = monitor_breached_map.get(
+                monitor["breached"], DataMonitorStatus.UNKNOWN
             )
 
-            # MC monitor exceptions is a single string
-            exceptions = (
-                [monitor["exceptions"]] if monitor["exceptions"] is not None else None
+            monitor_severity = monitor_priority_map.get(
+                monitor["priority"], DataMonitorSeverity.UNKNOWN
             )
 
             data_monitor = DataMonitor(
                 title=monitor["name"],
                 description=monitor["description"],
                 owner=monitor["creatorId"],
-                status=self._parse_monitor_status(monitor),
+                status=monitor_status,
                 severity=monitor_severity,
                 url=f"{monitors_base_url}/{uuid}",
                 last_run=safe_parse_ISO8601(monitor["prevExecutionTime"]),
@@ -307,7 +305,6 @@ class MonteCarloExtractor(BaseExtractor):
                     DataMonitorTarget(column=field.upper())
                     for field in monitor["monitorFields"] or []
                 ],
-                exceptions=exceptions,
             )
 
             if monitor["entityMcons"] is None:
@@ -369,22 +366,6 @@ class MonteCarloExtractor(BaseExtractor):
                 name = self._extract_dataset_name(mcon)
                 dataset = self._init_dataset(name, platform)
                 dataset.data_quality.monitors.append(data_monitor)
-
-    def _parse_monitor_status(self, monitor: Dict):
-        status = monitor_status_map.get(
-            monitor["monitorStatus"], DataMonitorStatus.UNKNOWN
-        )
-
-        # Change status to UNKNOWN if the error message is to be ignored
-        message = (
-            monitor.get("exceptions", "") or ""
-        )  # monitor["exceptions"] is default to None
-        if status == DataMonitorStatus.ERROR:
-            for ignored_error in self._ignored_errors:
-                if re.match(ignored_error, message) is not None:
-                    return DataMonitorStatus.UNKNOWN
-
-        return status
 
     @staticmethod
     def _extract_dataset_name(mcon: str) -> str:
