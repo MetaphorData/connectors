@@ -67,11 +67,10 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                         "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test1"
                     ],
                     "priority": "P1",
-                    "monitorStatus": "MISCONFIGURED",
+                    "breached": "BREACHED",
                     "monitorFields": None,
                     "creatorId": "yi@metaphor.io",
                     "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
-                    "exceptions": None,
                 },
                 {
                     "uuid": "ce4c4568-35f4-4365-a6fe-95f233fcf6c3",
@@ -81,11 +80,10 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                         "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test2"
                     ],
                     "priority": "P2",
-                    "monitorStatus": "SUCCESS",
+                    "breached": "NOT_BREACHED",
                     "monitorFields": ["foo", "bar"],
                     "creatorId": "yi@metaphor.io",
                     "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
-                    "exceptions": None,
                 },
                 {
                     "uuid": "2c156c8d-ab4a-432f-b8bb-f9ea9f31ed3d",
@@ -95,11 +93,10 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                         "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test3"
                     ],
                     "priority": "P3",
-                    "monitorStatus": "ERROR",
+                    "breached": "BREACHED",
                     "monitorFields": None,
                     "creatorId": "yi@metaphor.io",
                     "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
-                    "exceptions": None,
                 },
                 {
                     "uuid": "d14af7d8-6342-420a-bb09-5805fad677f1",
@@ -109,8 +106,7 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                         "MCON++6418a1e2-9718-4413-9d2b-6a354e01ddf8++a19e22b4-7659-4064-8fd4-8d6122fabe1c++table++db:metaphor.test4"
                     ],
                     "priority": None,
-                    "monitorStatus": "ERROR",
-                    "exceptions": "Oh no",
+                    "breached": "BREACHED",
                     "monitorFields": None,
                     "creatorId": "yi@metaphor.io",
                     "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
@@ -122,8 +118,7 @@ async def test_extractor(mock_pycarlo_client: MagicMock, test_root_dir: str):
                     "entities": None,
                     "entityMcons": None,
                     "priority": None,
-                    "monitorStatus": "ERROR",
-                    "exceptions": "No entity, this exception is ignored",
+                    "breached": "BREACHED",
                     "monitorFields": None,
                     "creatorId": "yi@metaphor.io",
                     "prevExecutionTime": "2023-06-23T03:54:35.817000+00:00",
