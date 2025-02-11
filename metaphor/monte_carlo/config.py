@@ -18,7 +18,7 @@ class MonteCarloRunConfig(BaseConfig):
     treat_unhandled_anomalies_as_errors: bool = False
 
     # Number of days to look back for anomalies
-    anomalies_lookback_days = 30
+    anomalies_lookback_days: int = 30
 
     # Deprecated. Not used anymore
     ignored_errors: Optional[List[str]] = None
