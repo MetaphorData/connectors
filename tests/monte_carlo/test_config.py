@@ -11,5 +11,6 @@ def test_yaml_config(test_root_dir):
         api_key_id="key_id",
         api_key_secret="key_secret",
         treat_unhandled_anomalies_as_errors=True,
+        anomalies_lookback_days=1,
         output=OutputConfig(),
     )

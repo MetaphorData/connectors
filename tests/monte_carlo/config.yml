@@ -2,4 +2,5 @@
 api_key_id: key_id
 api_key_secret: key_secret
 treat_unhandled_anomalies_as_errors: true
+anomalies_lookback_days: 1
 output: {}
