@@ -9,9 +9,9 @@ database_defaults:
     default_schema: SCH2
 filter:
   includes:
-    - a
-    - b/c
+    - 2
+    - 3/6
   excludes:
-    - a/1
-    - b/c/d
+    - 2/130
+    - 2/133/134/135
 output: {}

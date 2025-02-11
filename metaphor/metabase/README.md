@@ -7,8 +7,9 @@ This connector extracts technical metadata from Metabase using [Metabase API](ht
 In order to fetch dashboards, charts and lineage information, an Administrator user and credential is needed. We recommend creating a dedicated Metabase user and role for the connector to use. The reason we need Administrator permission is to read the database details, so we can link charts to upstream dataset entities in Metaphor. Without Administrator permission, the connector can still be run and fetch dashboards and charts, without upstream lineage information.
 
 To create a new Metabase user:
+
 1. Log into Metabase as an Administrator.
-2. Go to `People` tab, click `Create Users`, fill out the name and email, and choose `Admin` group. An email should be sent to the user. 
+2. Go to `People` tab, click `Create Users`, fill out the name and email, and choose `Admin` group. An email should be sent to the user.
 3. Follow the URL link in the email to activate user and password, and login to metabase.
 
 ## Config File
@@ -48,17 +49,17 @@ To specify the directories to include / exclude, use the following field:
 ```yaml
 filter:
   includes:
-    - top_level_directory
-    - directory/sub_directory
+    - top_level_directory_id
+    - directory_id/sub_directory_id
     ...
   excludes:
-    - top_level_directory2
-    - directory/sub_directory2/sub_sub_dir
+    - top_level_directory_id2
+    - directory_id/sub_directory_id2
     ...
 ```
 
 To only include specific paths, use `includes` field. To only exclude certain paths, use `excludes` field.
-
+> NOTE: Only directory IDs (integers such as `133`, `3/133/134`), not names, should be used in the `includes` and `excludes` fields. You can get the directory ID from the Metabase directory URL. For example, the directory ID of `https://metaphor.metabaseapp.com/collection/133-acme` is `133`.
 
 ## Testing
 
