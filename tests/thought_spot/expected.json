@@ -268,7 +268,7 @@
       "dashboardType": "THOUGHT_SPOT_ANSWER",
       "description": "This is answer1",
       "thoughtSpot": {
-        "isVerified": false,
+        "isVerified": true,
         "type": "ANSWER"
       },
       "title": "Answer 1"
@@ -322,6 +322,10 @@
         {
           "systemTagSource": "THOUGHT_SPOT",
           "value": "tag2"
+        },
+        {
+          "systemTagSource": "THOUGHT_SPOT",
+          "value": "Verified"
         }
       ]
     }

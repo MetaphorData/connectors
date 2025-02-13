@@ -203,6 +203,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 field_mappings.append(field_mapping)
 
             url = f"{self._base_url}/#/data/tables/{table_id}"
+            is_verified = table.metadata_header.isVerified
 
             view = VirtualView(
                 logical_id=VirtualViewLogicalID(
@@ -226,12 +227,14 @@ class ThoughtSpotExtractor(BaseExtractor):
                     description=table_detail.header.description,
                     type=table_type,
                     url=url,
-                    is_verified=table.metadata_header.isVerified,
+                    is_verified=is_verified,
                 ),
                 entity_upstream=EntityUpstream(
                     field_mappings=field_mappings if field_mappings else None
                 ),
-                system_tags=self._get_system_tags(table_detail.header.tags),
+                system_tags=self._get_system_tags(
+                    table_detail.header.tags, is_verified
+                ),
                 source_info=SourceInfo(main_url=url),
             )
             self._virtual_views[table_id] = view
@@ -522,6 +525,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 for viz in sheet.sheetContent.visualizations
                 if viz.vizContent.vizType == "CHART"
             ]
+            is_verified = answer.metadata_header.isVerified
 
             dashboard = Dashboard(
                 logical_id=DashboardLogicalID(
@@ -540,14 +544,14 @@ class ThoughtSpotExtractor(BaseExtractor):
                     ),
                     thought_spot=ThoughtSpotInfo(
                         type=ThoughtSpotDashboardType.ANSWER,
-                        is_verified=answer.metadata_header.isVerified,
+                        is_verified=is_verified,
                     ),
                     dashboard_type=DashboardType.THOUGHT_SPOT_ANSWER,
                 ),
                 source_info=SourceInfo(
                     main_url=f"{self._base_url}/#/saved-answer/{answer_id}",
                 ),
-                system_tags=self._get_system_tags(detail.header.tags),
+                system_tags=self._get_system_tags(detail.header.tags, is_verified),
             )
 
             self._dashboards[answer_id] = dashboard
@@ -652,6 +656,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                 if viz.vizContent.vizType == "CHART"
             ]
 
+            is_verified = board.metadata_header.isVerified
             source_entities = self._populate_source_virtual_views(visualizations)
 
             dashboard = Dashboard(
@@ -672,7 +677,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                     thought_spot=ThoughtSpotInfo(
                         type=ThoughtSpotDashboardType.LIVEBOARD,
                         embed_url=f"{self._base_url}/#/embed/viz/{board_id}",
-                        is_verified=board.metadata_header.isVerified,
+                        is_verified=is_verified,
                     ),
                     dashboard_type=DashboardType.THOUGHT_SPOT_LIVEBOARD,
                 ),
@@ -685,7 +690,7 @@ class ThoughtSpotExtractor(BaseExtractor):
                         visualizations
                     ),
                 ),
-                system_tags=self._get_system_tags(detail.header.tags),
+                system_tags=self._get_system_tags(detail.header.tags, is_verified),
             )
 
             self._dashboards[board_id] = dashboard
@@ -758,7 +763,10 @@ class ThoughtSpotExtractor(BaseExtractor):
         return [f for f in field_mappings if f.sources] or None
 
     @staticmethod
-    def _get_system_tags(tags: List[Tag]) -> Optional[SystemTags]:
+    def _get_system_tags(tags: List[Tag], is_verified: bool) -> Optional[SystemTags]:
+        """
+        Convert thoughtspot tags to system tags, also add "Verified" system tag if applicable
+        """
         system_tags = [
             SystemTag(
                 key=None,
@@ -768,5 +776,14 @@ class ThoughtSpotExtractor(BaseExtractor):
             for tag in tags
             if not (tag.isDeleted or tag.isHidden or tag.isDeprecated)
         ]
+
+        if is_verified:
+            system_tags.append(
+                SystemTag(
+                    key=None,
+                    system_tag_source=SystemTagSource.THOUGHT_SPOT,
+                    value="Verified",
+                )
+            )
 
         return SystemTags(tags=system_tags)
