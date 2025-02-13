@@ -289,7 +289,7 @@ class MetabaseExtractor(BaseExtractor):
             else None
         )
 
-        dashboard = Dashboard(
+        self._dashboards[dashboard_id] = Dashboard(
             logical_id=DashboardLogicalID(
                 dashboard_id=str(dashboard_id), platform=DashboardPlatform.METABASE
             ),
@@ -301,8 +301,6 @@ class MetabaseExtractor(BaseExtractor):
             source_info=source_info,
             entity_upstream=entity_upstream,
         )
-
-        self._dashboards[dashboard_id] = dashboard
 
     def _parse_chart(self, card: Dict) -> Optional[ChartInfo]:
         if "id" not in card or "name" not in card:

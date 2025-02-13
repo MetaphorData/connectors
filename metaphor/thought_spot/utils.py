@@ -251,8 +251,12 @@ class ThoughtSpot:
     def fetch_answer_sql(cls, client: TSRestApiV2, answer_id: str) -> Optional[str]:
         logger.info(f"Fetching answer sql for id: {answer_id}")
 
-        response = client.metadata_answer_sql(answer_id)
-        json_dump_to_debug_file(response, f"answer_sql__{answer_id}.json")
+        try:
+            response = client.metadata_answer_sql(answer_id)
+            json_dump_to_debug_file(response, f"answer_sql__{answer_id}.json")
+        except Exception as e:
+            logger.error(f"Error fetching answer sql for id: {answer_id}, error: {e}")
+            return None
 
         if "sql_queries" in response:
             sql_queries = response["sql_queries"]
